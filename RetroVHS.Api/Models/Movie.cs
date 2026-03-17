@@ -123,4 +123,16 @@ public class Movie
     /// Alla uthyrningar av filmen
     /// </summary>
     public ICollection<Rental> Rentals { get; set; } = new List<Rental>();
+
+    /// <summary>
+    /// Språk filmen är på
+    /// </summary>
+    [StringLength(50)]
+    public string? Language { get; set; }
+
+    /// <summary>
+    /// Ursprungsland för filmen
+    /// </summary>
+    [StringLength(100)]
+    public string? Country { get; set; }
 }
