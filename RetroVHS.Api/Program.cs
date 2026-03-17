@@ -116,6 +116,23 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // =========================
+// Automatisk migrering och seedning vid appstart
+// =========================
+// Vi ser till att databasen alltid uppdateras till senaste migration
+// när applikationen startar. Därefter kan vi köra seedning av grunddata.
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    var dbContext = services.GetRequiredService<ApplicationDbContext>();
+    await dbContext.Database.MigrateAsync();
+    await DbSeeder.SeedAsync(services);
+
+    // Seedning lägger vi in här i nästa steg
+    // await DbSeeder.SeedAsync(services);
+}
+
+// =========================
 // Middleware pipeline
 // =========================
 if (app.Environment.IsDevelopment())
