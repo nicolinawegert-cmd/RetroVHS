@@ -1,0 +1,133 @@
+# ============================================
+# Build outputs and artifacts
+# ============================================
+**/bin/
+**/obj/
+**/Debug/
+**/Release/
+*.dll
+*.exe
+*.pdb
+*.nupkg
+*.snupkg
+dist/
+build/
+
+# ============================================
+# IDE and Editor files
+# ============================================
+# Visual Studio 2022
+.vs/
+.vscode/
+*.sln.iml
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.idea/
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Rider
+.idea/
+*.sln.iml
+riderModule.iml
+
+# ============================================
+# Configuration and secrets
+# ============================================
+appsettings.Development.json
+appsettings.Local.json
+.env
+.env.local
+.env.*.local
+secrets.json
+launchSettings.json.local
+
+# ============================================
+# Database and temporary files
+# ============================================
+*.db
+*.sqlite
+*.sqlite3
+*.mdb
+*.ldb
+*.log
+*.log.*
+Thumbs.db
+
+# ============================================
+# Operating system files
+# ============================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.directory
+.Trash-*
+
+# ============================================
+# Node and NPM (if adding frontend tools)
+# ============================================
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# ============================================
+# Code coverage and testing
+# ============================================
+coverage/
+.coverage/
+*.trx
+TestResults/
+**/CodeCoverage/
+
+# ============================================
+# NuGet
+# ============================================
+.nuget/
+*.nupkg
+*.snupkg
+*.symbols.nupkg
+packages/
+.nupkg/
+nuget.config.local
+
+# ============================================
+# Backup and temporary files
+# ============================================
+*.bak
+*.tmp
+*.temp
+~*
+*~
+*.swp
+*.swo
+*.swn
+.tmp/
+
+# ============================================
+# Build-related
+# ============================================
+.vscode/bin/
+.vscode/obj/
+artifacts/
+publish/
