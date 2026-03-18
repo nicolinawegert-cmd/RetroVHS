@@ -86,4 +86,10 @@ public class ApplicationUser : IdentityUser<int>
     /// Vi bygger kanske Cart senare, men det är bra att ha med kopplingen redan nu.
     /// </summary>
     public ICollection<Cart> Carts { get; set; } = new List<Cart>();
+
+    /// <summary>
+    /// Alla refresh tokens som är kopplade till användaren.
+    /// Dessa används för att kunna hämta nya access tokens utan att logga in igen.
+    /// </summary>
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 }

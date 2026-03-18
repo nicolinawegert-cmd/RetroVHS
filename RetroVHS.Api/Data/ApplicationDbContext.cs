@@ -90,6 +90,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
     /// Här konfigurerar vi relationer, nycklar, index och regler
     /// som inte räcker att beskriva enbart med data annotations.
     /// </summary>
+    /// 
+
+    /// <summary>
+    /// Refresh tokens som används för att skapa nya access tokens
+    /// utan att användaren behöver logga in igen.
+    /// </summary>
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -129,6 +137,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
             .HasIndex(ci => new { ci.CartId, ci.MovieId })
             .IsUnique();
 
+        // En refresh token ska vara unik
+        builder.Entity<RefreshToken>()
+            .HasIndex(rt => rt.Token)
+            .IsUnique();
+
         // =========================
         // Relationer för Review
         // =========================
@@ -136,13 +149,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
             .HasOne(r => r.Movie)
             .WithMany(m => m.Reviews)
             .HasForeignKey(r => r.MovieId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Cascade); 
 
         builder.Entity<Review>()
             .HasOne(r => r.User)
             .WithMany(u => u.Reviews)
             .HasForeignKey(r => r.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Restrict); 
 
         // =========================
         // Relationer för WishlistItem
@@ -172,7 +185,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
             .HasOne(r => r.Movie)
             .WithMany(m => m.Rentals)
             .HasForeignKey(r => r.MovieId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Restrict); 
 
         // =========================
         // Relationer för Cart
@@ -236,5 +249,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
             .WithMany(g => g.MovieGenres)
             .HasForeignKey(mg => mg.GenreId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // =========================
+        // Relationer för RefreshToken
+        // =========================
+        builder.Entity<RefreshToken>()
+            .HasOne(rt => rt.User)
+            .WithMany(u => u.RefreshTokens)
+            .HasForeignKey(rt => rt.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+
     }
 }

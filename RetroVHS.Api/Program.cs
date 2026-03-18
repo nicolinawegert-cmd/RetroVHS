@@ -1,10 +1,11 @@
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RetroVHS.Api.Data;
 using RetroVHS.Api.Models;
+using RetroVHS.Api.Services.Auth;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +39,10 @@ builder.Services
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
+
+
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // =========================
 // JWT Authentication
@@ -128,8 +133,6 @@ using (var scope = app.Services.CreateScope())
     await dbContext.Database.MigrateAsync();
     await DbSeeder.SeedAsync(services);
 
-    // Seedning lägger vi in här i nästa steg
-    // await DbSeeder.SeedAsync(services);
 }
 
 // =========================

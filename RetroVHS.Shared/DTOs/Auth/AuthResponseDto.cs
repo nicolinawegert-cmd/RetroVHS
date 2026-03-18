@@ -12,6 +12,12 @@ public class AuthResponseDto
     public string Token { get; set; } = string.Empty;
 
     /// <summary>
+    /// Refresh token som används för att hämta en ny access token
+    /// när den nuvarande har gått ut.
+    /// </summary>
+    public string RefreshToken { get; set; } = string.Empty;
+
+    /// <summary>
     /// När tokenen går ut (bra för frontend att veta)
     /// </summary>
     public DateTime ExpiresAt { get; set; }
@@ -25,4 +31,5 @@ public class AuthResponseDto
     /// Användarens roller (t.ex. Admin, Member)
     /// </summary>
     public List<string> Roles { get; set; } = new();
+
 }
