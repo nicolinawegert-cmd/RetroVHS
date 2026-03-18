@@ -108,7 +108,12 @@ public static class DbSeeder
             new Genre { Name = "Drama" },
             new Genre { Name = "Comedy" },
             new Genre { Name = "Sci-Fi" },
-            new Genre { Name = "Thriller" }
+            new Genre { Name = "Horror" },
+            new Genre { Name = "Thriller" },
+            new Genre { Name = "Crime" },
+            new Genre { Name = "Romance" },
+            new Genre { Name = "Adventure" }
+
         };
 
         context.Genres.AddRange(genres);
