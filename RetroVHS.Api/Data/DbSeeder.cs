@@ -364,7 +364,384 @@ public static class DbSeeder
         StockQuantity = 4,
         IsFeatured = true,
         ProductionCompanyId = companies.First(c => c.Name == "20th Century Fox").Id
+
+    },
+        new Movie
+    {
+        Title = "A Nightmare on Elm Street",
+        Synopsis = "The monstrous spirit of a slain child murderer seeks revenge by invading the dreams of teenagers whose parents were responsible for his untimely death.",
+        ReleaseYear = 1984,
+        DurationMinutes = 91,
+        RentalPrice = 39,
+        PosterUrl = "/posters/a-nightmare-on-elm-street.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=dCVh4lBfW-c",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 3,
+        IsFeatured = false,
+        ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
+    },
+        new Movie
+    {
+        Title = "Friday the 13th",
+        Synopsis = "A group of camp counselors trying to reopen a summer camp are stalked and murdered by an unknown assailant.",
+        ReleaseYear = 1980,
+        DurationMinutes = 95,
+        RentalPrice = 35,
+        PosterUrl = "/posters/friday-the-13th.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=Xqqej9T1gRI",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 3,
+        IsFeatured = false,
+        ProductionCompanyId = companies.First(c => c.Name == "Paramount Pictures").Id
+    },
+    new Movie
+    {
+        Title = "Gladiator",
+        Synopsis = "A former Roman General sets out to exact vengeance against the corrupt emperor who murdered his family and sent him into slavery.",
+        ReleaseYear = 2000,
+        DurationMinutes = 155,
+        RentalPrice = 45,
+        PosterUrl = "/posters/gladiator.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=owK1qxDselE",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 5,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "Universal Pictures").Id
+    },
+    new Movie
+    {
+        Title = "Halloween",
+        Synopsis = "Fifteen years after murdering his sister on Halloween night, Michael Myers escapes from a mental hospital and returns to the small town of Haddonfield to kill again.",
+        ReleaseYear = 1978,
+        DurationMinutes = 91,
+        RentalPrice = 35,
+        PosterUrl = "/posters/halloween.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=T5ke9IPTIJQ",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 3,
+        IsFeatured = false,
+        ProductionCompanyId = companies.First(c => c.Name == "Universal Pictures").Id
+    },
+    new Movie
+    {
+        Title = "Hellraiser",
+        Synopsis = "A woman discovers the newly resurrected, partially formed body of her brother-in-law, who was killed by demons called Cenobites.",
+        ReleaseYear = 1987,
+        DurationMinutes = 94,
+        RentalPrice = 35,
+        PosterUrl = "/posters/hellraiser.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=uI-V0rrlZBo",
+        Language = "English",
+        Country = "UK",
+        StockQuantity = 3,
+        IsFeatured = false,
+        ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
+    },
+    new Movie
+    {
+        Title = "Inception",
+        Synopsis = "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.",
+        ReleaseYear = 2010,
+        DurationMinutes = 148,
+        RentalPrice = 49,
+        PosterUrl = "/posters/inception.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=YoHD9XEInc0",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 5,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
+    },
+    new Movie
+    {
+        Title = "Jurassic Park",
+        Synopsis = "A pragmatic paleontologist visiting an almost complete theme park on an island is tasked with protecting a couple of kids after a power failure causes the park's cloned dinosaurs to run loose.",
+        ReleaseYear = 1993,
+        DurationMinutes = 127,
+        RentalPrice = 45,
+        PosterUrl = "/posters/jurassic-park.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=lc0UehYemQA",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 5,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "Universal Pictures").Id
+    },
+    new Movie
+    {
+        Title = "Rocky",
+        Synopsis = "A small-time Philadelphia boxer gets a supremely rare chance to fight the world heavyweight champion in a bout in which he strives to go the distance for his self-respect.",
+        ReleaseYear = 1976,
+        DurationMinutes = 120,
+        RentalPrice = 39,
+        PosterUrl = "/posters/rocky.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=7RDnMEEPNcw",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 4,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "Universal Pictures").Id
+    },
+    new Movie
+    {
+        Title = "Saving Private Ryan",
+        Synopsis = "Following the Normandy Landings, a group of U.S. soldiers go behind enemy lines to retrieve a paratrooper whose brothers have been killed in action.",
+        ReleaseYear = 1998,
+        DurationMinutes = 169,
+        RentalPrice = 45,
+        PosterUrl = "/posters/saving-private-ryan.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=zwhP5b4tD6g",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 4,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "Paramount Pictures").Id
+    },
+    new Movie
+    {
+        Title = "The Dark Knight",
+        Synopsis = "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.",
+        ReleaseYear = 2008,
+        DurationMinutes = 152,
+        RentalPrice = 49,
+        PosterUrl = "/posters/the-dark-knight.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=EXeTwQWrcwY",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 5,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
+    },
+    new Movie
+    {
+        Title = "The Exorcist",
+        Synopsis = "When a teenage girl is possessed by a mysterious entity, her mother seeks the help of two priests to save her daughter.",
+        ReleaseYear = 1973,
+        DurationMinutes = 122,
+        RentalPrice = 39,
+        PosterUrl = "/posters/the-exorcist.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=YDGw1MTEe9k",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 3,
+        IsFeatured = false,
+        ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
+    },
+    new Movie
+    {
+        Title = "The Shining",
+        Synopsis = "A family heads to an isolated hotel for the winter where a sinister presence influences the father into violence, while his psychic son sees horrific forebodings from both past and future.",
+        ReleaseYear = 1980,
+        DurationMinutes = 146,
+        RentalPrice = 42,
+        PosterUrl = "/posters/the-shining.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=5Cb3ik6zP2I",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 4,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
+    },
+    new Movie
+    {
+        Title = "The Texas Chain Saw Massacre",
+        Synopsis = "A group of friends visiting their grandfather's house in the country are hunted and terrorized by a chainsaw-wielding killer and his family of grave-robbing cannibals.",
+        ReleaseYear = 1974,
+        DurationMinutes = 83,
+        RentalPrice = 35,
+        PosterUrl = "/posters/the-texas-chainsaw-massacre.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=Vs3981DoINw",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 3,
+        IsFeatured = false,
+        ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
+    },
+    new Movie
+    {
+        Title = "Gran Torino",
+        Synopsis = "Disgruntled Korean War veteran Walt Kowalski sets out to reform his neighbor, a Hmong teenager who tried to steal his prized possession: a 1972 Gran Torino.",
+        ReleaseYear = 2008,
+        DurationMinutes = 116,
+        RentalPrice = 42,
+        PosterUrl = "/posters/gran-torino.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=RMhbr2XQblk",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 4,
+        IsFeatured = false,
+        ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
+    },
+    new Movie
+    {
+        Title = "Cast Away",
+        Synopsis = "A FedEx executive undergoes a physical and emotional transformation after crash landing on a deserted island.",
+        ReleaseYear = 2000,
+        DurationMinutes = 143,
+        RentalPrice = 42,
+        PosterUrl = "/posters/cast-away.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=kE4yOSbOmKM",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 4,
+        IsFeatured = false,
+        ProductionCompanyId = companies.First(c => c.Name == "20th Century Fox").Id
+    },
+    new Movie
+    {
+        Title = "Jaws",
+        Synopsis = "When a killer shark unleashes chaos on a beach community off Long Island, it's up to a local sheriff, a marine biologist, and an old seafarer to hunt the beast down.",
+        ReleaseYear = 1975,
+        DurationMinutes = 124,
+        RentalPrice = 42,
+        PosterUrl = "/posters/jaws.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=U1fu_sA7XhE",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 4,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "Universal Pictures").Id
+    },
+    new Movie
+    {
+        Title = "Se7en",
+        Synopsis = "Two detectives, a rookie and a veteran, hunt a serial killer who uses the seven deadly sins as his motives.",
+        ReleaseYear = 1995,
+        DurationMinutes = 127,
+        RentalPrice = 42,
+        PosterUrl = "/posters/se7en.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=znmZoVkCjpI",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 4,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
+    },
+    new Movie
+    {
+        Title = "American History X",
+        Synopsis = "A former neo-nazi skinhead tries to prevent his younger brother from going down the same wrong path that he did.",
+        ReleaseYear = 1998,
+        DurationMinutes = 119,
+        RentalPrice = 42,
+        PosterUrl = "/posters/american-history-x.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=XfQYHqsiN5g",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 3,
+        IsFeatured = false,
+        ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
+    },
+    new Movie
+    {
+        Title = "Taxi Driver",
+        Synopsis = "A mentally unstable veteran works as a nighttime taxi driver in New York City, where the perceived decadence and sleaze fuels his urge for violent action.",
+        ReleaseYear = 1976,
+        DurationMinutes = 114,
+        RentalPrice = 39,
+        PosterUrl = "/posters/taxi-driver.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=UUxD4-dEzn0",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 4,
+        IsFeatured = false,
+        ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
+    },
+    new Movie
+    {
+        Title = "Casino",
+        Synopsis = "A tale of greed, deception, money, power, and murder occur between two best friends: a mafia enforcer and a casino executive compete against each other over a gambling empire.",
+        ReleaseYear = 1995,
+        DurationMinutes = 178,
+        RentalPrice = 42,
+        PosterUrl = "/posters/casino.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=KMx4iFcozK0",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 4,
+        IsFeatured = false,
+        ProductionCompanyId = companies.First(c => c.Name == "Universal Pictures").Id
+    },
+    new Movie
+    {
+        Title = "No Country for Old Men",
+        Synopsis = "Violence and mayhem ensue after a hunter stumbles upon a drug deal gone wrong and more than two million dollars in cash near the Rio Grande.",
+        ReleaseYear = 2007,
+        DurationMinutes = 122,
+        RentalPrice = 42,
+        PosterUrl = "/posters/no-country-for-old-men.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=38A__WT3-o0",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 4,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "Paramount Pictures").Id
+    },
+    new Movie
+    {
+        Title = "The Mask",
+        Synopsis = "Bank clerk Stanley Ipkiss is transformed into a manic superhero when he wears a mysterious mask.",
+        ReleaseYear = 1994,
+        DurationMinutes = 101,
+        RentalPrice = 35,
+        PosterUrl = "/posters/the-mask.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=LZl69yk5lEY",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 4,
+        IsFeatured = false,
+        ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
+    },
+    new Movie
+    {
+        Title = "The Thing",
+        Synopsis = "A research team in Antarctica is hunted by a shape-shifting alien that assumes the appearance of its victims.",
+        ReleaseYear = 1982,
+        DurationMinutes = 109,
+        RentalPrice = 39,
+        PosterUrl = "/posters/the-thing.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=placIHF5ZYc",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 3,
+        IsFeatured = false,
+        ProductionCompanyId = companies.First(c => c.Name == "Universal Pictures").Id
+    },
+    new Movie
+    {
+        Title = "Bloodsport",
+        Synopsis = "Frank Dux travels to Hong Kong to enter an illegal underground martial arts tournament called the Kumite.",
+        ReleaseYear = 1988,
+        DurationMinutes = 92,
+        RentalPrice = 35,
+        PosterUrl = "/posters/bloodsport.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=ZnOBjCMWuEM",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 3,
+        IsFeatured = false,
+        ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
+    },
+    new Movie
+    {
+        Title = "Big Trouble in Little China",
+        Synopsis = "A tough-talking trucker and his friend get caught up in a centuries-old mystical battle in San Francisco's Chinatown.",
+        ReleaseYear = 1986,
+        DurationMinutes = 99,
+        RentalPrice = 35,
+        PosterUrl = "/posters/big-trouble-in-little-china.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=592EiTD2Hgo",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 3,
+        IsFeatured = false,
+        ProductionCompanyId = companies.First(c => c.Name == "20th Century Fox").Id
     }
+
 };
 
         context.Movies.AddRange(movies);
@@ -388,6 +765,31 @@ public static class DbSeeder
         var diehard = movies.First(m => m.Title == "Die Hard");
         var alien = movies.First(m => m.Title == "Alien");
         var predator = movies.First(m => m.Title == "Predator");
+        var nightmare = movies.First(m => m.Title == "A Nightmare on Elm Street");
+        var friday13 = movies.First(m => m.Title == "Friday the 13th");
+        var gladiator = movies.First(m => m.Title == "Gladiator");
+        var halloween = movies.First(m => m.Title == "Halloween");
+        var hellraiser = movies.First(m => m.Title == "Hellraiser");
+        var inception = movies.First(m => m.Title == "Inception");
+        var jurassicpark = movies.First(m => m.Title == "Jurassic Park");
+        var rocky = movies.First(m => m.Title == "Rocky");
+        var savingprivateryan = movies.First(m => m.Title == "Saving Private Ryan");
+        var darkknight = movies.First(m => m.Title == "The Dark Knight");
+        var exorcist = movies.First(m => m.Title == "The Exorcist");
+        var shining = movies.First(m => m.Title == "The Shining");
+        var texaschainsaw = movies.First(m => m.Title == "The Texas Chain Saw Massacre");
+        var grantorino = movies.First(m => m.Title == "Gran Torino");
+        var castaway = movies.First(m => m.Title == "Cast Away");
+        var jaws = movies.First(m => m.Title == "Jaws");
+        var se7en = movies.First(m => m.Title == "Se7en");
+        var americanhistoryx = movies.First(m => m.Title == "American History X");
+        var taxidriver = movies.First(m => m.Title == "Taxi Driver");
+        var casino = movies.First(m => m.Title == "Casino");
+        var nocountry = movies.First(m => m.Title == "No Country for Old Men");
+        var themask = movies.First(m => m.Title == "The Mask");
+        var thething = movies.First(m => m.Title == "The Thing");
+        var bloodsport = movies.First(m => m.Title == "Bloodsport");
+        var bigtrouble = movies.First(m => m.Title == "Big Trouble in Little China");
 
         var action = genres.First(g => g.Name == "Action");
         var drama = genres.First(g => g.Name == "Drama");
@@ -396,6 +798,9 @@ public static class DbSeeder
         var romance = genres.First(g => g.Name == "Romance");
         var thriller = genres.First(g => g.Name == "Thriller");
         var adventure = genres.First(g => g.Name == "Adventure");
+        var war = genres.First(g => g.Name == "War");
+        var horror = genres.First(g => g.Name == "Horror");
+        var comedy = genres.First(g => g.Name == "Comedy");
 
         context.MovieGenres.AddRange(
             new MovieGenre { MovieId = avatar.Id, GenreId = action.Id },
@@ -427,7 +832,56 @@ public static class DbSeeder
             new MovieGenre { MovieId = alien.Id, GenreId = scifi.Id },
             new MovieGenre { MovieId = alien.Id, GenreId = genres.First(g => g.Name == "Horror").Id },
             new MovieGenre { MovieId = predator.Id, GenreId = action.Id },
-            new MovieGenre { MovieId = predator.Id, GenreId = scifi.Id }
+            new MovieGenre { MovieId = predator.Id, GenreId = scifi.Id },
+            new MovieGenre { MovieId = nightmare.Id, GenreId = horror.Id },
+            new MovieGenre { MovieId = friday13.Id, GenreId = horror.Id },
+            new MovieGenre { MovieId = gladiator.Id, GenreId = action.Id },
+            new MovieGenre { MovieId = gladiator.Id, GenreId = drama.Id },
+            new MovieGenre { MovieId = gladiator.Id, GenreId = adventure.Id },
+            new MovieGenre { MovieId = halloween.Id, GenreId = horror.Id },
+            new MovieGenre { MovieId = halloween.Id, GenreId = thriller.Id },
+            new MovieGenre { MovieId = hellraiser.Id, GenreId = horror.Id },
+            new MovieGenre { MovieId = inception.Id, GenreId = scifi.Id },
+            new MovieGenre { MovieId = inception.Id, GenreId = action.Id },
+            new MovieGenre { MovieId = inception.Id, GenreId = thriller.Id },
+            new MovieGenre { MovieId = jurassicpark.Id, GenreId = scifi.Id },
+            new MovieGenre { MovieId = jurassicpark.Id, GenreId = adventure.Id },
+            new MovieGenre { MovieId = rocky.Id, GenreId = drama.Id },
+            new MovieGenre { MovieId = rocky.Id, GenreId = action.Id },
+            new MovieGenre { MovieId = savingprivateryan.Id, GenreId = drama.Id },
+            new MovieGenre { MovieId = savingprivateryan.Id, GenreId = war.Id },
+            new MovieGenre { MovieId = darkknight.Id, GenreId = action.Id },
+            new MovieGenre { MovieId = darkknight.Id, GenreId = crime.Id },
+            new MovieGenre { MovieId = darkknight.Id, GenreId = thriller.Id },
+            new MovieGenre { MovieId = exorcist.Id, GenreId = horror.Id },
+            new MovieGenre { MovieId = shining.Id, GenreId = horror.Id },
+            new MovieGenre { MovieId = shining.Id, GenreId = thriller.Id },
+            new MovieGenre { MovieId = texaschainsaw.Id, GenreId = horror.Id },
+            new MovieGenre { MovieId = grantorino.Id, GenreId = drama.Id },
+            new MovieGenre { MovieId = castaway.Id, GenreId = drama.Id },
+            new MovieGenre { MovieId = castaway.Id, GenreId = adventure.Id },
+            new MovieGenre { MovieId = jaws.Id, GenreId = thriller.Id },
+            new MovieGenre { MovieId = jaws.Id, GenreId = adventure.Id },
+            new MovieGenre { MovieId = se7en.Id, GenreId = crime.Id },
+            new MovieGenre { MovieId = se7en.Id, GenreId = thriller.Id },   
+            new MovieGenre { MovieId = americanhistoryx.Id, GenreId = drama.Id },
+            new MovieGenre { MovieId = americanhistoryx.Id, GenreId = crime.Id },
+            new MovieGenre { MovieId = taxidriver.Id, GenreId = crime.Id },
+            new MovieGenre { MovieId = taxidriver.Id, GenreId = drama.Id },
+            new MovieGenre { MovieId = taxidriver.Id, GenreId = thriller.Id },
+            new MovieGenre { MovieId = casino.Id, GenreId = crime.Id },
+            new MovieGenre { MovieId = casino.Id, GenreId = drama.Id },
+            new MovieGenre { MovieId = nocountry.Id, GenreId = crime.Id },
+            new MovieGenre { MovieId = nocountry.Id, GenreId = thriller.Id },
+            new MovieGenre { MovieId = themask.Id, GenreId = comedy.Id },
+            new MovieGenre { MovieId = themask.Id, GenreId = action.Id },
+            new MovieGenre { MovieId = thething.Id, GenreId = horror.Id },
+            new MovieGenre { MovieId = thething.Id, GenreId = scifi.Id },
+            new MovieGenre { MovieId = bloodsport.Id, GenreId = action.Id },
+            new MovieGenre { MovieId = bigtrouble.Id, GenreId = action.Id },
+            new MovieGenre { MovieId = bigtrouble.Id, GenreId = comedy.Id },
+            new MovieGenre { MovieId = bigtrouble.Id, GenreId = adventure.Id }
+
         );
 
         await context.SaveChangesAsync();
@@ -472,7 +926,47 @@ public static class DbSeeder
     new Person { FullName = "John McTiernan", Country = "USA", Bio = "Director of Die Hard and Predator." },
     new Person { FullName = "Bruce Willis", Country = "USA", Bio = "Known for Die Hard." },
     new Person { FullName = "Ridley Scott", Country = "UK", Bio = "Director of Alien and Blade Runner." },
-    new Person { FullName = "Sigourney Weaver", Country = "USA", Bio = "Known for Alien." }
+    new Person { FullName = "Sigourney Weaver", Country = "USA", Bio = "Known for Alien." },
+    new Person { FullName = "Wes Craven", Country = "USA", Bio = "Director of A Nightmare on Elm Street and Scream." },
+    new Person { FullName = "Robert Englund", Country = "USA", Bio = "Known for playing Freddy Krueger." },
+    new Person { FullName = "Sean S. Cunningham", Country = "USA", Bio = "Director of Friday the 13th." },
+    new Person { FullName = "Betsy Palmer", Country = "USA", Bio = "Known for Friday the 13th." },
+    new Person { FullName = "Russell Crowe", Country = "New Zealand", Bio = "Known for Gladiator and A Beautiful Mind." },
+    new Person { FullName = "Joaquin Phoenix", Country = "USA", Bio = "Known for Gladiator and Joker." },
+    new Person { FullName = "John Carpenter", Country = "USA", Bio = "Director of Halloween and The Thing." },
+    new Person { FullName = "Jamie Lee Curtis", Country = "USA", Bio = "Known for Halloween." },
+    new Person { FullName = "Clive Barker", Country = "UK", Bio = "Director of Hellraiser." },
+    new Person { FullName = "Doug Bradley", Country = "UK", Bio = "Known for playing Pinhead in Hellraiser." },
+    new Person { FullName = "Christopher Nolan", Country = "UK", Bio = "Director of Inception and The Dark Knight." },
+    new Person { FullName = "Steven Spielberg", Country = "USA", Bio = "Director of Jurassic Park and Saving Private Ryan." },
+    new Person { FullName = "Sam Neill", Country = "Northern Ireland", Bio = "Known for Jurassic Park." },
+    new Person { FullName = "Laura Dern", Country = "USA", Bio = "Known for Jurassic Park." },
+    new Person { FullName = "John G. Avildsen", Country = "USA", Bio = "Director of Rocky." },
+    new Person { FullName = "Sylvester Stallone", Country = "USA", Bio = "Known for Rocky and Rambo." },
+    new Person { FullName = "Matt Damon", Country = "USA", Bio = "Known for Saving Private Ryan and The Bourne Identity." },
+    new Person { FullName = "Christian Bale", Country = "UK", Bio = "Known for The Dark Knight and American Psycho." },
+    new Person { FullName = "Heath Ledger", Country = "Australia", Bio = "Known for The Dark Knight." },
+    new Person { FullName = "William Friedkin", Country = "USA", Bio = "Director of The Exorcist." },
+    new Person { FullName = "Linda Blair", Country = "USA", Bio = "Known for The Exorcist." },
+    new Person { FullName = "Stanley Kubrick", Country = "USA", Bio = "Director of The Shining and 2001: A Space Odyssey." },
+    new Person { FullName = "Jack Nicholson", Country = "USA", Bio = "Known for The Shining and One Flew Over the Cuckoo's Nest." },
+    new Person { FullName = "Tobe Hooper", Country = "USA", Bio = "Director of The Texas Chain Saw Massacre." },
+    new Person { FullName = "Clint Eastwood", Country = "USA", Bio = "Director of Gran Torino and Unforgiven." },
+    new Person { FullName = "Robert Zemeckis", Country = "USA", Bio = "Director of Cast Away and Forrest Gump." },
+    new Person { FullName = "Roy Scheider", Country = "USA", Bio = "Known for Jaws." },
+    new Person { FullName = "Morgan Freeman", Country = "USA", Bio = "Known for Se7en and The Shawshank Redemption." },
+    new Person { FullName = "Edward Norton", Country = "USA", Bio = "Known for American History X and Fight Club." },
+    new Person { FullName = "Tony Kaye", Country = "UK", Bio = "Director of American History X." },
+    new Person { FullName = "Robert De Niro", Country = "USA", Bio = "Known for Taxi Driver and Goodfellas." },
+    new Person { FullName = "Joe Pesci", Country = "USA", Bio = "Known for Casino and Goodfellas." },
+    new Person { FullName = "Joel Coen", Country = "USA", Bio = "Director of No Country for Old Men and Fargo." },
+    new Person { FullName = "Javier Bardem", Country = "Spain", Bio = "Known for No Country for Old Men." },
+    new Person { FullName = "Chuck Russell", Country = "USA", Bio = "Director of The Mask." },
+    new Person { FullName = "Jim Carrey", Country = "Canada", Bio = "Known for The Mask and Ace Ventura." },
+    new Person { FullName = "Kurt Russell", Country = "USA", Bio = "Known for The Thing and Escape from New York." },
+    new Person { FullName = "Newt Arnold", Country = "USA", Bio = "Director of Bloodsport." },
+    new Person { FullName = "Jean-Claude Van Damme", Country = "Belgium", Bio = "Known for Bloodsport and Kickboxer." },
+    new Person { FullName = "Kim Cattrall", Country = "UK", Bio = "Known for Big Trouble in Little China." }
 };
 
         context.Persons.AddRange(persons);
@@ -551,7 +1045,114 @@ public static class DbSeeder
 
             // Predator
             new MovieCredit { MovieId = predator.Id, PersonId = persons.First(p => p.FullName == "John McTiernan").Id, Role = CreditRole.Director, DisplayOrder = 1 },
-            new MovieCredit { MovieId = predator.Id, PersonId = persons.First(p => p.FullName == "Arnold Schwarzenegger").Id, Role = CreditRole.Actor, CharacterName = "Dutch", DisplayOrder = 2 }
+            new MovieCredit { MovieId = predator.Id, PersonId = persons.First(p => p.FullName == "Arnold Schwarzenegger").Id, Role = CreditRole.Actor, CharacterName = "Dutch", DisplayOrder = 2 },
+            
+            // A Nightmare on Elm Street
+            new MovieCredit { MovieId = nightmare.Id, PersonId = persons.First(p => p.FullName == "Wes Craven").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = nightmare.Id, PersonId = persons.First(p => p.FullName == "Robert Englund").Id, Role = CreditRole.Actor, CharacterName = "Freddy Krueger", DisplayOrder = 2 },
+
+            // Friday the 13th
+            new MovieCredit { MovieId = friday13.Id, PersonId = persons.First(p => p.FullName == "Sean S. Cunningham").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = friday13.Id, PersonId = persons.First(p => p.FullName == "Betsy Palmer").Id, Role = CreditRole.Actor, CharacterName = "Mrs. Voorhees", DisplayOrder = 2 },
+
+            // Gladiator
+            new MovieCredit { MovieId = gladiator.Id, PersonId = persons.First(p => p.FullName == "Ridley Scott").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = gladiator.Id, PersonId = persons.First(p => p.FullName == "Russell Crowe").Id, Role = CreditRole.Actor, CharacterName = "Maximus", DisplayOrder = 2 },
+            new MovieCredit { MovieId = gladiator.Id, PersonId = persons.First(p => p.FullName == "Joaquin Phoenix").Id, Role = CreditRole.Actor, CharacterName = "Commodus", DisplayOrder = 3 },
+
+            // Halloween
+            new MovieCredit { MovieId = halloween.Id, PersonId = persons.First(p => p.FullName == "John Carpenter").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = halloween.Id, PersonId = persons.First(p => p.FullName == "Jamie Lee Curtis").Id, Role = CreditRole.Actor, CharacterName = "Laurie Strode", DisplayOrder = 2 },
+
+            // Hellraiser
+            new MovieCredit { MovieId = hellraiser.Id, PersonId = persons.First(p => p.FullName == "Clive Barker").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = hellraiser.Id, PersonId = persons.First(p => p.FullName == "Doug Bradley").Id, Role = CreditRole.Actor, CharacterName = "Pinhead", DisplayOrder = 2 },
+
+            // Inception
+            new MovieCredit { MovieId = inception.Id, PersonId = persons.First(p => p.FullName == "Christopher Nolan").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = inception.Id, PersonId = persons.First(p => p.FullName == "Leonardo DiCaprio").Id, Role = CreditRole.Actor, CharacterName = "Dom Cobb", DisplayOrder = 2 },
+
+            // Jurassic Park
+            new MovieCredit { MovieId = jurassicpark.Id, PersonId = persons.First(p => p.FullName == "Steven Spielberg").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = jurassicpark.Id, PersonId = persons.First(p => p.FullName == "Sam Neill").Id, Role = CreditRole.Actor, CharacterName = "Dr. Alan Grant", DisplayOrder = 2 },
+            new MovieCredit { MovieId = jurassicpark.Id, PersonId = persons.First(p => p.FullName == "Laura Dern").Id, Role = CreditRole.Actor, CharacterName = "Dr. Ellie Sattler", DisplayOrder = 3 },
+
+            // Rocky
+            new MovieCredit { MovieId = rocky.Id, PersonId = persons.First(p => p.FullName == "John G. Avildsen").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = rocky.Id, PersonId = persons.First(p => p.FullName == "Sylvester Stallone").Id, Role = CreditRole.Actor, CharacterName = "Rocky Balboa", DisplayOrder = 2 },
+
+            // Saving Private Ryan
+            new MovieCredit { MovieId = savingprivateryan.Id, PersonId = persons.First(p => p.FullName == "Steven Spielberg").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = savingprivateryan.Id, PersonId = persons.First(p => p.FullName == "Tom Hanks").Id, Role = CreditRole.Actor, CharacterName = "Captain Miller", DisplayOrder = 2 },
+            new MovieCredit { MovieId = savingprivateryan.Id, PersonId = persons.First(p => p.FullName == "Matt Damon").Id, Role = CreditRole.Actor, CharacterName = "Private Ryan", DisplayOrder = 3 },
+
+            // The Dark Knight
+            new MovieCredit { MovieId = darkknight.Id, PersonId = persons.First(p => p.FullName == "Christopher Nolan").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = darkknight.Id, PersonId = persons.First(p => p.FullName == "Christian Bale").Id, Role = CreditRole.Actor, CharacterName = "Bruce Wayne", DisplayOrder = 2 },
+            new MovieCredit { MovieId = darkknight.Id, PersonId = persons.First(p => p.FullName == "Heath Ledger").Id, Role = CreditRole.Actor, CharacterName = "The Joker", DisplayOrder = 3 },
+
+            // The Exorcist
+            new MovieCredit { MovieId = exorcist.Id, PersonId = persons.First(p => p.FullName == "William Friedkin").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = exorcist.Id, PersonId = persons.First(p => p.FullName == "Linda Blair").Id, Role = CreditRole.Actor, CharacterName = "Regan", DisplayOrder = 2 },
+
+            // The Shining
+            new MovieCredit { MovieId = shining.Id, PersonId = persons.First(p => p.FullName == "Stanley Kubrick").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = shining.Id, PersonId = persons.First(p => p.FullName == "Jack Nicholson").Id, Role = CreditRole.Actor, CharacterName = "Jack Torrance", DisplayOrder = 2 },
+
+            // The Texas Chain Saw Massacre
+            new MovieCredit { MovieId = texaschainsaw.Id, PersonId = persons.First(p => p.FullName == "Tobe Hooper").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+
+            // Gran Torino
+            new MovieCredit { MovieId = grantorino.Id, PersonId = persons.First(p => p.FullName == "Clint Eastwood").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = grantorino.Id, PersonId = persons.First(p => p.FullName == "Clint Eastwood").Id, Role = CreditRole.Actor, CharacterName = "Walt Kowalski", DisplayOrder = 2 },
+
+            // Cast Away
+            new MovieCredit { MovieId = castaway.Id, PersonId = persons.First(p => p.FullName == "Robert Zemeckis").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = castaway.Id, PersonId = persons.First(p => p.FullName == "Tom Hanks").Id, Role = CreditRole.Actor, CharacterName = "Chuck Noland", DisplayOrder = 2 },
+
+            // Jaws
+            new MovieCredit { MovieId = jaws.Id, PersonId = persons.First(p => p.FullName == "Steven Spielberg").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = jaws.Id, PersonId = persons.First(p => p.FullName == "Roy Scheider").Id, Role = CreditRole.Actor, CharacterName = "Chief Brody", DisplayOrder = 2 },
+
+            // Se7en
+            new MovieCredit { MovieId = se7en.Id, PersonId = persons.First(p => p.FullName == "David Fincher").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = se7en.Id, PersonId = persons.First(p => p.FullName == "Brad Pitt").Id, Role = CreditRole.Actor, CharacterName = "Detective Mills", DisplayOrder = 2 },
+            new MovieCredit { MovieId = se7en.Id, PersonId = persons.First(p => p.FullName == "Morgan Freeman").Id, Role = CreditRole.Actor, CharacterName = "Detective Somerset", DisplayOrder = 3 },
+
+            // American History X
+            new MovieCredit { MovieId = americanhistoryx.Id, PersonId = persons.First(p => p.FullName == "Tony Kaye").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = americanhistoryx.Id, PersonId = persons.First(p => p.FullName == "Edward Norton").Id, Role = CreditRole.Actor, CharacterName = "Derek Vinyard", DisplayOrder = 2 },
+
+            // Taxi Driver
+            new MovieCredit { MovieId = taxidriver.Id, PersonId = persons.First(p => p.FullName == "Martin Scorsese").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = taxidriver.Id, PersonId = persons.First(p => p.FullName == "Robert De Niro").Id, Role = CreditRole.Actor, CharacterName = "Travis Bickle", DisplayOrder = 2 },
+
+            // Casino
+            new MovieCredit { MovieId = casino.Id, PersonId = persons.First(p => p.FullName == "Martin Scorsese").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = casino.Id, PersonId = persons.First(p => p.FullName == "Robert De Niro").Id, Role = CreditRole.Actor, CharacterName = "Sam Rothstein", DisplayOrder = 2 },
+            new MovieCredit { MovieId = casino.Id, PersonId = persons.First(p => p.FullName == "Joe Pesci").Id, Role = CreditRole.Actor, CharacterName = "Nicky Santoro", DisplayOrder = 3 },
+
+            // No Country for Old Men
+            new MovieCredit { MovieId = nocountry.Id, PersonId = persons.First(p => p.FullName == "Joel Coen").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = nocountry.Id, PersonId = persons.First(p => p.FullName == "Javier Bardem").Id, Role = CreditRole.Actor, CharacterName = "Anton Chigurh", DisplayOrder = 2 },
+
+            // The Mask
+            new MovieCredit { MovieId = themask.Id, PersonId = persons.First(p => p.FullName == "Chuck Russell").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = themask.Id, PersonId = persons.First(p => p.FullName == "Jim Carrey").Id, Role = CreditRole.Actor, CharacterName = "Stanley Ipkiss", DisplayOrder = 2 },
+
+            // The Thing
+            new MovieCredit { MovieId = thething.Id, PersonId = persons.First(p => p.FullName == "John Carpenter").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = thething.Id, PersonId = persons.First(p => p.FullName == "Kurt Russell").Id, Role = CreditRole.Actor, CharacterName = "MacReady", DisplayOrder = 2 },
+
+            // Bloodsport
+            new MovieCredit { MovieId = bloodsport.Id, PersonId = persons.First(p => p.FullName == "Newt Arnold").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = bloodsport.Id, PersonId = persons.First(p => p.FullName == "Jean-Claude Van Damme").Id, Role = CreditRole.Actor, CharacterName = "Frank Dux", DisplayOrder = 2 },
+
+            // Big Trouble in Little China
+            new MovieCredit { MovieId = bigtrouble.Id, PersonId = persons.First(p => p.FullName == "John Carpenter").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = bigtrouble.Id, PersonId = persons.First(p => p.FullName == "Kurt Russell").Id, Role = CreditRole.Actor, CharacterName = "Jack Burton", DisplayOrder = 2 },
+            new MovieCredit { MovieId = bigtrouble.Id, PersonId = persons.First(p => p.FullName == "Kim Cattrall").Id, Role = CreditRole.Actor, CharacterName = "Gracie Law", DisplayOrder = 3 }
+
         );
 
         await context.SaveChangesAsync();
