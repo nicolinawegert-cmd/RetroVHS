@@ -250,6 +250,86 @@ a, .btn-link {
     box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
+/* ===== Movie Cards ===== */
+.movie-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem 0;
+}
+
+.movie-card {
+    background-color: #16213e;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.movie-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.movie-card-poster {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    overflow: hidden;
+    background-color: #0f3460;
+}
+
+.movie-card-poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.movie-card-no-poster {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: #333;
+}
+
+.movie-card-info {
+    padding: 0.75rem;
+}
+
+.movie-card-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.movie-card-year {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.movie-card-genres {
+    font-size: 0.75rem;
+    color: #e94560;
+    margin-top: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.section-title {
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 1.5rem 0 0.5rem;
+}
+
 /* (content-stil hanteras ovan under Sidlayout) */
 
 h1:focus {

@@ -28,4 +28,18 @@ public class MovieClient : IMovieClient
             return [];
         }
     }
+
+    public async Task<List<MovieListDto>> GetFeaturedMoviesAsync()
+    {
+        try
+        {
+            var result = await _httpClient.GetFromJsonAsync<List<MovieListDto>>(
+                "api/movies?featured=true");
+            return result ?? [];
+        }
+        catch
+        {
+            return [];
+        }
+    }
 }

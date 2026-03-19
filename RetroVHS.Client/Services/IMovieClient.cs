@@ -8,4 +8,5 @@ namespace RetroVHS.Client.Services;
 public interface IMovieClient
 {
     Task<List<MovieListDto>> SearchMoviesAsync(string searchTerm);
+    Task<List<MovieListDto>> GetFeaturedMoviesAsync();
 }
