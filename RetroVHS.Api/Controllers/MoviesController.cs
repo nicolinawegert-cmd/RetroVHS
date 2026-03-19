@@ -36,7 +36,7 @@ public class MoviesController : ControllerBase
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            query = query.Where(m => m.Title.Contains(searchTerm));
+            query = query.Where(m => EF.Functions.Like(m.Title, $"%{searchTerm}%"));
         }
 
         if (featured == true)
