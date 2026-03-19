@@ -28,10 +28,20 @@ public class AuthClient : IAuthClient
 
         if (result is { Succeeded: true, Data: not null })
         {
-            _refreshToken = result.Data.RefreshToken;
-            _httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", result.Data.Token);
-            _authStateProvider.MarkUserAsAuthenticated(result.Data.Token, result.Data.User);
+            SetAuthState(result.Data);
+        }
+
+        return result!;
+    }
+
+    public async Task<AuthResultDto> RegisterAsync(RegisterRequestDto request)
+    {
+        var response = await _httpClient.PostAsJsonAsync("api/auth/register", request);
+        var result = await response.Content.ReadFromJsonAsync<AuthResultDto>();
+
+        if (result is { Succeeded: true, Data: not null })
+        {
+            SetAuthState(result.Data);
         }
 
         return result!;
@@ -55,5 +65,13 @@ public class AuthClient : IAuthClient
         _refreshToken = null;
         _httpClient.DefaultRequestHeaders.Authorization = null;
         _authStateProvider.MarkUserAsLoggedOut();
+    }
+
+    private void SetAuthState(AuthResponseDto data)
+    {
+        _refreshToken = data.RefreshToken;
+        _httpClient.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", data.Token);
+        _authStateProvider.MarkUserAsAuthenticated(data.Token, data.User);
     }
 }

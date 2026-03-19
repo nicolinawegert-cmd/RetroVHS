@@ -9,5 +9,6 @@ namespace RetroVHS.Client.Services;
 public interface IAuthClient
 {
     Task<AuthResultDto> LoginAsync(LoginRequestDto request);
+    Task<AuthResultDto> RegisterAsync(RegisterRequestDto request);
     Task LogoutAsync();
 }
