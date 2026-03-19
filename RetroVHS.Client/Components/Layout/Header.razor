@@ -1,0 +1,178 @@
+@using RetroVHS.Shared.DTOs.Auth
+@using RetroVHS.Shared.DTOs.Movies
+@inject IAuthClient AuthClient
+@inject IMovieClient MovieClient
+@inject NavigationManager Navigation
+@implements IDisposable
+
+<header class="site-header">
+    <div class="header-brand">
+        <a href="/">RetroVHS</a>
+    </div>
+
+    <div class="header-search">
+        <div class="search-container">
+            <input type="text"
+                   class="search-input"
+                   placeholder="Sök filmer..."
+                   @bind="searchText"
+                   @bind:event="oninput"
+                   @bind:after="OnSearchInputAsync"
+                   @onfocus="OnSearchFocus"
+                   @onblur="OnSearchBlur" />
+
+            @if (showResults && searchResults.Count > 0)
+            {
+                <div class="search-results">
+                    @foreach (var movie in searchResults)
+                    {
+                        <div class="search-result-item" @onmousedown="() => SelectMovie(movie)">
+                            <span class="result-title">@movie.Title</span>
+                            <span class="result-year">(@movie.ReleaseYear)</span>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="header-auth">
+        <AuthorizeView Context="authContext">
+            <Authorized>
+                <div class="user-info">
+                    <span class="user-name">@authContext.User.FindFirst("firstName")?.Value</span>
+                    <button class="btn-logout" @onclick="HandleLogoutAsync">Logga ut</button>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="login-wrapper">
+                    <button class="btn-login" @onclick="ToggleLoginForm">Logga in</button>
+
+                    @if (showLoginForm)
+                    {
+                        <div class="login-dropdown">
+                            <EditForm Model="loginRequest" OnValidSubmit="HandleLoginAsync">
+                                <DataAnnotationsValidator />
+                                <div class="login-field">
+                                    <input type="email"
+                                           placeholder="E-post"
+                                           @bind="loginRequest.Email" />
+                                </div>
+                                <div class="login-field">
+                                    <input type="password"
+                                           placeholder="Lösenord"
+                                           @bind="loginRequest.Password" />
+                                </div>
+                                @if (!string.IsNullOrEmpty(loginError))
+                                {
+                                    <div class="login-error">@loginError</div>
+                                }
+                                <button type="submit" class="btn-submit" disabled="@isLoggingIn">
+                                    @(isLoggingIn ? "Loggar in..." : "Logga in")
+                                </button>
+                            </EditForm>
+                        </div>
+                    }
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
+</header>
+
+@code {
+    private string searchText = string.Empty;
+    private List<MovieListDto> searchResults = [];
+    private bool showResults;
+    private CancellationTokenSource? _debounceTokenSource;
+
+    private LoginRequestDto loginRequest = new();
+    private bool showLoginForm;
+    private bool isLoggingIn;
+    private string? loginError;
+
+    private async Task OnSearchInputAsync()
+    {
+        _debounceTokenSource?.Cancel();
+        _debounceTokenSource = new CancellationTokenSource();
+        var token = _debounceTokenSource.Token;
+
+        if (string.IsNullOrWhiteSpace(searchText))
+        {
+            searchResults = [];
+            showResults = false;
+            return;
+        }
+
+        try
+        {
+            await Task.Delay(300, token);
+            searchResults = await MovieClient.SearchMoviesAsync(searchText);
+            showResults = searchResults.Count > 0;
+        }
+        catch (TaskCanceledException)
+        {
+            // Debounce avbruten, ignorera
+        }
+    }
+
+    private void OnSearchFocus()
+    {
+        if (searchResults.Count > 0)
+        {
+            showResults = true;
+        }
+    }
+
+    private async Task OnSearchBlur()
+    {
+        // Kort fördröjning så att mousedown på resultat hinner triggas före blur
+        await Task.Delay(200);
+        showResults = false;
+    }
+
+    private void SelectMovie(MovieListDto movie)
+    {
+        searchText = string.Empty;
+        searchResults = [];
+        showResults = false;
+        Navigation.NavigateTo($"/movie/{movie.Id}");
+    }
+
+    private void ToggleLoginForm()
+    {
+        showLoginForm = !showLoginForm;
+        loginError = null;
+    }
+
+    private async Task HandleLoginAsync()
+    {
+        isLoggingIn = true;
+        loginError = null;
+
+        var result = await AuthClient.LoginAsync(loginRequest);
+
+        if (result.Succeeded)
+        {
+            showLoginForm = false;
+            loginRequest = new();
+        }
+        else
+        {
+            loginError = result.Message is { Length: > 0 }
+                ? result.Message
+                : "Inloggning misslyckades.";
+        }
+
+        isLoggingIn = false;
+    }
+
+    private async Task HandleLogoutAsync()
+    {
+        await AuthClient.LogoutAsync();
+    }
+
+    public void Dispose()
+    {
+        _debounceTokenSource?.Dispose();
+    }
+}
