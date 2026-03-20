@@ -113,7 +113,10 @@ public static class DbSeeder
             new Genre { Name = "Thriller" },
             new Genre { Name = "Crime" },
             new Genre { Name = "Romance" },
-            new Genre { Name = "Adventure" }
+            new Genre { Name = "Adventure" },
+            new Genre { Name = "War" },
+            new Genre { Name = "Western" },
+            new Genre { Name = "Fantasy" }
 
         };
 
@@ -378,7 +381,7 @@ public static class DbSeeder
         Language = "English",
         Country = "USA",
         StockQuantity = 3,
-        IsFeatured = false,
+        IsFeatured = true,
         ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
     },
         new Movie
@@ -393,7 +396,7 @@ public static class DbSeeder
         Language = "English",
         Country = "USA",
         StockQuantity = 3,
-        IsFeatured = false,
+        IsFeatured = true,
         ProductionCompanyId = companies.First(c => c.Name == "Paramount Pictures").Id
     },
     new Movie
@@ -423,7 +426,7 @@ public static class DbSeeder
         Language = "English",
         Country = "USA",
         StockQuantity = 3,
-        IsFeatured = false,
+        IsFeatured = true,
         ProductionCompanyId = companies.First(c => c.Name == "Universal Pictures").Id
     },
     new Movie
@@ -438,7 +441,7 @@ public static class DbSeeder
         Language = "English",
         Country = "UK",
         StockQuantity = 3,
-        IsFeatured = false,
+        IsFeatured = true,
         ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
     },
     new Movie
@@ -528,7 +531,7 @@ public static class DbSeeder
         Language = "English",
         Country = "USA",
         StockQuantity = 3,
-        IsFeatured = false,
+        IsFeatured = true,
         ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
     },
     new Movie
@@ -558,7 +561,7 @@ public static class DbSeeder
         Language = "English",
         Country = "USA",
         StockQuantity = 3,
-        IsFeatured = false,
+        IsFeatured = true,
         ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
     },
     new Movie
@@ -573,7 +576,7 @@ public static class DbSeeder
         Language = "English",
         Country = "USA",
         StockQuantity = 4,
-        IsFeatured = false,
+        IsFeatured = true,
         ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
     },
     new Movie
@@ -588,7 +591,7 @@ public static class DbSeeder
         Language = "English",
         Country = "USA",
         StockQuantity = 4,
-        IsFeatured = false,
+        IsFeatured = true,
         ProductionCompanyId = companies.First(c => c.Name == "20th Century Fox").Id
     },
     new Movie
@@ -633,7 +636,7 @@ public static class DbSeeder
         Language = "English",
         Country = "USA",
         StockQuantity = 3,
-        IsFeatured = false,
+        IsFeatured = true,
         ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
     },
     new Movie
@@ -648,7 +651,7 @@ public static class DbSeeder
         Language = "English",
         Country = "USA",
         StockQuantity = 4,
-        IsFeatured = false,
+        IsFeatured = true,
         ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
     },
     new Movie
@@ -663,7 +666,7 @@ public static class DbSeeder
         Language = "English",
         Country = "USA",
         StockQuantity = 4,
-        IsFeatured = false,
+        IsFeatured = true,
         ProductionCompanyId = companies.First(c => c.Name == "Universal Pictures").Id
     },
     new Movie
@@ -693,7 +696,7 @@ public static class DbSeeder
         Language = "English",
         Country = "USA",
         StockQuantity = 4,
-        IsFeatured = false,
+        IsFeatured = true,
         ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
     },
     new Movie
@@ -708,7 +711,7 @@ public static class DbSeeder
         Language = "English",
         Country = "USA",
         StockQuantity = 3,
-        IsFeatured = false,
+        IsFeatured = true,
         ProductionCompanyId = companies.First(c => c.Name == "Universal Pictures").Id
     },
     new Movie
@@ -723,7 +726,7 @@ public static class DbSeeder
         Language = "English",
         Country = "USA",
         StockQuantity = 3,
-        IsFeatured = false,
+        IsFeatured = true,
         ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
     },
     new Movie
@@ -738,7 +741,7 @@ public static class DbSeeder
         Language = "English",
         Country = "USA",
         StockQuantity = 3,
-        IsFeatured = false,
+        IsFeatured = true,
         ProductionCompanyId = companies.First(c => c.Name == "20th Century Fox").Id
     }
 
