@@ -841,7 +841,7 @@ public static class DbSeeder
         ReleaseYear = 2003,
         DurationMinutes = 143,
         RentalPrice = 42,
-        PosterUrl = "/posters/pirates-of-the-caribbean-the-curse-of-the-black-pearl.jpg",
+        PosterUrl = "/posters/pirates-of-the-caribbean.jpg",
         TrailerUrl = "https://www.youtube.com/watch?v=naQr0uTrH_s",
         Language = "English",
         Country = "USA",
