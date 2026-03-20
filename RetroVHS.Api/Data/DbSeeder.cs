@@ -908,7 +908,68 @@ public static class DbSeeder
         StockQuantity = 4,
         IsFeatured = true,
         ProductionCompanyId = companies.First(c => c.Name == "20th Century Fox").Id
+    },
+     new Movie
+    {
+        Title = "Cliffhanger",
+        Synopsis = "A mountain climber is pitted against a group of violent criminals who have lost their cache of money in the Rocky Mountains.",
+        ReleaseYear = 1993,
+        DurationMinutes = 113,
+        RentalPrice = 39,
+        PosterUrl = "/posters/cliffhanger.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=mNbPOdkISdI",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 4,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "20th Century Fox").Id
+    },
+    new Movie
+    {
+        Title = "The Expendables",
+        Synopsis = "A group of elite mercenaries are tasked with a mission to overthrow a Latin American dictator, but they soon discover darker forces at play.",
+        ReleaseYear = 2010,
+        DurationMinutes = 103,
+        RentalPrice = 39,
+        PosterUrl = "/posters/the-expendables.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=8KtTco5ULig",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 4,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "20th Century Fox").Id
+    },
+    new Movie
+    {
+        Title = "Indiana Jones and the Raiders of the Lost Ark",
+        Synopsis = "Archaeologist and adventurer Indiana Jones is hired by the U.S. government to find the Ark of the Covenant before the Nazis can obtain its awesome powers.",
+        ReleaseYear = 1981,
+        DurationMinutes = 115,
+        RentalPrice = 42,
+        PosterUrl = "/posters/indiana-jones.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=Rh_BJXG1-44",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 5,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "Paramount Pictures").Id
+    },
+    new Movie
+    {
+        Title = "Back to the Future",
+        Synopsis = "Marty McFly, a 17-year-old high school student, is accidentally sent 30 years into the past in a time-traveling DeLorean invented by his close friend, the maverick scientist Doc Brown.",
+        ReleaseYear = 1985,
+        DurationMinutes = 116,
+        RentalPrice = 42,
+        PosterUrl = "/posters/back-to-the-future.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=qvsgGtivCgs",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 5,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "Universal Pictures").Id
     }
+
 
 };
 
@@ -969,6 +1030,10 @@ public static class DbSeeder
         var goodbadugly = movies.First(m => m.Title == "The Good, the Bad and the Ugly");
         var lotr = movies.First(m => m.Title == "The Lord of the Rings: The Return of the King");
         var silencelambs = movies.First(m => m.Title == "The Silence of the Lambs");
+        var cliffhanger = movies.First(m => m.Title == "Cliffhanger");
+        var expendables = movies.First(m => m.Title == "The Expendables");
+        var indianajones = movies.First(m => m.Title == "Indiana Jones and the Raiders of the Lost Ark");
+        var backtothefuture = movies.First(m => m.Title == "Back to the Future");
 
         var action = genres.First(g => g.Name == "Action");
         var drama = genres.First(g => g.Name == "Drama");
@@ -1088,7 +1153,17 @@ public static class DbSeeder
             new MovieGenre { MovieId = lotr.Id, GenreId = action.Id },
             new MovieGenre { MovieId = silencelambs.Id, GenreId = thriller.Id },
             new MovieGenre { MovieId = silencelambs.Id, GenreId = horror.Id },
-            new MovieGenre { MovieId = silencelambs.Id, GenreId = crime.Id }
+            new MovieGenre { MovieId = silencelambs.Id, GenreId = crime.Id },
+            new MovieGenre { MovieId = cliffhanger.Id, GenreId = action.Id },
+            new MovieGenre { MovieId = cliffhanger.Id, GenreId = thriller.Id },
+            new MovieGenre { MovieId = cliffhanger.Id, GenreId = adventure.Id },
+            new MovieGenre { MovieId = expendables.Id, GenreId = action.Id },
+            new MovieGenre { MovieId = expendables.Id, GenreId = thriller.Id },
+            new MovieGenre { MovieId = indianajones.Id, GenreId = action.Id },
+            new MovieGenre { MovieId = indianajones.Id, GenreId = adventure.Id },
+            new MovieGenre { MovieId = backtothefuture.Id, GenreId = scifi.Id },
+            new MovieGenre { MovieId = backtothefuture.Id, GenreId = comedy.Id },
+            new MovieGenre { MovieId = backtothefuture.Id, GenreId = adventure.Id }
 
         );
 
@@ -1199,7 +1274,14 @@ public static class DbSeeder
     new Person { FullName = "Viggo Mortensen", Country = "USA", Bio = "Known for The Lord of the Rings." },
     new Person { FullName = "Jonathan Demme", Country = "USA", Bio = "Director of The Silence of the Lambs." },
     new Person { FullName = "Anthony Hopkins", Country = "UK", Bio = "Known for The Silence of the Lambs." },
-    new Person { FullName = "Jodie Foster", Country = "USA", Bio = "Known for The Silence of the Lambs and Taxi Driver." }
+    new Person { FullName = "Jodie Foster", Country = "USA", Bio = "Known for The Silence of the Lambs and Taxi Driver." },
+    new Person { FullName = "Renny Harlin", Country = "Finland", Bio = "Director of Cliffhanger and Die Hard 2." },
+    new Person { FullName = "John Lithgow", Country = "USA", Bio = "Known for Cliffhanger and Dexter." },
+    new Person { FullName = "Jason Statham", Country = "UK", Bio = "Known for The Expendables and The Transporter." },
+    new Person { FullName = "Harrison Ford", Country = "USA", Bio = "Known for Indiana Jones and Star Wars." },
+    new Person { FullName = "Karen Allen", Country = "USA", Bio = "Known for Raiders of the Lost Ark." },
+    new Person { FullName = "Michael J. Fox", Country = "Canada", Bio = "Known for Back to the Future." },
+    new Person { FullName = "Christopher Lloyd", Country = "USA", Bio = "Known for Back to the Future." }
 };
 
         context.Persons.AddRange(persons);
@@ -1438,7 +1520,22 @@ public static class DbSeeder
             // The Silence of the Lambs
             new MovieCredit { MovieId = silencelambs.Id, PersonId = persons.First(p => p.FullName == "Jonathan Demme").Id, Role = CreditRole.Director, DisplayOrder = 1 },
             new MovieCredit { MovieId = silencelambs.Id, PersonId = persons.First(p => p.FullName == "Anthony Hopkins").Id, Role = CreditRole.Actor, CharacterName = "Hannibal Lecter", DisplayOrder = 2 },
-            new MovieCredit { MovieId = silencelambs.Id, PersonId = persons.First(p => p.FullName == "Jodie Foster").Id, Role = CreditRole.Actor, CharacterName = "Clarice Starling", DisplayOrder = 3 }
+            new MovieCredit { MovieId = silencelambs.Id, PersonId = persons.First(p => p.FullName == "Jodie Foster").Id, Role = CreditRole.Actor, CharacterName = "Clarice Starling", DisplayOrder = 3 },
+
+            // The Expendables
+            new MovieCredit { MovieId = expendables.Id, PersonId = persons.First(p => p.FullName == "Sylvester Stallone").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = expendables.Id, PersonId = persons.First(p => p.FullName == "Sylvester Stallone").Id, Role = CreditRole.Actor, CharacterName = "Barney Ross", DisplayOrder = 2 },
+            new MovieCredit { MovieId = expendables.Id, PersonId = persons.First(p => p.FullName == "Jason Statham").Id, Role = CreditRole.Actor, CharacterName = "Lee Christmas", DisplayOrder = 3 },
+
+            // Indiana Jones
+            new MovieCredit { MovieId = indianajones.Id, PersonId = persons.First(p => p.FullName == "Steven Spielberg").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = indianajones.Id, PersonId = persons.First(p => p.FullName == "Harrison Ford").Id, Role = CreditRole.Actor, CharacterName = "Indiana Jones", DisplayOrder = 2 },
+            new MovieCredit { MovieId = indianajones.Id, PersonId = persons.First(p => p.FullName == "Karen Allen").Id, Role = CreditRole.Actor, CharacterName = "Marion Ravenwood", DisplayOrder = 3 },
+
+            // Back to the Future
+            new MovieCredit { MovieId = backtothefuture.Id, PersonId = persons.First(p => p.FullName == "Robert Zemeckis").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = backtothefuture.Id, PersonId = persons.First(p => p.FullName == "Michael J. Fox").Id, Role = CreditRole.Actor, CharacterName = "Marty McFly", DisplayOrder = 2 },
+            new MovieCredit { MovieId = backtothefuture.Id, PersonId = persons.First(p => p.FullName == "Christopher Lloyd").Id, Role = CreditRole.Actor, CharacterName = "Doc Brown", DisplayOrder = 3 }
 
         );
 
