@@ -743,6 +743,171 @@ public static class DbSeeder
         StockQuantity = 3,
         IsFeatured = true,
         ProductionCompanyId = companies.First(c => c.Name == "20th Century Fox").Id
+    },
+         new Movie
+    {
+        Title = "Heat",
+        Synopsis = "A group of high-end professional thieves start to feel the heat from the LAPD when they unknowingly leave a clue at their latest heist.",
+        ReleaseYear = 1995,
+        DurationMinutes = 170,
+        RentalPrice = 42,
+        PosterUrl = "/posters/heat.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=UMxO_4JpgkE",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 4,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
+    },
+    new Movie
+    {
+        Title = "Platoon",
+        Synopsis = "Chris Taylor, a neophyte recruit in Vietnam, finds himself caught in a battle of good and evil played out between two sergeants.",
+        ReleaseYear = 1986,
+        DurationMinutes = 120,
+        RentalPrice = 39,
+        PosterUrl = "/posters/platoon.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=KiSIRMJuVBE",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 4,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "20th Century Fox").Id
+    },
+    new Movie
+    {
+        Title = "Rambo: First Blood",
+        Synopsis = "A troubled and misunderstood Vietnam veteran wanders into a small Oregon town looking for an old friend, but is harassed by the local sheriff and his deputies.",
+        ReleaseYear = 1982,
+        DurationMinutes = 93,
+        RentalPrice = 39,
+        PosterUrl = "/posters/rambo.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=O3MKLh0UfhM",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 4,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "Paramount Pictures").Id
+    },
+    new Movie
+    {
+        Title = "RoboCop",
+        Synopsis = "In a dystopic and crime-ridden Detroit, a terminally wounded cop returns to the force as a powerful cyborg haunted by submerged memories.",
+        ReleaseYear = 1987,
+        DurationMinutes = 102,
+        RentalPrice = 39,
+        PosterUrl = "/posters/robocop.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=gbW0B4jmEHg",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 4,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "20th Century Fox").Id
+    },
+    new Movie
+    {
+        Title = "Braveheart",
+        Synopsis = "Scottish warrior William Wallace leads his countrymen in a rebellion to free his homeland from the tyranny of King Edward I of England.",
+        ReleaseYear = 1995,
+        DurationMinutes = 178,
+        RentalPrice = 45,
+        PosterUrl = "/posters/braveheart.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=1NJO0jxBtMo",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 5,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "Paramount Pictures").Id
+    },
+    new Movie
+    {
+        Title = "Interstellar",
+        Synopsis = "When Earth becomes uninhabitable in the future, a farmer and ex-NASA pilot is tasked to pilot a spacecraft to find a new planet for humans.",
+        ReleaseYear = 2014,
+        DurationMinutes = 169,
+        RentalPrice = 49,
+        PosterUrl = "/posters/interstellar.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=zSWdZVtXT7E",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 5,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "Paramount Pictures").Id
+    },
+    new Movie
+    {
+        Title = "Pirates of the Caribbean: The Curse of the Black Pearl",
+        Synopsis = "Blacksmith Will Turner teams up with eccentric pirate Captain Jack Sparrow to save his love from Jack's former pirate allies who are now undead.",
+        ReleaseYear = 2003,
+        DurationMinutes = 143,
+        RentalPrice = 42,
+        PosterUrl = "/posters/pirates-of-the-caribbean-the-curse-of-the-black-pearl.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=naQr0uTrH_s",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 4,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
+    },
+    new Movie
+    {
+        Title = "Schindler's List",
+        Synopsis = "In German-occupied Poland during World War II, industrialist Oskar Schindler gradually becomes concerned for his Jewish workforce after witnessing their persecution by the Nazis.",
+        ReleaseYear = 1993,
+        DurationMinutes = 195,
+        RentalPrice = 45,
+        PosterUrl = "/posters/schindlers-list.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=gG22XNhtnoY",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 4,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "Universal Pictures").Id
+    },
+    new Movie
+    {
+        Title = "The Good, the Bad and the Ugly",
+        Synopsis = "A bounty hunting scam joins two men in an uneasy alliance against a third in a race to find a fortune in gold buried in a remote cemetery.",
+        ReleaseYear = 1966,
+        DurationMinutes = 178,
+        RentalPrice = 39,
+        PosterUrl = "/posters/the-good-the-bad-and-the-ugly.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=WCN5JJY_wiA",
+        Language = "Italian",
+        Country = "Italy",
+        StockQuantity = 4,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "Universal Pictures").Id
+    },
+    new Movie
+    {
+        Title = "The Lord of the Rings: The Return of the King",
+        Synopsis = "Gandalf and Aragorn lead the World of Men against Sauron's army to draw his gaze from Frodo and Sam as they approach Mount Doom with the One Ring.",
+        ReleaseYear = 2003,
+        DurationMinutes = 201,
+        RentalPrice = 49,
+        PosterUrl = "/posters/the-lord-of-the-rings-the-return-of-the-king.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=r5X-hFf6Bwo",
+        Language = "English",
+        Country = "New Zealand",
+        StockQuantity = 5,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "Warner Bros.").Id
+    },
+    new Movie
+    {
+        Title = "The Silence of the Lambs",
+        Synopsis = "A young FBI cadet must receive the help of an incarcerated and manipulative cannibal killer to help catch another serial killer who skins his victims.",
+        ReleaseYear = 1991,
+        DurationMinutes = 118,
+        RentalPrice = 42,
+        PosterUrl = "/posters/the-silence-of-the-lambs.jpg",
+        TrailerUrl = "https://www.youtube.com/watch?v=W6GDil0rGls",
+        Language = "English",
+        Country = "USA",
+        StockQuantity = 4,
+        IsFeatured = true,
+        ProductionCompanyId = companies.First(c => c.Name == "20th Century Fox").Id
     }
 
 };
@@ -793,6 +958,17 @@ public static class DbSeeder
         var thething = movies.First(m => m.Title == "The Thing");
         var bloodsport = movies.First(m => m.Title == "Bloodsport");
         var bigtrouble = movies.First(m => m.Title == "Big Trouble in Little China");
+        var heat = movies.First(m => m.Title == "Heat");
+        var platoon = movies.First(m => m.Title == "Platoon");
+        var rambo = movies.First(m => m.Title == "Rambo: First Blood");
+        var robocop = movies.First(m => m.Title == "RoboCop");
+        var braveheart = movies.First(m => m.Title == "Braveheart");
+        var interstellar = movies.First(m => m.Title == "Interstellar");
+        var pirates = movies.First(m => m.Title == "Pirates of the Caribbean: The Curse of the Black Pearl");
+        var schindlerslist = movies.First(m => m.Title == "Schindler's List");
+        var goodbadugly = movies.First(m => m.Title == "The Good, the Bad and the Ugly");
+        var lotr = movies.First(m => m.Title == "The Lord of the Rings: The Return of the King");
+        var silencelambs = movies.First(m => m.Title == "The Silence of the Lambs");
 
         var action = genres.First(g => g.Name == "Action");
         var drama = genres.First(g => g.Name == "Drama");
@@ -883,7 +1059,36 @@ public static class DbSeeder
             new MovieGenre { MovieId = bloodsport.Id, GenreId = action.Id },
             new MovieGenre { MovieId = bigtrouble.Id, GenreId = action.Id },
             new MovieGenre { MovieId = bigtrouble.Id, GenreId = comedy.Id },
-            new MovieGenre { MovieId = bigtrouble.Id, GenreId = adventure.Id }
+            new MovieGenre { MovieId = bigtrouble.Id, GenreId = adventure.Id },   
+            new MovieGenre { MovieId = heat.Id, GenreId = crime.Id },
+            new MovieGenre { MovieId = heat.Id, GenreId = drama.Id },
+            new MovieGenre { MovieId = heat.Id, GenreId = action.Id },   
+            new MovieGenre { MovieId = platoon.Id, GenreId = drama.Id },
+            new MovieGenre { MovieId = platoon.Id, GenreId = war.Id },
+            new MovieGenre { MovieId = rambo.Id, GenreId = action.Id },
+            new MovieGenre { MovieId = rambo.Id, GenreId = thriller.Id },
+            new MovieGenre { MovieId = robocop.Id, GenreId = action.Id },
+            new MovieGenre { MovieId = robocop.Id, GenreId = scifi.Id },
+            new MovieGenre { MovieId = robocop.Id, GenreId = crime.Id },
+            new MovieGenre { MovieId = braveheart.Id, GenreId = action.Id },
+            new MovieGenre { MovieId = braveheart.Id, GenreId = drama.Id },
+            new MovieGenre { MovieId = braveheart.Id, GenreId = war.Id },
+            new MovieGenre { MovieId = interstellar.Id, GenreId = scifi.Id },
+            new MovieGenre { MovieId = interstellar.Id, GenreId = drama.Id },
+            new MovieGenre { MovieId = interstellar.Id, GenreId = adventure.Id },
+            new MovieGenre { MovieId = pirates.Id, GenreId = action.Id },
+            new MovieGenre { MovieId = pirates.Id, GenreId = adventure.Id },
+            new MovieGenre { MovieId = pirates.Id, GenreId = genres.First(g => g.Name == "Fantasy").Id },
+            new MovieGenre { MovieId = schindlerslist.Id, GenreId = drama.Id },
+            new MovieGenre { MovieId = schindlerslist.Id, GenreId = war.Id },
+            new MovieGenre { MovieId = goodbadugly.Id, GenreId = genres.First(g => g.Name == "Western").Id },
+            new MovieGenre { MovieId = goodbadugly.Id, GenreId = adventure.Id },
+            new MovieGenre { MovieId = lotr.Id, GenreId = genres.First(g => g.Name == "Fantasy").Id },
+            new MovieGenre { MovieId = lotr.Id, GenreId = adventure.Id },
+            new MovieGenre { MovieId = lotr.Id, GenreId = action.Id },
+            new MovieGenre { MovieId = silencelambs.Id, GenreId = thriller.Id },
+            new MovieGenre { MovieId = silencelambs.Id, GenreId = horror.Id },
+            new MovieGenre { MovieId = silencelambs.Id, GenreId = crime.Id }
 
         );
 
@@ -969,7 +1174,32 @@ public static class DbSeeder
     new Person { FullName = "Kurt Russell", Country = "USA", Bio = "Known for The Thing and Escape from New York." },
     new Person { FullName = "Newt Arnold", Country = "USA", Bio = "Director of Bloodsport." },
     new Person { FullName = "Jean-Claude Van Damme", Country = "Belgium", Bio = "Known for Bloodsport and Kickboxer." },
-    new Person { FullName = "Kim Cattrall", Country = "UK", Bio = "Known for Big Trouble in Little China." }
+    new Person { FullName = "Kim Cattrall", Country = "UK", Bio = "Known for Big Trouble in Little China." },
+    new Person { FullName = "Michael Mann", Country = "USA", Bio = "Director of Heat and Collateral." },
+    new Person { FullName = "Val Kilmer", Country = "USA", Bio = "Known for Heat and Top Gun." },
+    new Person { FullName = "Oliver Stone", Country = "USA", Bio = "Director of Platoon and Wall Street." },
+    new Person { FullName = "Charlie Sheen", Country = "USA", Bio = "Known for Platoon and Two and a Half Men." },
+    new Person { FullName = "Willem Dafoe", Country = "USA", Bio = "Known for Platoon and Spider-Man." },
+    new Person { FullName = "Ted Kotcheff", Country = "Canada", Bio = "Director of Rambo: First Blood." },
+    new Person { FullName = "Paul Verhoeven", Country = "Netherlands", Bio = "Director of RoboCop and Total Recall." },
+    new Person { FullName = "Peter Weller", Country = "USA", Bio = "Known for RoboCop." },
+    new Person { FullName = "Mel Gibson", Country = "USA", Bio = "Director of Braveheart and known for Mad Max." },
+    new Person { FullName = "Sophie Marceau", Country = "France", Bio = "Known for Braveheart." },
+    new Person { FullName = "Matthew McConaughey", Country = "USA", Bio = "Known for Interstellar and Dallas Buyers Club." },
+    new Person { FullName = "Anne Hathaway", Country = "USA", Bio = "Known for Interstellar and The Dark Knight Rises." },
+    new Person { FullName = "Gore Verbinski", Country = "USA", Bio = "Director of Pirates of the Caribbean." },
+    new Person { FullName = "Johnny Depp", Country = "USA", Bio = "Known for Pirates of the Caribbean." },
+    new Person { FullName = "Orlando Bloom", Country = "UK", Bio = "Known for Pirates of the Caribbean and Lord of the Rings." },
+    new Person { FullName = "Liam Neeson", Country = "Northern Ireland", Bio = "Known for Schindler's List and Taken." },
+    new Person { FullName = "Ralph Fiennes", Country = "UK", Bio = "Known for Schindler's List and Harry Potter." },
+    new Person { FullName = "Sergio Leone", Country = "Italy", Bio = "Director of The Good, the Bad and the Ugly." },
+    new Person { FullName = "Eli Wallach", Country = "USA", Bio = "Known for The Good, the Bad and the Ugly." },
+    new Person { FullName = "Peter Jackson", Country = "New Zealand", Bio = "Director of The Lord of the Rings trilogy." },
+    new Person { FullName = "Elijah Wood", Country = "USA", Bio = "Known for The Lord of the Rings." },
+    new Person { FullName = "Viggo Mortensen", Country = "USA", Bio = "Known for The Lord of the Rings." },
+    new Person { FullName = "Jonathan Demme", Country = "USA", Bio = "Director of The Silence of the Lambs." },
+    new Person { FullName = "Anthony Hopkins", Country = "UK", Bio = "Known for The Silence of the Lambs." },
+    new Person { FullName = "Jodie Foster", Country = "USA", Bio = "Known for The Silence of the Lambs and Taxi Driver." }
 };
 
         context.Persons.AddRange(persons);
@@ -1154,7 +1384,61 @@ public static class DbSeeder
             // Big Trouble in Little China
             new MovieCredit { MovieId = bigtrouble.Id, PersonId = persons.First(p => p.FullName == "John Carpenter").Id, Role = CreditRole.Director, DisplayOrder = 1 },
             new MovieCredit { MovieId = bigtrouble.Id, PersonId = persons.First(p => p.FullName == "Kurt Russell").Id, Role = CreditRole.Actor, CharacterName = "Jack Burton", DisplayOrder = 2 },
-            new MovieCredit { MovieId = bigtrouble.Id, PersonId = persons.First(p => p.FullName == "Kim Cattrall").Id, Role = CreditRole.Actor, CharacterName = "Gracie Law", DisplayOrder = 3 }
+            new MovieCredit { MovieId = bigtrouble.Id, PersonId = persons.First(p => p.FullName == "Kim Cattrall").Id, Role = CreditRole.Actor, CharacterName = "Gracie Law", DisplayOrder = 3 },
+
+             // Heat
+            new MovieCredit { MovieId = heat.Id, PersonId = persons.First(p => p.FullName == "Michael Mann").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = heat.Id, PersonId = persons.First(p => p.FullName == "Al Pacino").Id, Role = CreditRole.Actor, CharacterName = "Vincent Hanna", DisplayOrder = 2 },
+            new MovieCredit { MovieId = heat.Id, PersonId = persons.First(p => p.FullName == "Robert De Niro").Id, Role = CreditRole.Actor, CharacterName = "Neil McCauley", DisplayOrder = 3 },
+            new MovieCredit { MovieId = heat.Id, PersonId = persons.First(p => p.FullName == "Val Kilmer").Id, Role = CreditRole.Actor, CharacterName = "Chris Shiherlis", DisplayOrder = 4 },
+
+            // Platoon
+            new MovieCredit { MovieId = platoon.Id, PersonId = persons.First(p => p.FullName == "Oliver Stone").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = platoon.Id, PersonId = persons.First(p => p.FullName == "Charlie Sheen").Id, Role = CreditRole.Actor, CharacterName = "Chris Taylor", DisplayOrder = 2 },
+            new MovieCredit { MovieId = platoon.Id, PersonId = persons.First(p => p.FullName == "Willem Dafoe").Id, Role = CreditRole.Actor, CharacterName = "Sgt. Elias", DisplayOrder = 3 },
+
+            // Rambo: First Blood
+            new MovieCredit { MovieId = rambo.Id, PersonId = persons.First(p => p.FullName == "Ted Kotcheff").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = rambo.Id, PersonId = persons.First(p => p.FullName == "Sylvester Stallone").Id, Role = CreditRole.Actor, CharacterName = "John Rambo", DisplayOrder = 2 },
+
+            // RoboCop
+            new MovieCredit { MovieId = robocop.Id, PersonId = persons.First(p => p.FullName == "Paul Verhoeven").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = robocop.Id, PersonId = persons.First(p => p.FullName == "Peter Weller").Id, Role = CreditRole.Actor, CharacterName = "Alex Murphy / RoboCop", DisplayOrder = 2 },
+
+            // Braveheart
+            new MovieCredit { MovieId = braveheart.Id, PersonId = persons.First(p => p.FullName == "Mel Gibson").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = braveheart.Id, PersonId = persons.First(p => p.FullName == "Mel Gibson").Id, Role = CreditRole.Actor, CharacterName = "William Wallace", DisplayOrder = 2 },
+            new MovieCredit { MovieId = braveheart.Id, PersonId = persons.First(p => p.FullName == "Sophie Marceau").Id, Role = CreditRole.Actor, CharacterName = "Princess Isabelle", DisplayOrder = 3 },
+
+            // Interstellar
+            new MovieCredit { MovieId = interstellar.Id, PersonId = persons.First(p => p.FullName == "Christopher Nolan").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = interstellar.Id, PersonId = persons.First(p => p.FullName == "Matthew McConaughey").Id, Role = CreditRole.Actor, CharacterName = "Cooper", DisplayOrder = 2 },
+            new MovieCredit { MovieId = interstellar.Id, PersonId = persons.First(p => p.FullName == "Anne Hathaway").Id, Role = CreditRole.Actor, CharacterName = "Dr. Brand", DisplayOrder = 3 },
+
+            // Pirates of the Caribbean
+            new MovieCredit { MovieId = pirates.Id, PersonId = persons.First(p => p.FullName == "Gore Verbinski").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = pirates.Id, PersonId = persons.First(p => p.FullName == "Johnny Depp").Id, Role = CreditRole.Actor, CharacterName = "Captain Jack Sparrow", DisplayOrder = 2 },
+            new MovieCredit { MovieId = pirates.Id, PersonId = persons.First(p => p.FullName == "Orlando Bloom").Id, Role = CreditRole.Actor, CharacterName = "Will Turner", DisplayOrder = 3 },
+
+            // Schindler's List
+            new MovieCredit { MovieId = schindlerslist.Id, PersonId = persons.First(p => p.FullName == "Steven Spielberg").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = schindlerslist.Id, PersonId = persons.First(p => p.FullName == "Liam Neeson").Id, Role = CreditRole.Actor, CharacterName = "Oskar Schindler", DisplayOrder = 2 },
+            new MovieCredit { MovieId = schindlerslist.Id, PersonId = persons.First(p => p.FullName == "Ralph Fiennes").Id, Role = CreditRole.Actor, CharacterName = "Amon Goeth", DisplayOrder = 3 },
+
+            // The Good, the Bad and the Ugly
+            new MovieCredit { MovieId = goodbadugly.Id, PersonId = persons.First(p => p.FullName == "Sergio Leone").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = goodbadugly.Id, PersonId = persons.First(p => p.FullName == "Clint Eastwood").Id, Role = CreditRole.Actor, CharacterName = "Blondie", DisplayOrder = 2 },
+            new MovieCredit { MovieId = goodbadugly.Id, PersonId = persons.First(p => p.FullName == "Eli Wallach").Id, Role = CreditRole.Actor, CharacterName = "Tuco", DisplayOrder = 3 },
+
+            // The Lord of the Rings: The Return of the King
+            new MovieCredit { MovieId = lotr.Id, PersonId = persons.First(p => p.FullName == "Peter Jackson").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = lotr.Id, PersonId = persons.First(p => p.FullName == "Elijah Wood").Id, Role = CreditRole.Actor, CharacterName = "Frodo Baggins", DisplayOrder = 2 },
+            new MovieCredit { MovieId = lotr.Id, PersonId = persons.First(p => p.FullName == "Viggo Mortensen").Id, Role = CreditRole.Actor, CharacterName = "Aragorn", DisplayOrder = 3 },
+
+            // The Silence of the Lambs
+            new MovieCredit { MovieId = silencelambs.Id, PersonId = persons.First(p => p.FullName == "Jonathan Demme").Id, Role = CreditRole.Director, DisplayOrder = 1 },
+            new MovieCredit { MovieId = silencelambs.Id, PersonId = persons.First(p => p.FullName == "Anthony Hopkins").Id, Role = CreditRole.Actor, CharacterName = "Hannibal Lecter", DisplayOrder = 2 },
+            new MovieCredit { MovieId = silencelambs.Id, PersonId = persons.First(p => p.FullName == "Jodie Foster").Id, Role = CreditRole.Actor, CharacterName = "Clarice Starling", DisplayOrder = 3 }
 
         );
 
