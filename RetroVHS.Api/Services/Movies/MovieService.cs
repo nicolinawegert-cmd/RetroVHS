@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using RetroVHS.Api.Data;
 using RetroVHS.Api.Models;
 using RetroVHS.Shared.DTOs.Movies;
+using RetroVHS.Shared.Enums;
 
 namespace RetroVHS.Api.Services.Movies;
 
@@ -80,7 +81,33 @@ public class MovieService : IMovieService
       AvailabilityStatus = movie.AvailabilityStatus.ToString(),
       StockQuantity = movie.StockQuantity,
       ProductionCompanyName = movie.ProductionCompany?.Name,
-      Genres = movie.MovieGenres.Select(mg => mg.Genre.Name).ToList()
+      Genres = movie.MovieGenres.Select(mg => mg.Genre.Name).ToList(),
+
+      Directors = movie.MovieCredits
+          .Where(mc => mc.Role == CreditRole.Director)
+          .OrderBy(mc => mc.DisplayOrder)
+          .Select(mc => new PersonCreditDto
+          {
+            PersonId = mc.PersonId,
+            FullName = mc.Person.FullName,
+            Role = mc.Role.ToString(),
+            CharacterName = mc.CharacterName,
+            DisplayOrder = mc.DisplayOrder
+          })
+          .ToList(),
+
+      Cast = movie.MovieCredits
+          .Where(mc => mc.Role == CreditRole.Actor)
+          .OrderBy(mc => mc.DisplayOrder)
+          .Select(mc => new PersonCreditDto
+          {
+            PersonId = mc.PersonId,
+            FullName = mc.Person.FullName,
+            Role = mc.Role.ToString(),
+            CharacterName = mc.CharacterName,
+            DisplayOrder = mc.DisplayOrder
+          })
+          .ToList(),
     };
   }
 
