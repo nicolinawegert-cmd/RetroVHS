@@ -13,11 +13,17 @@ public class MoviesController : ControllerBase
 {
     private readonly IMovieService _movieService;
 
+    /// <summary>
+    /// Skapar en ny instans av controllern och injicerar movie-servicen.
+    /// </summary>
     public MoviesController(IMovieService movieService)
     {
         _movieService = movieService;
     }
 
+    /// <summary>
+    /// Hämtar filmer från katalogen med stöd för sökning, filtrering och sortering.
+    /// </summary>
     [HttpGet]
     public async Task<ActionResult<List<MovieListDto>>> GetMovies([FromQuery] MovieFilterDto filter)
     {
@@ -25,6 +31,9 @@ public class MoviesController : ControllerBase
         return Ok(movies);
     }
 
+    /// <summary>
+    /// Hämtar fullständig information om en specifik film.
+    /// </summary>
     [HttpGet("{id:int}")]
     public async Task<ActionResult<MovieDetailsDto>> GetMovieById(int id)
     {
@@ -36,6 +45,9 @@ public class MoviesController : ControllerBase
         return Ok(movie);
     }
 
+    /// <summary>
+    /// Skapar en ny film i katalogen. Endast administratörer har åtkomst.
+    /// </summary>
     [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<ActionResult<MovieDetailsDto>> CreateMovie([FromBody] CreateMovieDto dto)
@@ -54,6 +66,9 @@ public class MoviesController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Uppdaterar en befintlig film och dess relationer. Endast administratörer har åtkomst.
+    /// </summary>
     [Authorize(Roles = "Admin")]
     [HttpPut("{id:int}")]
     public async Task<ActionResult<MovieDetailsDto>> UpdateMovie(int id, [FromBody] UpdateMovieDto dto)
@@ -79,6 +94,9 @@ public class MoviesController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Tar bort en film från katalogen. Endast administratörer har åtkomst.
+    /// </summary>
     [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteMovie(int id)

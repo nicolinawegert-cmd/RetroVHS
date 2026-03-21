@@ -14,11 +14,17 @@ public class MovieService : IMovieService
 {
   private readonly ApplicationDbContext _context;
 
+  /// <summary>
+  /// Skapar en ny instans av servicen och injicerar databaskontexten.
+  /// </summary>
   public MovieService(ApplicationDbContext context)
   {
     _context = context;
   }
 
+  /// <summary>
+  /// Hämtar filmer från katalogen med stöd för sökning, filtrering och sortering.
+  /// </summary>
   public async Task<List<MovieListDto>> GetMoviesAsync(MovieFilterDto filter)
   {
     var query = _context.Movies
@@ -105,6 +111,9 @@ public class MovieService : IMovieService
     return movies;
   }
 
+  /// <summary>
+  /// Hämtar fullständig information om en film inklusive genres, credits och grunddata.
+  /// </summary>
   public async Task<MovieDetailsDto?> GetMovieByIdAsync(int id)
   {
     var movie = await _context.Movies
@@ -164,6 +173,9 @@ public class MovieService : IMovieService
     };
   }
 
+  /// <summary>
+  /// Skapar en ny film och sparar kopplingar till genres och credits.
+  /// </summary>
   public async Task<MovieDetailsDto> CreateMovieAsync(CreateMovieDto dto)
   {
     await ValidateMovieRelationsAsync(
@@ -218,6 +230,9 @@ public class MovieService : IMovieService
         ?? throw new InvalidOperationException("Movie could not be loaded.");
   }
 
+  /// <summary>
+  /// Uppdaterar en befintlig film och ersätter dess genres och credits med nya värden.
+  /// </summary>
   public async Task<MovieDetailsDto?> UpdateMovieAsync(int id, UpdateMovieDto dto)
   {
     await ValidateMovieRelationsAsync(
@@ -278,6 +293,9 @@ public class MovieService : IMovieService
     return await GetMovieByIdAsync(movie.Id);
   }
 
+  /// <summary>
+  /// Tar bort en film från katalogen om den finns.
+  /// </summary>
   public async Task<bool> DeleteMovieAsync(int id)
   {
     var movie = await _context.Movies.FindAsync(id);
@@ -290,6 +308,9 @@ public class MovieService : IMovieService
     return true;
   }
 
+  /// <summary>
+  /// Validerar att relaterade id:n för produktionsbolag, genres och personer finns i databasen.
+  /// </summary>
   private async Task ValidateMovieRelationsAsync(
     int? productionCompanyId,
     List<int> genreIds,

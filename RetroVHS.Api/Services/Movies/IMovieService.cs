@@ -8,9 +8,28 @@ namespace RetroVHS.Api.Services.Movies;
 
 public interface IMovieService
 {
+  /// <summary>
+  /// Hämtar en lista med filmer baserat på angivna filter och sorteringsval.
+  /// </summary>
   Task<List<MovieListDto>> GetMoviesAsync(MovieFilterDto filter);
+
+  /// <summary>
+  /// Hämtar detaljerad information om en specifik film.
+  /// </summary>
   Task<MovieDetailsDto?> GetMovieByIdAsync(int id);
+
+  /// <summary>
+  /// Skapar en ny film och returnerar den sparade detaljrepresentationen.
+  /// </summary>
   Task<MovieDetailsDto> CreateMovieAsync(CreateMovieDto dto);
+
+  /// <summary>
+  /// Uppdaterar en befintlig film och returnerar den uppdaterade detaljrepresentationen.
+  /// </summary>
   Task<MovieDetailsDto?> UpdateMovieAsync(int id, UpdateMovieDto dto);
+
+  /// <summary>
+  /// Tar bort en film från katalogen.
+  /// </summary>
   Task<bool> DeleteMovieAsync(int id);
 }
