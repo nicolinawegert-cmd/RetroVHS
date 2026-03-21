@@ -131,3 +131,6 @@ nuget.config.local
 .vscode/obj/
 artifacts/
 publish/
+*.db
+*.db-shm
+*.db-wal
