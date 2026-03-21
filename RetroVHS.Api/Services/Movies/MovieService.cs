@@ -145,7 +145,9 @@ public class MovieService : IMovieService
     dto.GenreIds,
     dto.Credits);
 
-    var movie = await _context.Movies.FirstOrDefaultAsync(m => m.Id == id);
+    var movie = await _context.Movies
+    .Include(m => m.MovieGenres)
+    .FirstOrDefaultAsync(m => m.Id == id);
 
     if (movie == null)
       return null;
@@ -163,6 +165,17 @@ public class MovieService : IMovieService
     movie.AvailabilityStatus = dto.AvailabilityStatus;
     movie.StockQuantity = dto.StockQuantity;
     movie.IsFeatured = dto.IsFeatured;
+
+    _context.MovieGenres.RemoveRange(movie.MovieGenres);
+
+    foreach (var genreId in dto.GenreIds.Distinct())
+    {
+      _context.MovieGenres.Add(new MovieGenre
+      {
+        MovieId = movie.Id,
+        GenreId = genreId
+      });
+    }
 
     await _context.SaveChangesAsync();
 
