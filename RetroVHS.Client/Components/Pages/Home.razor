@@ -5,25 +5,27 @@
 
 <PageTitle>RetroVHS</PageTitle>
 
-<h2 class="section-title">🎬 Utvalda filmer</h2>
+<div class="movie-section">
+    <h2 class="section-title">🎬 Utvalda filmer</h2>
 
-@if (isLoading)
-{
-    <p style="color: #888;">Laddar filmer...</p>
-}
-else if (movies.Count == 0)
-{
-    <p style="color: #888;">Inga filmer hittades.</p>
-}
-else
-{
-    <div class="movie-grid">
-        @foreach (var movie in movies)
-        {
-            <MovieCard Movie="movie" OnMovieSelected="GoToMovie" />
-        }
-    </div>
-}
+    @if (isLoading)
+    {
+        <p style="color: #888;">Laddar filmer...</p>
+    }
+    else if (movies.Count == 0)
+    {
+        <p style="color: #888;">Inga filmer hittades.</p>
+    }
+    else
+    {
+        <div class="movie-grid">
+            @foreach (var movie in movies)
+            {
+                <MovieCard Movie="movie" OnMovieSelected="GoToMovie" />
+            }
+        </div>
+    }
+</div>
 
 @code {
     private List<MovieListDto> movies = [];
