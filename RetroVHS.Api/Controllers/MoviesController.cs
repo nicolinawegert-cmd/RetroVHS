@@ -18,7 +18,6 @@ public class MoviesController : ControllerBase
         _movieService = movieService;
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<ActionResult<List<MovieListDto>>> GetMovies([FromQuery] MovieFilterDto filter)
     {
@@ -26,7 +25,6 @@ public class MoviesController : ControllerBase
         return Ok(movies);
     }
 
-    [Authorize(Roles = "Admin")]
     [HttpGet("{id:int}")]
     public async Task<ActionResult<MovieDetailsDto>> GetMovieById(int id)
     {
