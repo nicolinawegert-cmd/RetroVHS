@@ -90,7 +90,7 @@ public class MovieService : IMovieService
     dto.ProductionCompanyId,
     dto.GenreIds,
     dto.Credits);
-    
+
     var movie = new Movie
     {
       Title = dto.Title,
@@ -117,6 +117,11 @@ public class MovieService : IMovieService
 
   public async Task<MovieDetailsDto?> UpdateMovieAsync(int id, UpdateMovieDto dto)
   {
+    await ValidateMovieRelationsAsync(
+    dto.ProductionCompanyId,
+    dto.GenreIds,
+    dto.Credits);
+    
     var movie = await _context.Movies.FirstOrDefaultAsync(m => m.Id == id);
 
     if (movie == null)
