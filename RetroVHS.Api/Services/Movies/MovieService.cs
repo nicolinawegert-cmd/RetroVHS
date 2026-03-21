@@ -83,4 +83,30 @@ public class MovieService : IMovieService
     };
   }
 
+  public async Task<MovieDetailsDto> CreateMovieAsync(CreateMovieDto dto)
+  {
+    var movie = new Movie
+    {
+      Title = dto.Title,
+      Synopsis = dto.Synopsis,
+      ReleaseYear = dto.ReleaseYear,
+      DurationMinutes = dto.DurationMinutes,
+      RentalPrice = dto.RentalPrice,
+      PosterUrl = dto.PosterUrl,
+      TrailerUrl = dto.TrailerUrl,
+      Language = dto.Language,
+      Country = dto.Country,
+      ProductionCompanyId = dto.ProductionCompanyId,
+      AvailabilityStatus = dto.AvailabilityStatus,
+      StockQuantity = dto.StockQuantity,
+      IsFeatured = dto.IsFeatured
+    };
+
+    _context.Movies.Add(movie);
+    await _context.SaveChangesAsync();
+
+    return await GetMovieByIdAsync(movie.Id)
+        ?? throw new InvalidOperationException("Movie could not be loaded.");
+  }
+
 }

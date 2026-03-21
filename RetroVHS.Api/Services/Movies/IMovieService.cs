@@ -8,6 +8,8 @@ namespace RetroVHS.Api.Services.Movies;
 
 public interface IMovieService
 {
-  Task<List<MovieListDto>> GetAllMoviesAsync(MovieFilterDto filter);
+  Task<List<MovieListDto>> GetMoviesAsync(MovieFilterDto filter);
   Task<MovieDetailsDto?> GetMovieByIdAsync(int id);
+  Task<MovieDetailsDto> CreateMovieAsync(CreateMovieDto dto);
+
 }

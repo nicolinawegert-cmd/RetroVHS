@@ -36,4 +36,13 @@ public class MoviesController : ControllerBase
         return Ok(movie);
     }
 
+    [HttpPost]
+    public async Task<ActionResult<MovieDetailsDto>> CreateMovie([FromBody] CreateMovieDto dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var created = await _movieService.CreateMovieAsync(dto);
+        return CreatedAtAction(nameof(GetMovieById), new { id = created.Id }, created);
+    }
 }
