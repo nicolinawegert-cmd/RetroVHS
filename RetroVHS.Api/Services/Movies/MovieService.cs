@@ -148,5 +148,53 @@ public class MovieService : IMovieService
     return true;
   }
 
+  private async Task ValidateMovieRelationsAsync(
+    int? productionCompanyId,
+    List<int> genreIds,
+    List<CreateMovieCreditDto> credits)
+  {
+    if (productionCompanyId.HasValue)
+    {
+      var companyExists = await _context.ProductionCompanies
+          .AnyAsync(pc => pc.Id == productionCompanyId.Value);
 
+      if (!companyExists)
+      {
+        throw new ArgumentException("Ogiltigt ProductionCompanyId.");
+      }
+    }
+
+    var distinctGenreIds = genreIds.Distinct().ToList();
+
+    if (distinctGenreIds.Count > 0)
+    {
+      var existingGenreIds = await _context.Genres
+          .Where(g => distinctGenreIds.Contains(g.Id))
+          .Select(g => g.Id)
+          .ToListAsync();
+
+      if (existingGenreIds.Count != distinctGenreIds.Count)
+      {
+        throw new ArgumentException("En eller flera GenreIds är ogiltiga.");
+      }
+    }
+
+    var distinctPersonIds = credits
+        .Select(c => c.PersonId)
+        .Distinct()
+        .ToList();
+
+    if (distinctPersonIds.Count > 0)
+    {
+      var existingPersonIds = await _context.Persons
+          .Where(p => distinctPersonIds.Contains(p.Id))
+          .Select(p => p.Id)
+          .ToListAsync();
+
+      if (existingPersonIds.Count != distinctPersonIds.Count)
+      {
+        throw new ArgumentException("En eller flera PersonId i Credits är ogiltiga.");
+      }
+    }
+  }
 }
