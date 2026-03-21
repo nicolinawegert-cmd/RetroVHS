@@ -86,6 +86,11 @@ public class MovieService : IMovieService
 
   public async Task<MovieDetailsDto> CreateMovieAsync(CreateMovieDto dto)
   {
+    await ValidateMovieRelationsAsync(
+    dto.ProductionCompanyId,
+    dto.GenreIds,
+    dto.Credits);
+    
     var movie = new Movie
     {
       Title = dto.Title,
