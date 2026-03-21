@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RetroVHS.Api.Services.Movies;
 using RetroVHS.Shared.DTOs.Movies;
+using Microsoft.AspNetCore.Authorization;
 namespace RetroVHS.Api.Controllers;
 
 /// <summary>
@@ -17,6 +18,7 @@ public class MoviesController : ControllerBase
         _movieService = movieService;
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<ActionResult<List<MovieListDto>>> GetMovies([FromQuery] MovieFilterDto filter)
     {
@@ -24,6 +26,7 @@ public class MoviesController : ControllerBase
         return Ok(movies);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpGet("{id:int}")]
     public async Task<ActionResult<MovieDetailsDto>> GetMovieById(int id)
     {
@@ -34,7 +37,8 @@ public class MoviesController : ControllerBase
 
         return Ok(movie);
     }
-
+    
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<ActionResult<MovieDetailsDto>> CreateMovie([FromBody] CreateMovieDto dto)
     {
@@ -45,6 +49,7 @@ public class MoviesController : ControllerBase
         return CreatedAtAction(nameof(GetMovieById), new { id = created.Id }, created);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id:int}")]
     public async Task<ActionResult<MovieDetailsDto>> UpdateMovie(int id, [FromBody] UpdateMovieDto dto)
     {
@@ -62,6 +67,7 @@ public class MoviesController : ControllerBase
         return Ok(updated);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteMovie(int id)
     {
