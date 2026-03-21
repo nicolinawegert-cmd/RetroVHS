@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using RetroVHS.Api.Data;
 using RetroVHS.Api.Models;
 using RetroVHS.Api.Services.Auth;
+using RetroVHS.Api.Services.Movies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,6 +45,7 @@ builder.Services
 
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IMovieService, MovieService>();
 
 // =========================
 // JWT Authentication
