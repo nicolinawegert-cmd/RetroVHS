@@ -119,7 +119,19 @@ public class MovieService : IMovieService
         GenreId = genreId
       });
     }
-    
+
+    foreach (var credit in dto.Credits)
+    {
+      _context.MovieCredits.Add(new MovieCredit
+      {
+        MovieId = movie.Id,
+        PersonId = credit.PersonId,
+        Role = credit.Role,
+        CharacterName = credit.CharacterName,
+        DisplayOrder = credit.DisplayOrder
+      });
+    }
+
     await _context.SaveChangesAsync();
 
     return await GetMovieByIdAsync(movie.Id)
