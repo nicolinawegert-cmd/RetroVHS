@@ -49,4 +49,38 @@ public class MovieService : IMovieService
 
     return movies;
   }
+
+  public async Task<MovieDetailsDto?> GetMovieByIdAsync(int id)
+  {
+    var movie = await _context.Movies
+        .Include(m => m.ProductionCompany)
+        .Include(m => m.MovieGenres)
+            .ThenInclude(mg => mg.Genre)
+        .Include(m => m.MovieCredits)
+            .ThenInclude(mc => mc.Person)
+        .Include(m => m.Reviews)
+        .FirstOrDefaultAsync(m => m.Id == id);
+
+    if (movie == null)
+      return null;
+
+    return new MovieDetailsDto
+    {
+      Id = movie.Id,
+      Title = movie.Title,
+      Synopsis = movie.Synopsis,
+      ReleaseYear = movie.ReleaseYear,
+      DurationMinutes = movie.DurationMinutes,
+      RentalPrice = movie.RentalPrice,
+      RatingAverage = movie.RatingAverage,
+      RatingCount = movie.RatingCount,
+      PosterUrl = movie.PosterUrl,
+      TrailerUrl = movie.TrailerUrl,
+      AvailabilityStatus = movie.AvailabilityStatus.ToString(),
+      StockQuantity = movie.StockQuantity,
+      ProductionCompanyName = movie.ProductionCompany?.Name,
+      Genres = movie.MovieGenres.Select(mg => mg.Genre.Name).ToList()
+    };
+  }
+
 }
