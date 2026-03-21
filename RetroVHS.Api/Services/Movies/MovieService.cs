@@ -35,6 +35,11 @@ public class MovieService : IMovieService
     {
       query = query.Where(m => m.IsFeatured == filter.Featured.Value);
     }
+    
+    if (filter.GenreId.HasValue)
+    {
+      query = query.Where(m => m.MovieGenres.Any(mg => mg.GenreId == filter.GenreId.Value));
+    }
 
     var movies = await query
         .OrderBy(m => m.Title)
