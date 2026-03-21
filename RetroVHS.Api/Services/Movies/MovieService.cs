@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using RetroVHS.Api.Data;
 using RetroVHS.Api.Models;
 using RetroVHS.Shared.DTOs.Movies;
+using RetroVHS.Shared.Enums;
 
 namespace RetroVHS.Api.Services.Movies;
 
@@ -28,6 +29,16 @@ public class MovieService : IMovieService
     if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
     {
       query = query.Where(m => EF.Functions.Like(m.Title, $"%{filter.SearchTerm}%"));
+    }
+
+    if (filter.Featured.HasValue)
+    {
+      query = query.Where(m => m.IsFeatured == filter.Featured.Value);
+    }
+    
+    if (filter.GenreId.HasValue)
+    {
+      query = query.Where(m => m.MovieGenres.Any(mg => mg.GenreId == filter.GenreId.Value));
     }
 
     var movies = await query
@@ -80,12 +91,43 @@ public class MovieService : IMovieService
       AvailabilityStatus = movie.AvailabilityStatus.ToString(),
       StockQuantity = movie.StockQuantity,
       ProductionCompanyName = movie.ProductionCompany?.Name,
-      Genres = movie.MovieGenres.Select(mg => mg.Genre.Name).ToList()
+      Genres = movie.MovieGenres.Select(mg => mg.Genre.Name).ToList(),
+
+      Directors = movie.MovieCredits
+          .Where(mc => mc.Role == CreditRole.Director)
+          .OrderBy(mc => mc.DisplayOrder)
+          .Select(mc => new PersonCreditDto
+          {
+            PersonId = mc.PersonId,
+            FullName = mc.Person.FullName,
+            Role = mc.Role.ToString(),
+            CharacterName = mc.CharacterName,
+            DisplayOrder = mc.DisplayOrder
+          })
+          .ToList(),
+
+      Cast = movie.MovieCredits
+          .Where(mc => mc.Role == CreditRole.Actor)
+          .OrderBy(mc => mc.DisplayOrder)
+          .Select(mc => new PersonCreditDto
+          {
+            PersonId = mc.PersonId,
+            FullName = mc.Person.FullName,
+            Role = mc.Role.ToString(),
+            CharacterName = mc.CharacterName,
+            DisplayOrder = mc.DisplayOrder
+          })
+          .ToList(),
     };
   }
 
   public async Task<MovieDetailsDto> CreateMovieAsync(CreateMovieDto dto)
   {
+    await ValidateMovieRelationsAsync(
+    dto.ProductionCompanyId,
+    dto.GenreIds,
+    dto.Credits);
+
     var movie = new Movie
     {
       Title = dto.Title,
@@ -106,13 +148,44 @@ public class MovieService : IMovieService
     _context.Movies.Add(movie);
     await _context.SaveChangesAsync();
 
+    foreach (var genreId in dto.GenreIds.Distinct())
+    {
+      _context.MovieGenres.Add(new MovieGenre
+      {
+        MovieId = movie.Id,
+        GenreId = genreId
+      });
+    }
+
+    foreach (var credit in dto.Credits)
+    {
+      _context.MovieCredits.Add(new MovieCredit
+      {
+        MovieId = movie.Id,
+        PersonId = credit.PersonId,
+        Role = credit.Role,
+        CharacterName = credit.CharacterName,
+        DisplayOrder = credit.DisplayOrder
+      });
+    }
+
+    await _context.SaveChangesAsync();
+
     return await GetMovieByIdAsync(movie.Id)
         ?? throw new InvalidOperationException("Movie could not be loaded.");
   }
 
   public async Task<MovieDetailsDto?> UpdateMovieAsync(int id, UpdateMovieDto dto)
   {
-    var movie = await _context.Movies.FirstOrDefaultAsync(m => m.Id == id);
+    await ValidateMovieRelationsAsync(
+    dto.ProductionCompanyId,
+    dto.GenreIds,
+    dto.Credits);
+
+    var movie = await _context.Movies
+    .Include(m => m.MovieGenres)
+    .Include(m => m.MovieCredits)
+    .FirstOrDefaultAsync(m => m.Id == id);
 
     if (movie == null)
       return null;
@@ -131,6 +204,32 @@ public class MovieService : IMovieService
     movie.StockQuantity = dto.StockQuantity;
     movie.IsFeatured = dto.IsFeatured;
 
+    _context.MovieGenres.RemoveRange(movie.MovieGenres);
+
+    foreach (var genreId in dto.GenreIds.Distinct())
+    {
+      _context.MovieGenres.Add(new MovieGenre
+      {
+        MovieId = movie.Id,
+        GenreId = genreId
+      });
+    }
+
+    _context.MovieCredits.RemoveRange(movie.MovieCredits);
+
+    foreach (var credit in dto.Credits)
+    {
+      _context.MovieCredits.Add(new MovieCredit
+      {
+        MovieId = movie.Id,
+        PersonId = credit.PersonId,
+        Role = credit.Role,
+        CharacterName = credit.CharacterName,
+        DisplayOrder = credit.DisplayOrder
+      });
+    }
+
+
     await _context.SaveChangesAsync();
 
     return await GetMovieByIdAsync(movie.Id);
@@ -148,5 +247,53 @@ public class MovieService : IMovieService
     return true;
   }
 
+  private async Task ValidateMovieRelationsAsync(
+    int? productionCompanyId,
+    List<int> genreIds,
+    List<CreateMovieCreditDto> credits)
+  {
+    if (productionCompanyId.HasValue)
+    {
+      var companyExists = await _context.ProductionCompanies
+          .AnyAsync(pc => pc.Id == productionCompanyId.Value);
 
+      if (!companyExists)
+      {
+        throw new ArgumentException("Ogiltigt ProductionCompanyId.");
+      }
+    }
+
+    var distinctGenreIds = genreIds.Distinct().ToList();
+
+    if (distinctGenreIds.Count > 0)
+    {
+      var existingGenreIds = await _context.Genres
+          .Where(g => distinctGenreIds.Contains(g.Id))
+          .Select(g => g.Id)
+          .ToListAsync();
+
+      if (existingGenreIds.Count != distinctGenreIds.Count)
+      {
+        throw new ArgumentException("En eller flera GenreIds är ogiltiga.");
+      }
+    }
+
+    var distinctPersonIds = credits
+        .Select(c => c.PersonId)
+        .Distinct()
+        .ToList();
+
+    if (distinctPersonIds.Count > 0)
+    {
+      var existingPersonIds = await _context.Persons
+          .Where(p => distinctPersonIds.Contains(p.Id))
+          .Select(p => p.Id)
+          .ToListAsync();
+
+      if (existingPersonIds.Count != distinctPersonIds.Count)
+      {
+        throw new ArgumentException("En eller flera PersonId i Credits är ogiltiga.");
+      }
+    }
+  }
 }
