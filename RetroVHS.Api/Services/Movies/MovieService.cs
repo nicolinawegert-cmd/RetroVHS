@@ -56,6 +56,11 @@ public class MovieService : IMovieService
       query = query.Where(m => m.RentalPrice <= filter.MaxPrice.Value);
     }
 
+    if (filter.MinRating.HasValue)
+    {
+      query = query.Where(m => m.RatingAverage >= filter.MinRating.Value);
+    }
+
     var movies = await query
         .OrderBy(m => m.Title)
         .Select(m => new MovieListDto
