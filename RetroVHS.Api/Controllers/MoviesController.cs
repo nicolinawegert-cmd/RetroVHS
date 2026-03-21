@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using RetroVHS.Api.Services.Movies;
 using RetroVHS.Shared.DTOs.Movies;
-
 namespace RetroVHS.Api.Controllers;
 
 /// <summary>
@@ -44,5 +43,22 @@ public class MoviesController : ControllerBase
 
         var created = await _movieService.CreateMovieAsync(dto);
         return CreatedAtAction(nameof(GetMovieById), new { id = created.Id }, created);
+    }
+
+    [HttpPut("{id:int}")]
+    public async Task<ActionResult<MovieDetailsDto>> UpdateMovie(int id, [FromBody] UpdateMovieDto dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        if (id != dto.Id)
+            return BadRequest("Route id och dto.Id matchar inte.");
+
+        var updated = await _movieService.UpdateMovieAsync(id, dto);
+
+        if (updated == null)
+            return NotFound();
+
+        return Ok(updated);
     }
 }

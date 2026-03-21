@@ -11,5 +11,5 @@ public interface IMovieService
   Task<List<MovieListDto>> GetMoviesAsync(MovieFilterDto filter);
   Task<MovieDetailsDto?> GetMovieByIdAsync(int id);
   Task<MovieDetailsDto> CreateMovieAsync(CreateMovieDto dto);
-
+  Task<MovieDetailsDto?> UpdateMovieAsync(int id, UpdateMovieDto dto);
 }

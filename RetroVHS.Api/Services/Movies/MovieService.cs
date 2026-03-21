@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RetroVHS.Api.Data;
+using RetroVHS.Api.Models;
 using RetroVHS.Shared.DTOs.Movies;
 
 namespace RetroVHS.Api.Services.Movies;
@@ -107,6 +108,32 @@ public class MovieService : IMovieService
 
     return await GetMovieByIdAsync(movie.Id)
         ?? throw new InvalidOperationException("Movie could not be loaded.");
+  }
+
+  public async Task<MovieDetailsDto?> UpdateMovieAsync(int id, UpdateMovieDto dto)
+  {
+    var movie = await _context.Movies.FirstOrDefaultAsync(m => m.Id == id);
+
+    if (movie == null)
+      return null;
+
+    movie.Title = dto.Title;
+    movie.Synopsis = dto.Synopsis;
+    movie.ReleaseYear = dto.ReleaseYear;
+    movie.DurationMinutes = dto.DurationMinutes;
+    movie.RentalPrice = dto.RentalPrice;
+    movie.PosterUrl = dto.PosterUrl;
+    movie.TrailerUrl = dto.TrailerUrl;
+    movie.Language = dto.Language;
+    movie.Country = dto.Country;
+    movie.ProductionCompanyId = dto.ProductionCompanyId;
+    movie.AvailabilityStatus = dto.AvailabilityStatus;
+    movie.StockQuantity = dto.StockQuantity;
+    movie.IsFeatured = dto.IsFeatured;
+
+    await _context.SaveChangesAsync();
+
+    return await GetMovieByIdAsync(movie.Id);
   }
 
 }
