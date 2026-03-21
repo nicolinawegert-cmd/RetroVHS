@@ -147,6 +147,7 @@ public class MovieService : IMovieService
 
     var movie = await _context.Movies
     .Include(m => m.MovieGenres)
+    .Include(m => m.MovieCredits)
     .FirstOrDefaultAsync(m => m.Id == id);
 
     if (movie == null)
@@ -176,6 +177,21 @@ public class MovieService : IMovieService
         GenreId = genreId
       });
     }
+
+    _context.MovieCredits.RemoveRange(movie.MovieCredits);
+
+    foreach (var credit in dto.Credits)
+    {
+      _context.MovieCredits.Add(new MovieCredit
+      {
+        MovieId = movie.Id,
+        PersonId = credit.PersonId,
+        Role = credit.Role,
+        CharacterName = credit.CharacterName,
+        DisplayOrder = credit.DisplayOrder
+      });
+    }
+
 
     await _context.SaveChangesAsync();
 
