@@ -111,6 +111,17 @@ public class MovieService : IMovieService
     _context.Movies.Add(movie);
     await _context.SaveChangesAsync();
 
+    foreach (var genreId in dto.GenreIds.Distinct())
+    {
+      _context.MovieGenres.Add(new MovieGenre
+      {
+        MovieId = movie.Id,
+        GenreId = genreId
+      });
+    }
+    
+    await _context.SaveChangesAsync();
+
     return await GetMovieByIdAsync(movie.Id)
         ?? throw new InvalidOperationException("Movie could not be loaded.");
   }
@@ -121,7 +132,7 @@ public class MovieService : IMovieService
     dto.ProductionCompanyId,
     dto.GenreIds,
     dto.Credits);
-    
+
     var movie = await _context.Movies.FirstOrDefaultAsync(m => m.Id == id);
 
     if (movie == null)
