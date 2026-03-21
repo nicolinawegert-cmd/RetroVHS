@@ -23,7 +23,7 @@ public class MovieService : IMovieService
   {
     var query = _context.Movies
         .Include(m => m.MovieGenres)
-            .ThenInclude(mg => mg.Genre)
+        .ThenInclude(mg => mg.Genre)
         .AsQueryable();
 
     if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
@@ -66,8 +66,26 @@ public class MovieService : IMovieService
       query = query.Where(m => m.AvailabilityStatus == filter.AvailabilityStatus.Value);
     }
 
+    query = filter.SortBy?.ToLowerInvariant() switch
+    {
+      "price" => filter.Desc
+          ? query.OrderByDescending(m => m.RentalPrice)
+          : query.OrderBy(m => m.RentalPrice),
+
+      "rating" => filter.Desc
+          ? query.OrderByDescending(m => m.RatingAverage)
+          : query.OrderBy(m => m.RatingAverage),
+
+      "year" => filter.Desc
+          ? query.OrderByDescending(m => m.ReleaseYear)
+          : query.OrderBy(m => m.ReleaseYear),
+
+      _ => filter.Desc
+          ? query.OrderByDescending(m => m.Title)
+          : query.OrderBy(m => m.Title)
+    };
+
     var movies = await query
-        .OrderBy(m => m.Title)
         .Select(m => new MovieListDto
         {
           Id = m.Id,
