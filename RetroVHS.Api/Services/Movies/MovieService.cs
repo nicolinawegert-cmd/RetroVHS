@@ -31,6 +31,11 @@ public class MovieService : IMovieService
       query = query.Where(m => EF.Functions.Like(m.Title, $"%{filter.SearchTerm}%"));
     }
 
+    if (filter.Featured.HasValue)
+    {
+      query = query.Where(m => m.IsFeatured == filter.Featured.Value);
+    }
+
     var movies = await query
         .OrderBy(m => m.Title)
         .Select(m => new MovieListDto
