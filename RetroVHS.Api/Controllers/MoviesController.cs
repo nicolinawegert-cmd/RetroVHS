@@ -37,7 +37,7 @@ public class MoviesController : ControllerBase
 
         return Ok(movie);
     }
-    
+
     [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<ActionResult<MovieDetailsDto>> CreateMovie([FromBody] CreateMovieDto dto)
@@ -45,8 +45,15 @@ public class MoviesController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var created = await _movieService.CreateMovieAsync(dto);
-        return CreatedAtAction(nameof(GetMovieById), new { id = created.Id }, created);
+        try
+        {
+            var created = await _movieService.CreateMovieAsync(dto);
+            return CreatedAtAction(nameof(GetMovieById), new { id = created.Id }, created);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [Authorize(Roles = "Admin")]
@@ -57,14 +64,21 @@ public class MoviesController : ControllerBase
             return BadRequest(ModelState);
 
         if (id != dto.Id)
-            return BadRequest("Route id och dto.Id matchar inte.");
+            return BadRequest(new { message = "Route id och dto.Id matchar inte." });
 
-        var updated = await _movieService.UpdateMovieAsync(id, dto);
+        try
+        {
+            var updated = await _movieService.UpdateMovieAsync(id, dto);
 
-        if (updated == null)
-            return NotFound();
+            if (updated == null)
+                return NotFound();
 
-        return Ok(updated);
+            return Ok(updated);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [Authorize(Roles = "Admin")]
