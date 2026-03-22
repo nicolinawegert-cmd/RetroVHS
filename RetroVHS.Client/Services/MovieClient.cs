@@ -42,4 +42,17 @@ public class MovieClient : IMovieClient
             return [];
         }
     }
+
+    public async Task<List<MovieListDto>> GetAllMoviesAsync()
+    {
+        try
+        {
+            var result = await _httpClient.GetFromJsonAsync<List<MovieListDto>>("api/movies");
+            return result ?? [];
+        }
+        catch
+        {
+            return [];
+        }
+    }
 }

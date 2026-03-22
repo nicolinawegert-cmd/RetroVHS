@@ -357,6 +357,22 @@ a, .btn-link {
     box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
+/* ===== Loading Spinner ===== */
+.loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 3rem 0;
+}
+
+.loading-spinner p {
+    color: #888;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+
 /* ===== Movie Cards ===== */
 .movie-section {
     background: rgba(10, 10, 26, 0.75);
