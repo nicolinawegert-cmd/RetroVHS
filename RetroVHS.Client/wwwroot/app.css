@@ -38,7 +38,8 @@ html, body {
     justify-content: space-between !important;
     width: 100% !important;
     padding: 0 1.5rem;
-    height: 3.5rem;
+    height: 5rem;
+    overflow: visible;
     background: rgba(10, 10, 26, 0.75);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
@@ -51,15 +52,17 @@ html, body {
 }
 
 .header-brand a {
-    color: #e94560;
-    font-size: 1.4rem;
-    font-weight: bold;
+    display: flex;
+    align-items: center;
     text-decoration: none;
-    letter-spacing: 0.05em;
+    padding-left: 1rem;
 }
 
-.header-brand a:hover {
-    color: #ff6b81;
+.header-logo {
+    height: 4.5rem;
+    width: auto;
+    display: block;
+    object-fit: contain;
 }
 
 .header-search {
