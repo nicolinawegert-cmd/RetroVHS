@@ -131,7 +131,7 @@ public class ReviewService : IReviewService
   }
 
   /// <summary>
-  /// Tar bort den aktuella användarens recension genom mjuk borttagning.
+  /// Tar bort den aktuella användarens recension.
   /// </summary>
   public async Task<bool> DeleteReviewAsync(int userId, int reviewId)
   {
@@ -142,7 +142,8 @@ public class ReviewService : IReviewService
     if (review == null)
       return false;
 
-    review.IsDeleted = true;
+    review.Comment = null;
+    review.IsEdited = true;
     review.UpdatedAt = DateTime.UtcNow;
 
     await _context.SaveChangesAsync();
