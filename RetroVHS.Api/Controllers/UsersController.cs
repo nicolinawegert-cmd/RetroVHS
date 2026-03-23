@@ -6,7 +6,6 @@ using RetroVHS.Shared.DTOs.Auth;
 using RetroVHS.Shared.DTOs.Rentals;
 using RetroVHS.Shared.DTOs.Reviews;
 using RetroVHS.Api.Services.Reviews;
-using RetroVHS.Shared.DTOs.Rentals;
 
 namespace RetroVHS.Api.Controllers;
 

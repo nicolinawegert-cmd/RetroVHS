@@ -5,7 +5,6 @@ using RetroVHS.Api.Models;
 using Microsoft.AspNetCore.Identity;
 using RetroVHS.Shared.DTOs.Rentals;
 using RetroVHS.Shared.DTOs.Reviews;
-using RetroVHS.Shared.DTOs.Rentals;
 
 namespace RetroVHS.Api.Services.Users;
 
