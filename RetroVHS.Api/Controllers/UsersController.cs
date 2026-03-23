@@ -72,4 +72,32 @@ public class UsersController : ControllerBase
     return Ok(updatedUser);
   }
 
+  /// <summary>
+  /// Byter lösenord för den inloggade användaren.
+  /// </summary>
+  [Authorize]
+  [HttpPut("me/password")]
+  public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
+  {
+    if (!ModelState.IsValid)
+      return BadRequest(ModelState);
+
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+    if (string.IsNullOrWhiteSpace(userIdClaim))
+      return Unauthorized();
+
+    if (!int.TryParse(userIdClaim, out var userId))
+      return Unauthorized();
+
+    var result = await _userService.ChangePasswordAsync(userId, dto);
+
+    if (!result.Succeeded)
+    {
+      return BadRequest(new { errors = result.Errors });
+    }
+
+    return Ok(new { message = "Lösenordet har uppdaterats." });
+  }
+
 }
