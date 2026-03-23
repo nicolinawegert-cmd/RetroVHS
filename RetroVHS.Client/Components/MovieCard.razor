@@ -29,16 +29,15 @@
                 @string.Join(" · ", Movie.Genres)
             </div>
         }
-        <AuthorizeView>
-            <Authorized>
-                <button class="movie-card-wishlist @(IsInWishlist ? "wishlisted" : "")"
-                        @onclick="ToggleWishlist"
-                        @onclick:stopPropagation="true"
-                        title="@(IsInWishlist ? "Ta bort från önskelista" : "Lägg till i önskelista")">
-                    @(IsInWishlist ? "❤️" : "🤍")
-                </button>
-            </Authorized>
-        </AuthorizeView>
+        @if (ShowWishlist)
+        {
+            <button class="movie-card-wishlist @(IsInWishlist ? "wishlisted" : "")"
+                    @onclick="ToggleWishlist"
+                    @onclick:stopPropagation="true"
+                    title="@(IsInWishlist ? "Ta bort från önskelista" : "Lägg till i önskelista")">
+                @(IsInWishlist ? "❤️" : "🤍")
+            </button>
+        }
     </div>
 </div>
 
@@ -48,6 +47,9 @@
 
     [Parameter]
     public bool IsInWishlist { get; set; }
+
+    [Parameter]
+    public bool ShowWishlist { get; set; }
 
     [Parameter]
     public EventCallback<MovieListDto> OnMovieSelected { get; set; }

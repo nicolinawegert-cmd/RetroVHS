@@ -3,6 +3,8 @@
 @inject IMovieClient MovieClient
 @inject IWishlistClient WishlistClient
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+@implements IDisposable
 
 <PageTitle>RetroVHS</PageTitle>
 
@@ -24,27 +26,29 @@ else
 			<div class="movie-grid">
 				@foreach (var movie in featuredMovies)
 				{
-					<MovieCard Movie="movie"
-							   IsInWishlist="wishlistIds.Contains(movie.Id)"
-							   OnMovieSelected="GoToMovie"
-							   OnWishlistToggled="ToggleWishlist" />
-				}
-			</div>
-		</div>
-	}
+								<MovieCard Movie="movie"
+											   ShowWishlist="isAuthenticated"
+											   IsInWishlist="wishlistIds.Contains(movie.Id)"
+											   OnMovieSelected="GoToMovie"
+											   OnWishlistToggled="ToggleWishlist" />
+								}
+							</div>
+						</div>
+					}
 
-	// TODO: Lägg till en sektion för alla filmer när vi har tillräckligt med data i databasen
-	@* @if (allMovies.Count > 0)
-	{
-		<div class="movie-section">
-			<h2 class="section-title">🎬 Alla filmer</h2>
-			<div class="movie-grid">
-				@foreach (var movie in allMovies)
-				{
-					<MovieCard Movie="movie"
-							   IsInWishlist="wishlistIds.Contains(movie.Id)"
-							   OnMovieSelected="GoToMovie"
-							   OnWishlistToggled="ToggleWishlist" />
+					// TODO: Lägg till en sektion för alla filmer när vi har tillräckligt med data i databasen
+					@* @if (allMovies.Count > 0)
+					{
+						<div class="movie-section">
+							<h2 class="section-title">🎬 Alla filmer</h2>
+							<div class="movie-grid">
+								@foreach (var movie in allMovies)
+								{
+									<MovieCard Movie="movie"
+											   ShowWishlist="isAuthenticated"
+											   IsInWishlist="wishlistIds.Contains(movie.Id)"
+											   OnMovieSelected="GoToMovie"
+											   OnWishlistToggled="ToggleWishlist" />
 				}
 			</div>
 		</div>
@@ -56,21 +60,50 @@ else
 	private List<MovieListDto> allMovies = [];
 	private HashSet<int> wishlistIds = [];
 	private bool isLoading = true;
+	private bool isAuthenticated;
+	private bool hasLoaded;
 
-	protected override async Task OnInitializedAsync()
+	protected override void OnInitialized()
 	{
-		await Task.Yield();
+		AuthStateProvider.AuthenticationStateChanged += OnAuthStateChanged;
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (!firstRender || hasLoaded) return;
+		hasLoaded = true;
+
+		await LoadData();
+	}
+
+	private async Task LoadData()
+	{
+		var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+		isAuthenticated = authState.User.Identity?.IsAuthenticated == true;
 
 		var featuredTask = MovieClient.GetFeaturedMoviesAsync();
 		var allTask = MovieClient.GetAllMoviesAsync();
-		var wishlistTask = WishlistClient.GetWishlistAsync();
 
 		featuredMovies = await featuredTask;
 		allMovies = await allTask;
-		var wishlist = await wishlistTask;
-		wishlistIds = wishlist.Select(w => w.MovieId).ToHashSet();
+
+		if (isAuthenticated)
+		{
+			var wishlist = await WishlistClient.GetWishlistAsync();
+			wishlistIds = wishlist.Select(w => w.MovieId).ToHashSet();
+		}
+		else
+		{
+			wishlistIds = [];
+		}
 
 		isLoading = false;
+		StateHasChanged();
+	}
+
+	private async void OnAuthStateChanged(Task<AuthenticationState> task)
+	{
+		await InvokeAsync(LoadData);
 	}
 
 	private async Task ToggleWishlist(int movieId)
@@ -90,5 +123,10 @@ else
 	private void GoToMovie(MovieListDto movie)
 	{
 		Navigation.NavigateTo($"/movie/{movie.Id}");
+	}
+
+	public void Dispose()
+	{
+		AuthStateProvider.AuthenticationStateChanged -= OnAuthStateChanged;
 	}
 }
