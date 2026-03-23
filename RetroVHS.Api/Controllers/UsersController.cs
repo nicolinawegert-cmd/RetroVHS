@@ -6,8 +6,7 @@ using RetroVHS.Shared.DTOs.Auth;
 using RetroVHS.Shared.DTOs.Rentals;
 using RetroVHS.Shared.DTOs.Reviews;
 using RetroVHS.Api.Services.Reviews;
-
-
+using RetroVHS.Shared.DTOs.Rentals;
 
 namespace RetroVHS.Api.Controllers;
 
@@ -114,6 +113,17 @@ public class UsersController : ControllerBase
   }
 
   /// <summary>
+  /// Hämtar alla användare i systemet.
+  /// Endast administratörer har åtkomst.
+  /// </summary>
+  [Authorize(Roles = "Admin")]
+  [HttpGet]
+  public async Task<ActionResult<List<UserDto>>> GetAllUsers()
+  {
+    var users = await _userService.GetAllUsersAsync();
+    return Ok(users);
+  }
+
   /// Hämtar alla beställningar (köp) som den inloggade användaren har gjort.
   /// </summary>
   [Authorize]
@@ -170,6 +180,19 @@ public class UsersController : ControllerBase
     var reviews = await _userService.GetUserReviewsByIdAsync(id);
     return Ok(reviews);
   }
+
+  /// <summary>
+  /// Hämtar alla uthyrningar/beställningar för en specifik användare.
+  /// Endast administratörer har åtkomst.
+  /// </summary>
+  [Authorize(Roles = "Admin")]
+  [HttpGet("{id:int}/rentals")]
+  public async Task<ActionResult<List<RentalDto>>> GetUserRentalsById(int id)
+  {
+    var rentals = await _userService.GetUserRentalsByIdAsync(id);
+    return Ok(rentals);
+  }
+
 
   /// <summary>
   /// Hämtar id för den aktuella inloggade användaren från JWT-tokenen.

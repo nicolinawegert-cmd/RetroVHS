@@ -5,7 +5,7 @@ using RetroVHS.Api.Models;
 using Microsoft.AspNetCore.Identity;
 using RetroVHS.Shared.DTOs.Rentals;
 using RetroVHS.Shared.DTOs.Reviews;
-
+using RetroVHS.Shared.DTOs.Rentals;
 
 namespace RetroVHS.Api.Services.Users;
 
@@ -121,11 +121,36 @@ public class UserService : IUserService
   }
 
   /// <summary>
+  /// Hämtar alla användare i systemet.
+  /// Endast avsett för administrativ översikt.
+  /// </summary>
+  public async Task<List<UserDto>> GetAllUsersAsync()
+  {
+    var users = await _context.Users
+        .OrderBy(u => u.FirstName)
+        .ThenBy(u => u.LastName)
+        .ToListAsync();
+
+    return users.Select(MapToUserDto).ToList();
+  }
+
+  /// <summary>
   /// Hämtar alla recensioner som en specifik användare har skrivit.
   /// </summary>
   public async Task<List<ReviewDto>> GetUserReviewsByIdAsync(int userId)
   {
     return await BuildUserReviewsQuery(userId).ToListAsync();
+  }
+
+  public async Task<List<RentalDto>> GetUserRentalsByIdAsync(int userId)
+  {
+    var rentals = await _context.Rentals
+        .Include(r => r.Movie)
+        .Where(r => r.UserId == userId)
+        .OrderByDescending(r => r.RentedAt)
+        .ToListAsync();
+
+    return rentals.Select(MapToRentalDto).ToList();
   }
 
   /// <summary>
@@ -191,4 +216,22 @@ public class UserService : IUserService
       IsBlocked = user.IsBlocked
     };
   }
+
+  /// <summary>
+  /// Mappar en uthyrning till RentalDto.
+  /// </summary>
+  private static RentalDto MapToRentalDto(Rental rental)
+  {
+    return new RentalDto
+    {
+      Id = rental.Id,
+      MovieId = rental.MovieId,
+      Title = rental.Movie.Title,
+      PricePaid = rental.PricePaid,
+      RentedAt = rental.RentedAt,
+      ExpiresAt = rental.ExpiresAt,
+      Status = rental.Status.ToString()
+    };
+  }
+
 }
