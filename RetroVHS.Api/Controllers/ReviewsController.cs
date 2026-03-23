@@ -85,4 +85,26 @@ public class ReviewsController : ControllerBase
     return Ok(review);
   }
 
+  /// <summary>
+  /// Tar bort den inloggade användarens recension genom mjuk borttagning.
+  /// </summary>
+  [Authorize]
+  [HttpDelete("{id:int}")]
+  public async Task<IActionResult> DeleteReview(int id)
+  {
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+    if (string.IsNullOrWhiteSpace(userIdClaim))
+      return Unauthorized();
+
+    if (!int.TryParse(userIdClaim, out var userId))
+      return Unauthorized();
+
+    var deleted = await _reviewService.DeleteReviewAsync(userId, id);
+
+    if (!deleted)
+      return NotFound();
+
+    return NoContent();
+  }
 }
