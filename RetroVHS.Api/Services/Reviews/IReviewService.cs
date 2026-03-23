@@ -17,4 +17,9 @@ public interface IReviewService
   /// </summary>
   Task<ReviewDto?> UpdateReviewAsync(int userId, int reviewId, UpdateReviewDto dto);
 
+  /// <summary>
+  /// Tar bort den aktuella användarens recension genom mjuk borttagning.
+  /// </summary>
+  Task<bool> DeleteReviewAsync(int userId, int reviewId);
+
 }
