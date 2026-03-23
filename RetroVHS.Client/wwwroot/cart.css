@@ -1,3 +1,19 @@
+/* ===== Varukorg-ikon i header ===== */
+.header-cart-link {
+    display: flex;
+    align-items: center;
+    color: #fff;
+    text-decoration: none;
+    padding: 0.4rem;
+    border-radius: 4px;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.header-cart-link:hover {
+    color: #e94560;
+    background-color: rgba(233, 69, 96, 0.1);
+}
+
 /* ===== Varukorg & Kassa ===== */
 .cart-page {
     max-width: 700px;
