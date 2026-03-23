@@ -1355,7 +1355,8 @@ public static class DbSeeder
         // =========================
         // Seed: MovieCredits
         // =========================
-        context.MovieCredits.AddRange(
+        var movieCredits = new List<MovieCredit>
+        {
             // Avatar
             new MovieCredit { MovieId = avatar.Id, PersonId = persons.First(p => p.FullName == "James Cameron").Id, Role = CreditRole.Director, DisplayOrder = 1 },
             new MovieCredit { MovieId = avatar.Id, PersonId = persons.First(p => p.FullName == "Sam Worthington").Id, Role = CreditRole.Actor, CharacterName = "Jake Sully", DisplayOrder = 2 },
@@ -1602,8 +1603,20 @@ public static class DbSeeder
             new MovieCredit { MovieId = backtothefuture.Id, PersonId = persons.First(p => p.FullName == "Michael J. Fox").Id, Role = CreditRole.Actor, CharacterName = "Marty McFly", DisplayOrder = 2 },
             new MovieCredit { MovieId = backtothefuture.Id, PersonId = persons.First(p => p.FullName == "Christopher Lloyd").Id, Role = CreditRole.Actor, CharacterName = "Doc Brown", DisplayOrder = 3 }
 
-        );
+        };
 
-        await context.SaveChangesAsync();
+        var existingMovieCreditKeys = await context.MovieCredits
+            .Select(mc => $"{mc.MovieId}-{mc.PersonId}-{mc.Role}-{mc.DisplayOrder}")
+            .ToListAsync();
+
+        var missingMovieCredits = movieCredits
+            .Where(mc => !existingMovieCreditKeys.Contains($"{mc.MovieId}-{mc.PersonId}-{mc.Role}-{mc.DisplayOrder}"))
+            .ToList();
+
+        if (missingMovieCredits.Count > 0)
+        {
+            context.MovieCredits.AddRange(missingMovieCredits);
+            await context.SaveChangesAsync();
+        }
     }
 }
