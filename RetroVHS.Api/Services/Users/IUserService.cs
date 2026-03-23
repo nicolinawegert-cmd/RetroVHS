@@ -38,4 +38,9 @@ public interface IUserService
   /// </summary>
   Task<List<ReviewDto>> GetUserReviewsByIdAsync(int userId);
 
+  /// <summary>
+  /// Hämtar alla användare i systemet.
+  /// Endast avsett för administrativ översikt.
+  /// </summary>
+  Task<List<UserDto>> GetAllUsersAsync();
 }
