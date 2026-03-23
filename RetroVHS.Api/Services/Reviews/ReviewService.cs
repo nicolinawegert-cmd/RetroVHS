@@ -58,17 +58,8 @@ public class ReviewService : IReviewService
     _context.Reviews.Add(review);
     await _context.SaveChangesAsync();
 
-    var activeReviews = await _context.Reviews
-        .Where(r => r.MovieId == dto.MovieId && !r.IsDeleted)
-        .ToListAsync();
-
-    movie.RatingCount = activeReviews.Count;
-    movie.RatingAverage = activeReviews.Count == 0
-        ? 0
-        : activeReviews.Average(r => r.Rating);
-
-    await _context.SaveChangesAsync();
-
+    await UpdateMovieRatingAsync(review.MovieId);
+    
     return new ReviewDto
     {
       Id = review.Id,
@@ -104,16 +95,7 @@ public class ReviewService : IReviewService
 
     await _context.SaveChangesAsync();
 
-    var activeReviews = await _context.Reviews
-        .Where(r => r.MovieId == review.MovieId && !r.IsDeleted)
-        .ToListAsync();
-
-    review.Movie.RatingCount = activeReviews.Count;
-    review.Movie.RatingAverage = activeReviews.Count == 0
-        ? 0
-        : activeReviews.Average(r => r.Rating);
-
-    await _context.SaveChangesAsync();
+    await UpdateMovieRatingAsync(review.MovieId);
 
     return new ReviewDto
     {
@@ -148,18 +130,32 @@ public class ReviewService : IReviewService
 
     await _context.SaveChangesAsync();
 
+    await UpdateMovieRatingAsync(review.MovieId);
+
+    return true;
+  }
+
+  /// <summary>
+  /// Räknar om en films genomsnittsbetyg och antal betyg baserat på aktiva recensioner.
+  /// </summary>
+  private async Task UpdateMovieRatingAsync(int movieId)
+  {
+    var movie = await _context.Movies
+        .FirstOrDefaultAsync(m => m.Id == movieId);
+
+    if (movie == null)
+      return;
+
     var activeReviews = await _context.Reviews
-        .Where(r => r.MovieId == review.MovieId && !r.IsDeleted)
+        .Where(r => r.MovieId == movieId && !r.IsDeleted)
         .ToListAsync();
 
-    review.Movie.RatingCount = activeReviews.Count;
-    review.Movie.RatingAverage = activeReviews.Count == 0
+    movie.RatingCount = activeReviews.Count;
+    movie.RatingAverage = activeReviews.Count == 0
         ? 0
         : activeReviews.Average(r => r.Rating);
 
     await _context.SaveChangesAsync();
-
-    return true;
   }
 
 }
