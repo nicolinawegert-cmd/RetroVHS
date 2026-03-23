@@ -108,6 +108,28 @@ public class ReviewService : IReviewService
   }
 
   /// <summary>
+  /// Tar bort kommentartexten från en recension men behåller betyget.
+  /// Avsett för administrativ moderering.
+  /// </summary>
+  public async Task<bool> RemoveReviewCommentAsync(int reviewId)
+  {
+    var review = await _context.Reviews
+        .FirstOrDefaultAsync(r => r.Id == reviewId && !r.IsDeleted);
+
+    if (review == null)
+      return false;
+
+    review.Comment = null;
+    review.IsEdited = true;
+    review.UpdatedAt = DateTime.UtcNow;
+
+    await _context.SaveChangesAsync();
+
+    return true;
+  }
+
+
+  /// <summary>
   /// Räknar om en films genomsnittsbetyg och antal betyg baserat på aktiva recensioner.
   /// </summary>
   private async Task UpdateMovieRatingAsync(int movieId)
