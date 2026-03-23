@@ -999,8 +999,8 @@ public static class DbSeeder
 };
 
         var existingMovieTitles = await context.Movies
-    .Select(m => m.Title)
-    .ToListAsync();
+            .Select(m => m.Title)
+            .ToListAsync();
 
         var missingMovies = movies
             .Where(m => !existingMovieTitles.Contains(m.Title))
@@ -1084,7 +1084,8 @@ public static class DbSeeder
         var horror = genres.First(g => g.Name == "Horror");
         var comedy = genres.First(g => g.Name == "Comedy");
 
-        context.MovieGenres.AddRange(
+        var movieGenres = new List<MovieGenre>
+        {   
             new MovieGenre { MovieId = avatar.Id, GenreId = action.Id },
             new MovieGenre { MovieId = avatar.Id, GenreId = scifi.Id },
             new MovieGenre { MovieId = avatar.Id, GenreId = adventure.Id },
@@ -1203,9 +1204,21 @@ public static class DbSeeder
             new MovieGenre { MovieId = backtothefuture.Id, GenreId = comedy.Id },
             new MovieGenre { MovieId = backtothefuture.Id, GenreId = adventure.Id }
 
-        );
+        };
 
-        await context.SaveChangesAsync();
+        var existingMovieGenreKeys = await context.MovieGenres
+            .Select(mg => $"{mg.MovieId}-{mg.GenreId}")
+            .ToListAsync();
+
+        var missingMovieGenres = movieGenres
+            .Where(mg => !existingMovieGenreKeys.Contains($"{mg.MovieId}-{mg.GenreId}"))
+            .ToList();
+
+        if (missingMovieGenres.Count > 0)
+        {
+            context.MovieGenres.AddRange(missingMovieGenres);
+            await context.SaveChangesAsync();
+        }
 
         // =========================
         // Seed: Persons
@@ -1323,8 +1336,8 @@ public static class DbSeeder
 };
 
         var existingPersonNames = await context.Persons
-    .Select(p => p.FullName)
-    .ToListAsync();
+            .Select(p => p.FullName)
+            .ToListAsync();
 
         var missingPersons = persons
             .Where(p => !existingPersonNames.Contains(p.FullName))
