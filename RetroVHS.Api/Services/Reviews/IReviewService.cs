@@ -11,4 +11,10 @@ public interface IReviewService
   /// Skapar en ny recension för en film från den aktuella användaren.
   /// </summary>
   Task<ReviewDto?> CreateReviewAsync(int userId, CreateReviewDto dto);
+
+  /// <summary>
+  /// Uppdaterar en befintlig recension för den aktuella användaren.
+  /// </summary>
+  Task<ReviewDto?> UpdateReviewAsync(int userId, int reviewId, UpdateReviewDto dto);
+
 }
