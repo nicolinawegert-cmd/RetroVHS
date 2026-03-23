@@ -122,4 +122,19 @@ public class UsersController : ControllerBase
     return Ok(reviews);
   }
 
+  /// <summary>
+  /// Hämtar profilinformationen för en specifik användare. Endast administratörer har åtkomst.
+  /// </summary>
+  [Authorize(Roles = "Admin")]
+  [HttpGet("{id:int}")]
+  public async Task<ActionResult<UserDto>> GetUserById(int id)
+  {
+    var user = await _userService.GetUserByIdAsync(id);
+
+    if (user == null)
+      return NotFound();
+
+    return Ok(user);
+  }
+
 }
