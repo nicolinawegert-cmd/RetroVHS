@@ -7,9 +7,11 @@ using Microsoft.OpenApi.Models;
 using RetroVHS.Api.Data;
 using RetroVHS.Api.Models;
 using RetroVHS.Api.Services.Auth;
+using RetroVHS.Api.Services.Cart;
 using RetroVHS.Api.Services.Movies;
-using RetroVHS.Api.Services.Users;
+using RetroVHS.Api.Services.Rentals;
 using RetroVHS.Api.Services.Reviews;
+using RetroVHS.Api.Services.Users;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,6 +52,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IMovieService, MovieService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IRentalService, RentalService>();
 
 
 // =========================

@@ -3,6 +3,7 @@ using RetroVHS.Api.Data;
 using RetroVHS.Shared.DTOs.Auth;
 using RetroVHS.Api.Models;
 using Microsoft.AspNetCore.Identity;
+using RetroVHS.Shared.DTOs.Rentals;
 using RetroVHS.Shared.DTOs.Reviews;
 using RetroVHS.Shared.DTOs.Rentals;
 
@@ -153,12 +154,35 @@ public class UserService : IUserService
   }
 
   /// <summary>
+  /// Hämtar alla beställningar (köp) som den aktuella användaren har gjort.
+  /// </summary>
+  public async Task<List<RentalDto>> GetCurrentUserRentalsAsync(int userId)
+  {
+    return await _context.Rentals
+        .Include(r => r.Movie)
+        .Where(r => r.UserId == userId)
+        .OrderByDescending(r => r.RentedAt)
+        .Select(r => new RentalDto
+        {
+          Id = r.Id,
+          MovieId = r.MovieId,
+          Title = r.Movie.Title,
+          PricePaid = r.PricePaid,
+          RentedAt = r.RentedAt,
+          ExpiresAt = r.ExpiresAt,
+          Status = r.Status.ToString()
+        })
+        .ToListAsync();
+  }
+
+  /// <summary>
   /// Bygger en gemensam query för att hämta en användares recensioner.
   /// </summary>
   private IQueryable<ReviewDto> BuildUserReviewsQuery(int userId)
   {
     return _context.Reviews
         .Include(r => r.User)
+        .Include(r => r.Movie)
         .Where(r => r.UserId == userId && !r.IsDeleted)
         .OrderByDescending(r => r.CreatedAt)
         .Select(r => new ReviewDto
@@ -172,7 +196,8 @@ public class UserService : IUserService
           Comment = r.Comment ?? string.Empty,
           Rating = r.Rating,
           CreatedAt = r.CreatedAt,
-          IsEdited = r.IsEdited
+          IsEdited = r.IsEdited,
+          MovieTitle = r.Movie.Title
         });
   }
 
