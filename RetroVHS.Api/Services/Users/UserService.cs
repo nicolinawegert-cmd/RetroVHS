@@ -157,21 +157,13 @@ public class UserService : IUserService
   /// </summary>
   public async Task<List<RentalDto>> GetCurrentUserRentalsAsync(int userId)
   {
-    return await _context.Rentals
+    var rentals = await _context.Rentals
         .Include(r => r.Movie)
         .Where(r => r.UserId == userId)
         .OrderByDescending(r => r.RentedAt)
-        .Select(r => new RentalDto
-        {
-          Id = r.Id,
-          MovieId = r.MovieId,
-          Title = r.Movie.Title,
-          PricePaid = r.PricePaid,
-          RentedAt = r.RentedAt,
-          ExpiresAt = r.ExpiresAt,
-          Status = r.Status.ToString()
-        })
         .ToListAsync();
+
+    return rentals.Select(MapToRentalDto).ToList();
   }
 
   /// <summary>
