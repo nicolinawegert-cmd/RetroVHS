@@ -180,4 +180,29 @@ public class UserService : IUserService
     return true;
   }
 
+  /// <summary>
+  /// Hämtar alla recensioner som en specifik användare har skrivit.
+  /// </summary>
+  public async Task<List<ReviewDto>> GetUserReviewsByIdAsync(int userId)
+  {
+    return await _context.Reviews
+        .Include(r => r.User)
+        .Where(r => r.UserId == userId && !r.IsDeleted)
+        .OrderByDescending(r => r.CreatedAt)
+        .Select(r => new ReviewDto
+        {
+          Id = r.Id,
+          MovieId = r.MovieId,
+          UserId = r.UserId,
+          UserDisplayName = r.UseNickname && !string.IsNullOrWhiteSpace(r.User.Nickname)
+                ? r.User.Nickname!
+                : r.User.FullName,
+          Comment = r.Comment ?? string.Empty,
+          Rating = r.Rating,
+          CreatedAt = r.CreatedAt,
+          IsEdited = r.IsEdited
+        })
+        .ToListAsync();
+  }
+
 }
