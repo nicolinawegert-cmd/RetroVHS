@@ -58,6 +58,14 @@ public class UserService : IUserService
     if (user == null)
       return null;
 
+    var emailAlreadyExists = await _context.Users
+    .AnyAsync(u => u.Email == dto.Email && u.Id != userId);
+
+    if (emailAlreadyExists)
+    {
+      throw new ArgumentException("E-postadressen används redan av en annan användare.");
+    }
+
     user.FirstName = dto.FirstName;
     user.LastName = dto.LastName;
     user.Nickname = dto.Nickname;
