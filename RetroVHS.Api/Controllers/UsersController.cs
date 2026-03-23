@@ -1,0 +1,48 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using RetroVHS.Api.Services.Users;
+using RetroVHS.Shared.DTOs.Auth;
+
+namespace RetroVHS.Api.Controllers;
+
+/// <summary>
+/// Hanterar endpoints för användarprofiler.
+/// </summary>
+[ApiController]
+[Route("api/[controller]")]
+public class UsersController : ControllerBase
+{
+  private readonly IUserService _userService;
+
+  /// <summary>
+  /// Skapar en ny instans av controllern och injicerar user-servicen.
+  /// </summary>
+  public UsersController(IUserService userService)
+  {
+    _userService = userService;
+  }
+
+  /// <summary>
+  /// Hämtar profilinformationen för den inloggade användaren.
+  /// </summary>
+  [Authorize]
+  [HttpGet("me")]
+  public async Task<ActionResult<UserDto>> GetCurrentUser()
+  {
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+    if (string.IsNullOrWhiteSpace(userIdClaim))
+      return Unauthorized();
+
+    if (!int.TryParse(userIdClaim, out var userId))
+      return Unauthorized();
+
+    var user = await _userService.GetCurrentUserAsync(userId);
+
+    if (user == null)
+      return NotFound();
+
+    return Ok(user);
+  }
+}
