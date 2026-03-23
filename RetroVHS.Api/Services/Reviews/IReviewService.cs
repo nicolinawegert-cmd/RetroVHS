@@ -1,0 +1,14 @@
+using RetroVHS.Shared.DTOs.Reviews;
+
+namespace RetroVHS.Api.Services.Reviews;
+
+/// <summary>
+/// Interface för review-service som hanterar recensioner och betyg.
+/// </summary>
+public interface IReviewService
+{
+  /// <summary>
+  /// Skapar en ny recension för en film från den aktuella användaren.
+  /// </summary>
+  Task<ReviewDto?> CreateReviewAsync(int userId, CreateReviewDto dto);
+}
