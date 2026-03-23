@@ -130,4 +130,35 @@ public class ReviewService : IReviewService
     };
   }
 
+  /// <summary>
+  /// Tar bort den aktuella användarens recension genom mjuk borttagning.
+  /// </summary>
+  public async Task<bool> DeleteReviewAsync(int userId, int reviewId)
+  {
+    var review = await _context.Reviews
+        .Include(r => r.Movie)
+        .FirstOrDefaultAsync(r => r.Id == reviewId && r.UserId == userId && !r.IsDeleted);
+
+    if (review == null)
+      return false;
+
+    review.IsDeleted = true;
+    review.UpdatedAt = DateTime.UtcNow;
+
+    await _context.SaveChangesAsync();
+
+    var activeReviews = await _context.Reviews
+        .Where(r => r.MovieId == review.MovieId && !r.IsDeleted)
+        .ToListAsync();
+
+    review.Movie.RatingCount = activeReviews.Count;
+    review.Movie.RatingAverage = activeReviews.Count == 0
+        ? 0
+        : activeReviews.Average(r => r.Rating);
+
+    await _context.SaveChangesAsync();
+
+    return true;
+  }
+
 }
