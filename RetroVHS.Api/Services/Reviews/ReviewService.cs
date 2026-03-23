@@ -83,4 +83,51 @@ public class ReviewService : IReviewService
       IsEdited = review.IsEdited
     };
   }
+
+  /// <summary>
+  /// Uppdaterar en befintlig recension för den aktuella användaren.
+  /// </summary>
+  public async Task<ReviewDto?> UpdateReviewAsync(int userId, int reviewId, UpdateReviewDto dto)
+  {
+    var review = await _context.Reviews
+        .Include(r => r.User)
+        .Include(r => r.Movie)
+        .FirstOrDefaultAsync(r => r.Id == reviewId && r.UserId == userId && !r.IsDeleted);
+
+    if (review == null)
+      return null;
+
+    review.Comment = dto.Comment;
+    review.Rating = dto.Rating;
+    review.IsEdited = true;
+    review.UpdatedAt = DateTime.UtcNow;
+
+    await _context.SaveChangesAsync();
+
+    var activeReviews = await _context.Reviews
+        .Where(r => r.MovieId == review.MovieId && !r.IsDeleted)
+        .ToListAsync();
+
+    review.Movie.RatingCount = activeReviews.Count;
+    review.Movie.RatingAverage = activeReviews.Count == 0
+        ? 0
+        : activeReviews.Average(r => r.Rating);
+
+    await _context.SaveChangesAsync();
+
+    return new ReviewDto
+    {
+      Id = review.Id,
+      MovieId = review.MovieId,
+      UserId = review.UserId,
+      UserDisplayName = review.UseNickname && !string.IsNullOrWhiteSpace(review.User.Nickname)
+            ? review.User.Nickname!
+            : review.User.FullName,
+      Comment = review.Comment ?? string.Empty,
+      Rating = review.Rating,
+      CreatedAt = review.CreatedAt,
+      IsEdited = review.IsEdited
+    };
+  }
+
 }
