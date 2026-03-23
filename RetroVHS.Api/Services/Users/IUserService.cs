@@ -1,4 +1,5 @@
 using RetroVHS.Shared.DTOs.Auth;
+using RetroVHS.Shared.DTOs.Reviews;
 
 namespace RetroVHS.Api.Services.Users;
 
@@ -21,5 +22,10 @@ public interface IUserService
   /// Byter lösenord för den aktuella användaren.
   /// </summary>
   Task<(bool Succeeded, List<string> Errors)> ChangePasswordAsync(int userId, ChangePasswordDto dto);
+
+  /// <summary>
+  /// Hämtar alla recensioner som den aktuella användaren har skrivit.
+  /// </summary>
+  Task<List<ReviewDto>> GetCurrentUserReviewsAsync(int userId);
 
 }
