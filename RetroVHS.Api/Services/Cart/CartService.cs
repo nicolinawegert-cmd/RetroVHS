@@ -92,6 +92,21 @@ namespace RetroVHS.Api.Services.Cart
                 };
             }
 
+            // Kontrollera lagersaldo för varje film INNAN köpet genomförs
+            var outOfStockTitles = cart.Items
+                .Where(i => i.Movie.StockQuantity <= 0)
+                .Select(i => i.Movie.Title)
+                .ToList();
+
+            if (outOfStockTitles.Count > 0)
+            {
+                return new CheckoutResponseDto
+                {
+                    Success = false,
+                    Message = $"Följande filmer är slut i lager: {string.Join(", ", outOfStockTitles)}"
+                };
+            }
+
             // Skapa en Rental-post för varje film i varukorgen
             var rentals = new List<Rental>();
             foreach (var item in cart.Items)

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RetroVHS.Api.Data;
+using RetroVHS.Api.Models;
 using RetroVHS.Shared.Enums;
 
 namespace RetroVHS.Api.Services.Rentals;
@@ -44,10 +45,13 @@ public class RentalService : IRentalService
 
   /// <summary>
   /// Avbryter en beställning (Cancelled). Endast admin.
+  /// Återställer lagersaldo för filmen.
   /// </summary>
   public async Task<(bool Success, string Message)> CancelRentalAsync(int rentalId)
   {
-    var rental = await _context.Rentals.FindAsync(rentalId);
+    var rental = await _context.Rentals
+        .Include(r => r.Movie)
+        .FirstOrDefaultAsync(r => r.Id == rentalId);
 
     if (rental == null)
       return (false, "Beställningen hittades inte.");
@@ -59,9 +63,15 @@ public class RentalService : IRentalService
       return (false, "En slutförd beställning kan inte avbrytas.");
 
     rental.Status = RentalStatus.Cancelled;
+
+    // Återställ lagersaldo
+    rental.Movie.StockQuantity++;
+    if (rental.Movie.AvailabilityStatus == MovieAvailabilityStatus.OutOfStock)
+      rental.Movie.AvailabilityStatus = MovieAvailabilityStatus.Available;
+
     await _context.SaveChangesAsync();
 
-    return (true, "Beställningen har avbrutits.");
+    return (true, "Beställningen har avbrutits och lagersaldot har återställts.");
   }
 
   /// <summary>
