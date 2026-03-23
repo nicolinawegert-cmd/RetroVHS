@@ -32,4 +32,11 @@ public interface IUserService
   /// Hämtar profilinformationen för en specifik användare.
   /// </summary>
   Task<UserDto?> GetUserByIdAsync(int userId);
+
+  /// <summary>
+  /// Tar bort kommentartexten från en recension men behåller betyget.
+  /// Endast avsett för administrativ moderering.
+  /// </summary>
+  Task<bool> RemoveReviewCommentAsync(int reviewId);
+
 }
