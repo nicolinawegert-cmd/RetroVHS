@@ -25,7 +25,7 @@ public static class DbSeeder
         // =========================
         // Säkerställ att databasen finns
         // =========================
-       
+
 
         // =========================
         // Skapa roller
@@ -95,12 +95,6 @@ public static class DbSeeder
         }
 
         // =========================
-        // Stoppa om data redan finns
-        // =========================
-        if (await context.Movies.AnyAsync())
-            return;
-
-        // =========================
         // Seed: Genres
         // =========================
         var genres = new List<Genre>
@@ -117,11 +111,23 @@ public static class DbSeeder
             new Genre { Name = "War" },
             new Genre { Name = "Western" },
             new Genre { Name = "Fantasy" }
-
         };
 
-        context.Genres.AddRange(genres);
-        await context.SaveChangesAsync();
+        var existingGenreNames = await context.Genres
+            .Select(g => g.Name)
+            .ToListAsync();
+
+        var missingGenres = genres
+            .Where(g => !existingGenreNames.Contains(g.Name))
+            .ToList();
+
+        if (missingGenres.Count > 0)
+        {
+            context.Genres.AddRange(missingGenres);
+            await context.SaveChangesAsync();
+        }
+
+        genres = await context.Genres.ToListAsync();
 
         // =========================
         // Seed: ProductionCompany
@@ -135,14 +141,27 @@ public static class DbSeeder
             new ProductionCompany { Name = "Warner Bros.", Country = "USA" }
         };
 
-        context.ProductionCompanies.AddRange(companies);
-        await context.SaveChangesAsync();
+        var existingCompanyNames = await context.ProductionCompanies
+            .Select(c => c.Name)
+            .ToListAsync();
+
+        var missingCompanies = companies
+            .Where(c => !existingCompanyNames.Contains(c.Name))
+            .ToList();
+
+        if (missingCompanies.Count > 0)
+        {
+            context.ProductionCompanies.AddRange(missingCompanies);
+            await context.SaveChangesAsync();
+        }
+
+        companies = await context.ProductionCompanies.ToListAsync();
 
         // =========================
         // Seed: Movies
         // =========================
         var movies = new List<Movie>
-{
+    {
     new Movie
     {
         Title = "Avatar",
@@ -973,8 +992,21 @@ public static class DbSeeder
 
 };
 
-        context.Movies.AddRange(movies);
-        await context.SaveChangesAsync();
+        var existingMovieTitles = await context.Movies
+            .Select(m => m.Title)
+            .ToListAsync();
+
+        var missingMovies = movies
+            .Where(m => !existingMovieTitles.Contains(m.Title))
+            .ToList();
+
+        if (missingMovies.Count > 0)
+        {
+            context.Movies.AddRange(missingMovies);
+            await context.SaveChangesAsync();
+        }
+
+        movies = await context.Movies.ToListAsync();
 
         // =========================
         // Seed: MovieGenre-kopplingar
@@ -1046,7 +1078,8 @@ public static class DbSeeder
         var horror = genres.First(g => g.Name == "Horror");
         var comedy = genres.First(g => g.Name == "Comedy");
 
-        context.MovieGenres.AddRange(
+        var movieGenres = new List<MovieGenre>
+        {   
             new MovieGenre { MovieId = avatar.Id, GenreId = action.Id },
             new MovieGenre { MovieId = avatar.Id, GenreId = scifi.Id },
             new MovieGenre { MovieId = avatar.Id, GenreId = adventure.Id },
@@ -1107,7 +1140,7 @@ public static class DbSeeder
             new MovieGenre { MovieId = jaws.Id, GenreId = thriller.Id },
             new MovieGenre { MovieId = jaws.Id, GenreId = adventure.Id },
             new MovieGenre { MovieId = se7en.Id, GenreId = crime.Id },
-            new MovieGenre { MovieId = se7en.Id, GenreId = thriller.Id },   
+            new MovieGenre { MovieId = se7en.Id, GenreId = thriller.Id },
             new MovieGenre { MovieId = americanhistoryx.Id, GenreId = drama.Id },
             new MovieGenre { MovieId = americanhistoryx.Id, GenreId = crime.Id },
             new MovieGenre { MovieId = taxidriver.Id, GenreId = crime.Id },
@@ -1124,10 +1157,10 @@ public static class DbSeeder
             new MovieGenre { MovieId = bloodsport.Id, GenreId = action.Id },
             new MovieGenre { MovieId = bigtrouble.Id, GenreId = action.Id },
             new MovieGenre { MovieId = bigtrouble.Id, GenreId = comedy.Id },
-            new MovieGenre { MovieId = bigtrouble.Id, GenreId = adventure.Id },   
+            new MovieGenre { MovieId = bigtrouble.Id, GenreId = adventure.Id },
             new MovieGenre { MovieId = heat.Id, GenreId = crime.Id },
             new MovieGenre { MovieId = heat.Id, GenreId = drama.Id },
-            new MovieGenre { MovieId = heat.Id, GenreId = action.Id },   
+            new MovieGenre { MovieId = heat.Id, GenreId = action.Id },
             new MovieGenre { MovieId = platoon.Id, GenreId = drama.Id },
             new MovieGenre { MovieId = platoon.Id, GenreId = war.Id },
             new MovieGenre { MovieId = rambo.Id, GenreId = action.Id },
@@ -1165,9 +1198,21 @@ public static class DbSeeder
             new MovieGenre { MovieId = backtothefuture.Id, GenreId = comedy.Id },
             new MovieGenre { MovieId = backtothefuture.Id, GenreId = adventure.Id }
 
-        );
+        };
 
-        await context.SaveChangesAsync();
+        var existingMovieGenreKeys = await context.MovieGenres
+            .Select(mg => $"{mg.MovieId}-{mg.GenreId}")
+            .ToListAsync();
+
+        var missingMovieGenres = movieGenres
+            .Where(mg => !existingMovieGenreKeys.Contains($"{mg.MovieId}-{mg.GenreId}"))
+            .ToList();
+
+        if (missingMovieGenres.Count > 0)
+        {
+            context.MovieGenres.AddRange(missingMovieGenres);
+            await context.SaveChangesAsync();
+        }
 
         // =========================
         // Seed: Persons
@@ -1284,13 +1329,28 @@ public static class DbSeeder
     new Person { FullName = "Christopher Lloyd", Country = "USA", Bio = "Known for Back to the Future." }
 };
 
-        context.Persons.AddRange(persons);
-        await context.SaveChangesAsync();
+        var existingPersonNames = await context.Persons
+            .Select(p => p.FullName)
+            .ToListAsync();
+
+        var missingPersons = persons
+            .Where(p => !existingPersonNames.Contains(p.FullName))
+            .ToList();
+
+        if (missingPersons.Count > 0)
+        {
+            context.Persons.AddRange(missingPersons);
+            await context.SaveChangesAsync();
+        }
+
+        persons = await context.Persons.ToListAsync();
+
 
         // =========================
         // Seed: MovieCredits
         // =========================
-        context.MovieCredits.AddRange(
+        var movieCredits = new List<MovieCredit>
+        {
             // Avatar
             new MovieCredit { MovieId = avatar.Id, PersonId = persons.First(p => p.FullName == "James Cameron").Id, Role = CreditRole.Director, DisplayOrder = 1 },
             new MovieCredit { MovieId = avatar.Id, PersonId = persons.First(p => p.FullName == "Sam Worthington").Id, Role = CreditRole.Actor, CharacterName = "Jake Sully", DisplayOrder = 2 },
@@ -1361,7 +1421,7 @@ public static class DbSeeder
             // Predator
             new MovieCredit { MovieId = predator.Id, PersonId = persons.First(p => p.FullName == "John McTiernan").Id, Role = CreditRole.Director, DisplayOrder = 1 },
             new MovieCredit { MovieId = predator.Id, PersonId = persons.First(p => p.FullName == "Arnold Schwarzenegger").Id, Role = CreditRole.Actor, CharacterName = "Dutch", DisplayOrder = 2 },
-            
+
             // A Nightmare on Elm Street
             new MovieCredit { MovieId = nightmare.Id, PersonId = persons.First(p => p.FullName == "Wes Craven").Id, Role = CreditRole.Director, DisplayOrder = 1 },
             new MovieCredit { MovieId = nightmare.Id, PersonId = persons.First(p => p.FullName == "Robert Englund").Id, Role = CreditRole.Actor, CharacterName = "Freddy Krueger", DisplayOrder = 2 },
@@ -1468,7 +1528,7 @@ public static class DbSeeder
             new MovieCredit { MovieId = bigtrouble.Id, PersonId = persons.First(p => p.FullName == "Kurt Russell").Id, Role = CreditRole.Actor, CharacterName = "Jack Burton", DisplayOrder = 2 },
             new MovieCredit { MovieId = bigtrouble.Id, PersonId = persons.First(p => p.FullName == "Kim Cattrall").Id, Role = CreditRole.Actor, CharacterName = "Gracie Law", DisplayOrder = 3 },
 
-             // Heat
+            // Heat
             new MovieCredit { MovieId = heat.Id, PersonId = persons.First(p => p.FullName == "Michael Mann").Id, Role = CreditRole.Director, DisplayOrder = 1 },
             new MovieCredit { MovieId = heat.Id, PersonId = persons.First(p => p.FullName == "Al Pacino").Id, Role = CreditRole.Actor, CharacterName = "Vincent Hanna", DisplayOrder = 2 },
             new MovieCredit { MovieId = heat.Id, PersonId = persons.First(p => p.FullName == "Robert De Niro").Id, Role = CreditRole.Actor, CharacterName = "Neil McCauley", DisplayOrder = 3 },
@@ -1537,8 +1597,20 @@ public static class DbSeeder
             new MovieCredit { MovieId = backtothefuture.Id, PersonId = persons.First(p => p.FullName == "Michael J. Fox").Id, Role = CreditRole.Actor, CharacterName = "Marty McFly", DisplayOrder = 2 },
             new MovieCredit { MovieId = backtothefuture.Id, PersonId = persons.First(p => p.FullName == "Christopher Lloyd").Id, Role = CreditRole.Actor, CharacterName = "Doc Brown", DisplayOrder = 3 }
 
-        );
+        };
 
-        await context.SaveChangesAsync();
+        var existingMovieCreditKeys = await context.MovieCredits
+            .Select(mc => $"{mc.MovieId}-{mc.PersonId}-{mc.Role}-{mc.DisplayOrder}")
+            .ToListAsync();
+
+        var missingMovieCredits = movieCredits
+            .Where(mc => !existingMovieCreditKeys.Contains($"{mc.MovieId}-{mc.PersonId}-{mc.Role}-{mc.DisplayOrder}"))
+            .ToList();
+
+        if (missingMovieCredits.Count > 0)
+        {
+            context.MovieCredits.AddRange(missingMovieCredits);
+            await context.SaveChangesAsync();
+        }
     }
 }
