@@ -32,12 +32,7 @@ public class UsersController : ControllerBase
   [HttpGet("me")]
   public async Task<ActionResult<UserDto>> GetCurrentUser()
   {
-    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-    if (string.IsNullOrWhiteSpace(userIdClaim))
-      return Unauthorized();
-
-    if (!int.TryParse(userIdClaim, out var userId))
+    if (!TryGetCurrentUserId(out var userId))
       return Unauthorized();
 
     var user = await _userService.GetCurrentUserAsync(userId);
@@ -58,12 +53,7 @@ public class UsersController : ControllerBase
     if (!ModelState.IsValid)
       return BadRequest(ModelState);
 
-    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-    if (string.IsNullOrWhiteSpace(userIdClaim))
-      return Unauthorized();
-
-    if (!int.TryParse(userIdClaim, out var userId))
+    if (!TryGetCurrentUserId(out var userId))
       return Unauthorized();
 
     try
@@ -91,12 +81,7 @@ public class UsersController : ControllerBase
     if (!ModelState.IsValid)
       return BadRequest(ModelState);
 
-    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-    if (string.IsNullOrWhiteSpace(userIdClaim))
-      return Unauthorized();
-
-    if (!int.TryParse(userIdClaim, out var userId))
+    if (!TryGetCurrentUserId(out var userId))
       return Unauthorized();
 
     var result = await _userService.ChangePasswordAsync(userId, dto);
@@ -116,12 +101,7 @@ public class UsersController : ControllerBase
   [HttpGet("me/reviews")]
   public async Task<ActionResult<List<ReviewDto>>> GetCurrentUserReviews()
   {
-    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-    if (string.IsNullOrWhiteSpace(userIdClaim))
-      return Unauthorized();
-
-    if (!int.TryParse(userIdClaim, out var userId))
+    if (!TryGetCurrentUserId(out var userId))
       return Unauthorized();
 
     var reviews = await _userService.GetCurrentUserReviewsAsync(userId);
@@ -171,4 +151,20 @@ public class UsersController : ControllerBase
     var reviews = await _userService.GetUserReviewsByIdAsync(id);
     return Ok(reviews);
   }
+
+  /// <summary>
+  /// Hämtar id för den aktuella inloggade användaren från JWT-tokenen.
+  /// </summary>
+  private bool TryGetCurrentUserId(out int userId)
+  {
+    userId = 0;
+
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+    if (string.IsNullOrWhiteSpace(userIdClaim))
+      return false;
+
+    return int.TryParse(userIdClaim, out userId);
+  }
+
 }
