@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RetroVHS.Api.Services.Users;
 using RetroVHS.Shared.DTOs.Auth;
+using RetroVHS.Shared.DTOs.Rentals;
 using RetroVHS.Shared.DTOs.Reviews;
 using RetroVHS.Api.Services.Reviews;
 
@@ -110,6 +111,21 @@ public class UsersController : ControllerBase
     var reviews = await _userService.GetCurrentUserReviewsAsync(userId);
 
     return Ok(reviews);
+  }
+
+  /// <summary>
+  /// Hämtar alla beställningar (köp) som den inloggade användaren har gjort.
+  /// </summary>
+  [Authorize]
+  [HttpGet("me/rentals")]
+  public async Task<ActionResult<List<RentalDto>>> GetCurrentUserRentals()
+  {
+    if (!TryGetCurrentUserId(out var userId))
+      return Unauthorized();
+
+    var rentals = await _userService.GetCurrentUserRentalsAsync(userId);
+
+    return Ok(rentals);
   }
 
   /// <summary>

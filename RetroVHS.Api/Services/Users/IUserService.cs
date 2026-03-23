@@ -1,4 +1,5 @@
 using RetroVHS.Shared.DTOs.Auth;
+using RetroVHS.Shared.DTOs.Rentals;
 using RetroVHS.Shared.DTOs.Reviews;
 
 namespace RetroVHS.Api.Services.Users;
@@ -27,6 +28,11 @@ public interface IUserService
   /// Hämtar alla recensioner som den aktuella användaren har skrivit.
   /// </summary>
   Task<List<ReviewDto>> GetCurrentUserReviewsAsync(int userId);
+
+  /// <summary>
+  /// Hämtar alla beställningar (köp) som den aktuella användaren har gjort.
+  /// </summary>
+  Task<List<RentalDto>> GetCurrentUserRentalsAsync(int userId);
 
   /// <summary>
   /// Hämtar profilinformationen för en specifik användare.

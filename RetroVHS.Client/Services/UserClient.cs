@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using RetroVHS.Shared.DTOs.Auth;
+using RetroVHS.Shared.DTOs.Rentals;
 using RetroVHS.Shared.DTOs.Reviews;
 
 namespace RetroVHS.Client.Services;
@@ -82,6 +83,19 @@ public class UserClient : IUserClient
         try
         {
             var result = await _httpClient.GetFromJsonAsync<List<ReviewDto>>("api/users/me/reviews");
+            return result ?? [];
+        }
+        catch
+        {
+            return [];
+        }
+    }
+
+    public async Task<List<RentalDto>> GetMyOrdersAsync()
+    {
+        try
+        {
+            var result = await _httpClient.GetFromJsonAsync<List<RentalDto>>("api/users/me/rentals");
             return result ?? [];
         }
         catch
