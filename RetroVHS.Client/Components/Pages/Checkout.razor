@@ -3,6 +3,7 @@
 @using RetroVHS.Shared.DTOs.Rentals
 @inject ICartClient CartClient
 @inject NavigationManager Navigation
+@inject CartState CartState
 
 <PageTitle>Kassa</PageTitle>
 
@@ -114,6 +115,7 @@
         if (result != null && result.Success)
         {
             isCompleted = true;
+            CartState.SetCount(0);
         }
         else
         {
