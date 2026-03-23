@@ -25,7 +25,7 @@ public static class DbSeeder
         // =========================
         // Säkerställ att databasen finns
         // =========================
-       
+
 
         // =========================
         // Skapa roller
@@ -117,11 +117,23 @@ public static class DbSeeder
             new Genre { Name = "War" },
             new Genre { Name = "Western" },
             new Genre { Name = "Fantasy" }
-
         };
 
-        context.Genres.AddRange(genres);
-        await context.SaveChangesAsync();
+        var existingGenreNames = await context.Genres
+            .Select(g => g.Name)
+            .ToListAsync();
+
+        var missingGenres = genres
+            .Where(g => !existingGenreNames.Contains(g.Name))
+            .ToList();
+
+        if (missingGenres.Count > 0)
+        {
+            context.Genres.AddRange(missingGenres);
+            await context.SaveChangesAsync();
+        }
+
+        genres = await context.Genres.ToListAsync();
 
         // =========================
         // Seed: ProductionCompany
@@ -135,8 +147,21 @@ public static class DbSeeder
             new ProductionCompany { Name = "Warner Bros.", Country = "USA" }
         };
 
-        context.ProductionCompanies.AddRange(companies);
-        await context.SaveChangesAsync();
+        var existingCompanyNames = await context.ProductionCompanies
+            .Select(c => c.Name)
+            .ToListAsync();
+
+        var missingCompanies = companies
+            .Where(c => !existingCompanyNames.Contains(c.Name))
+            .ToList();
+
+        if (missingCompanies.Count > 0)
+        {
+            context.ProductionCompanies.AddRange(missingCompanies);
+            await context.SaveChangesAsync();
+        }
+
+        companies = await context.ProductionCompanies.ToListAsync();
 
         // =========================
         // Seed: Movies
@@ -1107,7 +1132,7 @@ public static class DbSeeder
             new MovieGenre { MovieId = jaws.Id, GenreId = thriller.Id },
             new MovieGenre { MovieId = jaws.Id, GenreId = adventure.Id },
             new MovieGenre { MovieId = se7en.Id, GenreId = crime.Id },
-            new MovieGenre { MovieId = se7en.Id, GenreId = thriller.Id },   
+            new MovieGenre { MovieId = se7en.Id, GenreId = thriller.Id },
             new MovieGenre { MovieId = americanhistoryx.Id, GenreId = drama.Id },
             new MovieGenre { MovieId = americanhistoryx.Id, GenreId = crime.Id },
             new MovieGenre { MovieId = taxidriver.Id, GenreId = crime.Id },
@@ -1124,10 +1149,10 @@ public static class DbSeeder
             new MovieGenre { MovieId = bloodsport.Id, GenreId = action.Id },
             new MovieGenre { MovieId = bigtrouble.Id, GenreId = action.Id },
             new MovieGenre { MovieId = bigtrouble.Id, GenreId = comedy.Id },
-            new MovieGenre { MovieId = bigtrouble.Id, GenreId = adventure.Id },   
+            new MovieGenre { MovieId = bigtrouble.Id, GenreId = adventure.Id },
             new MovieGenre { MovieId = heat.Id, GenreId = crime.Id },
             new MovieGenre { MovieId = heat.Id, GenreId = drama.Id },
-            new MovieGenre { MovieId = heat.Id, GenreId = action.Id },   
+            new MovieGenre { MovieId = heat.Id, GenreId = action.Id },
             new MovieGenre { MovieId = platoon.Id, GenreId = drama.Id },
             new MovieGenre { MovieId = platoon.Id, GenreId = war.Id },
             new MovieGenre { MovieId = rambo.Id, GenreId = action.Id },
@@ -1361,7 +1386,7 @@ public static class DbSeeder
             // Predator
             new MovieCredit { MovieId = predator.Id, PersonId = persons.First(p => p.FullName == "John McTiernan").Id, Role = CreditRole.Director, DisplayOrder = 1 },
             new MovieCredit { MovieId = predator.Id, PersonId = persons.First(p => p.FullName == "Arnold Schwarzenegger").Id, Role = CreditRole.Actor, CharacterName = "Dutch", DisplayOrder = 2 },
-            
+
             // A Nightmare on Elm Street
             new MovieCredit { MovieId = nightmare.Id, PersonId = persons.First(p => p.FullName == "Wes Craven").Id, Role = CreditRole.Director, DisplayOrder = 1 },
             new MovieCredit { MovieId = nightmare.Id, PersonId = persons.First(p => p.FullName == "Robert Englund").Id, Role = CreditRole.Actor, CharacterName = "Freddy Krueger", DisplayOrder = 2 },
@@ -1468,7 +1493,7 @@ public static class DbSeeder
             new MovieCredit { MovieId = bigtrouble.Id, PersonId = persons.First(p => p.FullName == "Kurt Russell").Id, Role = CreditRole.Actor, CharacterName = "Jack Burton", DisplayOrder = 2 },
             new MovieCredit { MovieId = bigtrouble.Id, PersonId = persons.First(p => p.FullName == "Kim Cattrall").Id, Role = CreditRole.Actor, CharacterName = "Gracie Law", DisplayOrder = 3 },
 
-             // Heat
+            // Heat
             new MovieCredit { MovieId = heat.Id, PersonId = persons.First(p => p.FullName == "Michael Mann").Id, Role = CreditRole.Director, DisplayOrder = 1 },
             new MovieCredit { MovieId = heat.Id, PersonId = persons.First(p => p.FullName == "Al Pacino").Id, Role = CreditRole.Actor, CharacterName = "Vincent Hanna", DisplayOrder = 2 },
             new MovieCredit { MovieId = heat.Id, PersonId = persons.First(p => p.FullName == "Robert De Niro").Id, Role = CreditRole.Actor, CharacterName = "Neil McCauley", DisplayOrder = 3 },
