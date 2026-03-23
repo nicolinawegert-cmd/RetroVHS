@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using RetroVHS.Api.Services.Users;
 using RetroVHS.Shared.DTOs.Auth;
 using RetroVHS.Shared.DTOs.Reviews;
+using RetroVHS.Api.Services.Reviews;
+
 
 
 namespace RetroVHS.Api.Controllers;
@@ -16,13 +18,14 @@ namespace RetroVHS.Api.Controllers;
 public class UsersController : ControllerBase
 {
   private readonly IUserService _userService;
-
+  private readonly IReviewService _reviewService;
   /// <summary>
-  /// Skapar en ny instans av controllern och injicerar user-servicen.
+  /// Skapar en ny instans av controllern och injicerar user- och review-servicen.
   /// </summary>
-  public UsersController(IUserService userService)
+  public UsersController(IUserService userService, IReviewService reviewService)
   {
     _userService = userService;
+    _reviewService = reviewService;
   }
 
   /// <summary>
@@ -132,7 +135,7 @@ public class UsersController : ControllerBase
   [HttpPut("reviews/{reviewId:int}/remove-comment")]
   public async Task<IActionResult> RemoveReviewComment(int reviewId)
   {
-    var result = await _userService.RemoveReviewCommentAsync(reviewId);
+    var result = await _reviewService.RemoveReviewCommentAsync(reviewId);
 
     if (!result)
       return NotFound();
