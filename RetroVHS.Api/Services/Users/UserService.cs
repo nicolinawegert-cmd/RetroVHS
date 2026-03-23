@@ -36,15 +36,7 @@ public class UserService : IUserService
     if (user == null)
       return null;
 
-    return new UserDto
-    {
-      Id = user.Id,
-      FirstName = user.FirstName,
-      LastName = user.LastName,
-      Nickname = user.Nickname,
-      Email = user.Email ?? string.Empty,
-      IsBlocked = user.IsBlocked
-    };
+    return MapToUserDto(user);
   }
 
   /// <summary>
@@ -71,21 +63,13 @@ public class UserService : IUserService
     user.Nickname = dto.Nickname;
     user.Email = dto.Email;
     user.UserName = dto.Email;
-    user.NormalizedEmail = dto.Email.ToUpper();
-    user.NormalizedUserName = dto.Email.ToUpper();
+    user.NormalizedEmail = dto.Email.ToUpperInvariant();
+    user.NormalizedUserName = dto.Email.ToUpperInvariant();
     user.UpdatedAt = DateTime.UtcNow;
 
     await _context.SaveChangesAsync();
 
-    return new UserDto
-    {
-      Id = user.Id,
-      FirstName = user.FirstName,
-      LastName = user.LastName,
-      Nickname = user.Nickname,
-      Email = user.Email ?? string.Empty,
-      IsBlocked = user.IsBlocked
-    };
+    return MapToUserDto(user);
   }
 
   /// <summary>
@@ -132,35 +116,7 @@ public class UserService : IUserService
     if (user == null)
       return null;
 
-    return new UserDto
-    {
-      Id = user.Id,
-      FirstName = user.FirstName,
-      LastName = user.LastName,
-      Nickname = user.Nickname,
-      Email = user.Email ?? string.Empty,
-      IsBlocked = user.IsBlocked
-    };
-  }
-
-  /// <summary>
-  /// Tar bort kommentartexten från en recension men behåller betyget.
-  /// Endast avsett för administrativ moderering.
-  /// </summary>
-  public async Task<bool> RemoveReviewCommentAsync(int reviewId)
-  {
-    var review = await _context.Reviews
-        .FirstOrDefaultAsync(r => r.Id == reviewId && !r.IsDeleted);
-
-    if (review == null)
-      return false;
-
-    review.Comment = null;
-    review.IsEdited = true;
-    review.UpdatedAt = DateTime.UtcNow;
-
-    await _context.SaveChangesAsync();
-    return true;
+    return MapToUserDto(user);
   }
 
   /// <summary>
@@ -195,4 +151,19 @@ public class UserService : IUserService
         });
   }
 
+  /// <summary>
+  /// Mappar en användare till UserDto.
+  /// </summary>
+  private static UserDto MapToUserDto(ApplicationUser user)
+  {
+    return new UserDto
+    {
+      Id = user.Id,
+      FirstName = user.FirstName,
+      LastName = user.LastName,
+      Nickname = user.Nickname,
+      Email = user.Email ?? string.Empty,
+      IsBlocked = user.IsBlocked
+    };
+  }
 }
