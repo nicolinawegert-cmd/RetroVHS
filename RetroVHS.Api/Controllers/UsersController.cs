@@ -123,6 +123,7 @@ public class UsersController : ControllerBase
     return Ok(users);
   }
 
+  /// <summary>
   /// Hämtar alla beställningar (köp) som den inloggade användaren har gjort.
   /// </summary>
   [Authorize]
