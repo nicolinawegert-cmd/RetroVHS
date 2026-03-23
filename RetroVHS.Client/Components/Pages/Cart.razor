@@ -2,67 +2,75 @@
 @using RetroVHS.Shared.DTOs.Cart
 @inject ICartClient CartClient
 @inject NavigationManager Navigation
-@attribute [Microsoft.AspNetCore.Authorization.Authorize]
 
 <PageTitle>Varukorg</PageTitle>
 
-<div class="cart-page">
-    <h1 class="section-title">🛒 Din varukorg</h1>
+<AuthorizeView>
+    <Authorized>
+        <div class="cart-page">
+            <h1 class="section-title">🛒 Din varukorg</h1>
 
-    @if (isLoading)
-    {
-        <div class="loading-spinner">
-            <div class="spinner-border" role="status" style="color: #e94560; width: 2.5rem; height: 2.5rem;"></div>
-            <p>Laddar varukorg...</p>
-        </div>
-    }
-    else if (cart == null || cart.Items.Count == 0)
-    {
-        <div class="cart-empty">
-            <p>Din varukorg är tom.</p>
-            <button class="btn-submit" @onclick='() => Navigation.NavigateTo("/")'>
-                Bläddra bland filmer
-            </button>
-        </div>
-    }
-    else
-    {
-        <div class="cart-items">
-            @foreach (var item in cart.Items)
+            @if (isLoading)
             {
-                <div class="cart-item">
-                    <div class="cart-item-poster">
-                        @if (!string.IsNullOrEmpty(item.PosterUrl))
-                        {
-                            <img src="@item.PosterUrl" alt="@item.Title" />
-                        }
-                        else
-                        {
-                            <div class="cart-item-no-poster">🎬</div>
-                        }
+                <div class="loading-spinner">
+                    <div class="spinner-border" role="status" style="color: #e94560; width: 2.5rem; height: 2.5rem;"></div>
+                    <p>Laddar varukorg...</p>
+                </div>
+            }
+            else if (cart == null || cart.Items.Count == 0)
+            {
+                <div class="cart-empty">
+                    <p>Din varukorg är tom.</p>
+                    <button class="btn-submit" @onclick='() => Navigation.NavigateTo("/")'>
+                        Bläddra bland filmer
+                    </button>
+                </div>
+            }
+            else
+            {
+                <div class="cart-items">
+                    @foreach (var item in cart.Items)
+                    {
+                        <div class="cart-item">
+                            <div class="cart-item-poster">
+                                @if (!string.IsNullOrEmpty(item.PosterUrl))
+                                {
+                                    <img src="@item.PosterUrl" alt="@item.Title" />
+                                }
+                                else
+                                {
+                                    <div class="cart-item-no-poster">🎬</div>
+                                }
+                            </div>
+                            <div class="cart-item-info">
+                                <h3>@item.Title</h3>
+                                <p class="cart-item-price">@item.UnitPrice.ToString("0.00") kr</p>
+                            </div>
+                            <button class="btn-remove" @onclick="() => RemoveItem(item.Id)" disabled="@removing">
+                                ✕ Ta bort
+                            </button>
+                        </div>
+                    }
+                </div>
+
+                <div class="cart-summary">
+                    <div class="cart-total">
+                        <span>Totalt (@cart.TotalItems filmer):</span>
+                        <span class="cart-total-price">@cart.TotalPrice.ToString("0.00") kr</span>
                     </div>
-                    <div class="cart-item-info">
-                        <h3>@item.Title</h3>
-                        <p class="cart-item-price">@item.UnitPrice.ToString("0.00") kr</p>
-                    </div>
-                    <button class="btn-remove" @onclick="() => RemoveItem(item.Id)" disabled="@removing">
-                        ✕ Ta bort
+                    <button class="btn-submit" @onclick="GoToCheckout">
+                        Gå till kassan
                     </button>
                 </div>
             }
         </div>
-
-        <div class="cart-summary">
-            <div class="cart-total">
-                <span>Totalt (@cart.TotalItems filmer):</span>
-                <span class="cart-total-price">@cart.TotalPrice.ToString("0.00") kr</span>
-            </div>
-            <button class="btn-submit" @onclick="GoToCheckout">
-                Gå till kassan
-            </button>
+    </Authorized>
+    <NotAuthorized>
+        <div class="cart-page">
+            <p>Du måste logga in för att se din varukorg.</p>
         </div>
-    }
-</div>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     private CartDto? cart;

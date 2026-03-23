@@ -3,82 +3,90 @@
 @using RetroVHS.Shared.DTOs.Rentals
 @inject ICartClient CartClient
 @inject NavigationManager Navigation
-@attribute [Microsoft.AspNetCore.Authorization.Authorize]
 
 <PageTitle>Kassa</PageTitle>
 
-<div class="cart-page">
+<AuthorizeView>
+    <Authorized>
+        <div class="cart-page">
 
-    @if (isCompleted && result != null)
-    {
-        <div class="checkout-confirmation">
-            <h1 class="section-title">✅ Köp genomfört!</h1>
-            <p>@result.Message</p>
+            @if (isCompleted && result != null)
+            {
+                <div class="checkout-confirmation">
+                    <h1 class="section-title">✅ Köp genomfört!</h1>
+                    <p>@result.Message</p>
 
-            <div class="cart-items">
-                @foreach (var rental in result.Rentals)
-                {
-                    <div class="cart-item">
-                        <div class="cart-item-info">
-                            <h3>@rental.Title</h3>
-                            <p class="cart-item-price">@rental.PricePaid.ToString("0.00") kr</p>
-                        </div>
+                    <div class="cart-items">
+                        @foreach (var rental in result.Rentals)
+                        {
+                            <div class="cart-item">
+                                <div class="cart-item-info">
+                                    <h3>@rental.Title</h3>
+                                    <p class="cart-item-price">@rental.PricePaid.ToString("0.00") kr</p>
+                                </div>
+                            </div>
+                        }
                     </div>
-                }
-            </div>
 
-            <button class="btn-submit" @onclick='() => Navigation.NavigateTo("/")'>
-                Tillbaka till startsidan
-            </button>
-        </div>
-    }
-    else
-    {
-        <h1 class="section-title">💳 Kassa</h1>
-
-        @if (isLoading)
-        {
-            <div class="loading-spinner">
-                <div class="spinner-border" role="status" style="color: #e94560; width: 2.5rem; height: 2.5rem;"></div>
-                <p>Laddar...</p>
-            </div>
-        }
-        else if (cart == null || cart.Items.Count == 0)
-        {
-            <p>Varukorgen är tom.</p>
-        }
-        else
-        {
-            <div class="cart-items">
-                @foreach (var item in cart.Items)
-                {
-                    <div class="cart-item">
-                        <div class="cart-item-info">
-                            <h3>@item.Title</h3>
-                            <p class="cart-item-price">@item.UnitPrice.ToString("0.00") kr</p>
-                        </div>
-                    </div>
-                }
-            </div>
-
-            <div class="cart-summary">
-                <div class="cart-total">
-                    <span>Att betala:</span>
-                    <span class="cart-total-price">@cart.TotalPrice.ToString("0.00") kr</span>
+                    <button class="btn-submit" @onclick='() => Navigation.NavigateTo("/")'>
+                        Tillbaka till startsidan
+                    </button>
                 </div>
+            }
+            else
+            {
+                <h1 class="section-title">💳 Kassa</h1>
 
-                @if (!string.IsNullOrEmpty(errorMessage))
+                @if (isLoading)
                 {
-                    <p class="review-error">@errorMessage</p>
+                    <div class="loading-spinner">
+                        <div class="spinner-border" role="status" style="color: #e94560; width: 2.5rem; height: 2.5rem;"></div>
+                        <p>Laddar...</p>
+                    </div>
                 }
+                else if (cart == null || cart.Items.Count == 0)
+                {
+                    <p>Varukorgen är tom.</p>
+                }
+                else
+                {
+                    <div class="cart-items">
+                        @foreach (var item in cart.Items)
+                        {
+                            <div class="cart-item">
+                                <div class="cart-item-info">
+                                    <h3>@item.Title</h3>
+                                    <p class="cart-item-price">@item.UnitPrice.ToString("0.00") kr</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
 
-                <button class="btn-submit" @onclick="HandleCheckout" disabled="@processing">
-                    @(processing ? "Bearbetar..." : "Genomför köp")
-                </button>
-            </div>
-        }
-    }
-</div>
+                    <div class="cart-summary">
+                        <div class="cart-total">
+                            <span>Att betala:</span>
+                            <span class="cart-total-price">@cart.TotalPrice.ToString("0.00") kr</span>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            <p class="review-error">@errorMessage</p>
+                        }
+
+                        <button class="btn-submit" @onclick="HandleCheckout" disabled="@processing">
+                            @(processing ? "Bearbetar..." : "Genomför köp")
+                        </button>
+                    </div>
+                }
+            }
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <div class="cart-page">
+            <p>Du måste logga in för att genomföra ett köp.</p>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     [Parameter] public int CartId { get; set; }
