@@ -3,6 +3,8 @@
 @using RetroVHS.Shared.DTOs.Reviews
 @using Microsoft.AspNetCore.Components.Authorization
 @inject IMovieClient MovieClient
+@inject ICartClient CartClient
+@inject CartState CartState
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthStateProvider
 
@@ -84,6 +86,21 @@ else
                         <span class="credit-label">Status</span>
                         <span class="details-status">@movie.AvailabilityStatus</span>
                     </div>
+
+                    <AuthorizeView>
+                        <Authorized>
+                            <div class="details-actions">
+                                <span class="details-price">@movie.RentalPrice.ToString("0.00") kr</span>
+                                <button class="btn-submit" @onclick="AddToCart" disabled="@addingToCart">
+                                    @(addingToCart ? "Lägger till..." : "🛒 Lägg i varukorg")
+                                </button>
+                                @if (!string.IsNullOrEmpty(cartMessage))
+                                {
+                                    <p class="cart-message">@cartMessage</p>
+                                }
+                            </div>
+                        </Authorized>
+                    </AuthorizeView>
                 </div>
 
                 @if (!string.IsNullOrEmpty(GetEmbedUrl()) || movie.RatingCount > 0)
@@ -275,6 +292,27 @@ else
     private ReviewDto? existingReview;
     private bool showUpdateConfirm;
     private bool isEditingReview;
+
+    private bool addingToCart;
+    private string? cartMessage;
+
+    private async Task AddToCart()
+    {
+        if (movie == null) return;
+        addingToCart = true;
+        cartMessage = null;
+
+        var result = await CartClient.AddToCartAsync(movie.Id);
+        if (result != null)
+        {
+            cartMessage = "✅ Filmen har lagts i varukorgen!";
+            CartState.SetCount(result.TotalItems);
+        }
+        else
+            cartMessage = "⚠️ Kunde inte lägga till filmen. Den kanske redan finns i varukorgen.";
+
+        addingToCart = false;
+    }
 
     protected override async Task OnInitializedAsync()
     {
