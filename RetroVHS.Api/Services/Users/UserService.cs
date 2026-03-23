@@ -129,4 +129,27 @@ public class UserService : IUserService
         })
         .ToListAsync();
   }
+
+  /// <summary>
+  /// Hämtar profilinformationen för en specifik användare.
+  /// </summary>
+  public async Task<UserDto?> GetUserByIdAsync(int userId)
+  {
+    var user = await _context.Users
+        .FirstOrDefaultAsync(u => u.Id == userId);
+
+    if (user == null)
+      return null;
+
+    return new UserDto
+    {
+      Id = user.Id,
+      FirstName = user.FirstName,
+      LastName = user.LastName,
+      Nickname = user.Nickname,
+      Email = user.Email ?? string.Empty,
+      IsBlocked = user.IsBlocked
+    };
+  }
+
 }
