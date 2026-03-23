@@ -8,6 +8,7 @@ using RetroVHS.Api.Data;
 using RetroVHS.Api.Models;
 using RetroVHS.Api.Services.Auth;
 using RetroVHS.Api.Services.Movies;
+using RetroVHS.Api.Services.Users;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +47,7 @@ builder.Services
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IMovieService, MovieService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // =========================
 // JWT Authentication
