@@ -1322,8 +1322,22 @@ public static class DbSeeder
     new Person { FullName = "Christopher Lloyd", Country = "USA", Bio = "Known for Back to the Future." }
 };
 
-        context.Persons.AddRange(persons);
-        await context.SaveChangesAsync();
+        var existingPersonNames = await context.Persons
+    .Select(p => p.FullName)
+    .ToListAsync();
+
+        var missingPersons = persons
+            .Where(p => !existingPersonNames.Contains(p.FullName))
+            .ToList();
+
+        if (missingPersons.Count > 0)
+        {
+            context.Persons.AddRange(missingPersons);
+            await context.SaveChangesAsync();
+        }
+
+        persons = await context.Persons.ToListAsync();
+
 
         // =========================
         // Seed: MovieCredits
