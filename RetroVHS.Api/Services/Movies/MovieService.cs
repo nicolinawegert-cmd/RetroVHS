@@ -3,6 +3,7 @@ using RetroVHS.Api.Data;
 using RetroVHS.Api.Models;
 using RetroVHS.Shared.DTOs.Movies;
 using RetroVHS.Shared.Enums;
+using RetroVHS.Shared.DTOs.Reviews;
 
 namespace RetroVHS.Api.Services.Movies;
 
@@ -123,6 +124,7 @@ public class MovieService : IMovieService
         .Include(m => m.MovieCredits)
             .ThenInclude(mc => mc.Person)
         .Include(m => m.Reviews)
+            .ThenInclude(r => r.User)
         .FirstOrDefaultAsync(m => m.Id == id);
 
     if (movie == null)
@@ -170,6 +172,24 @@ public class MovieService : IMovieService
             DisplayOrder = mc.DisplayOrder
           })
           .ToList(),
+
+      Reviews = movie.Reviews
+          .Where(r => !r.IsDeleted)
+          .OrderByDescending(r => r.CreatedAt)
+          .Select(r => new ReviewDto
+          {
+            Id = r.Id,
+            MovieId = r.MovieId,
+            UserId = r.UserId,
+            UserDisplayName = r.UseNickname && !string.IsNullOrWhiteSpace(r.User.Nickname)
+            ? r.User.Nickname!
+            : r.User.FullName,
+            Comment = r.Comment ?? string.Empty,
+            Rating = r.Rating,
+            CreatedAt = r.CreatedAt,
+            IsEdited = r.IsEdited
+          })
+          .ToList()
     };
   }
 
