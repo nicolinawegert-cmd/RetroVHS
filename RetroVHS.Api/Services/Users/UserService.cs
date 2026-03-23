@@ -166,4 +166,25 @@ public class UserService : IUserService
       IsBlocked = user.IsBlocked
     };
   }
+
+  /// <summary>
+  /// Hämtar alla användare i systemet.
+  /// Endast avsett för administrativ översikt.
+  /// </summary>
+  public async Task<List<UserDto>> GetAllUsersAsync()
+  {
+    return await _context.Users
+        .OrderBy(u => u.FirstName)
+        .ThenBy(u => u.LastName)
+        .Select(u => new UserDto
+        {
+          Id = u.Id,
+          FirstName = u.FirstName,
+          LastName = u.LastName,
+          Nickname = u.Nickname,
+          Email = u.Email ?? string.Empty,
+          IsBlocked = u.IsBlocked
+        })
+        .ToListAsync();
+  }
 }
