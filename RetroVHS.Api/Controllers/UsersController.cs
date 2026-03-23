@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RetroVHS.Api.Services.Users;
 using RetroVHS.Shared.DTOs.Auth;
+using RetroVHS.Shared.DTOs.Reviews;
+
 
 namespace RetroVHS.Api.Controllers;
 
@@ -98,6 +100,26 @@ public class UsersController : ControllerBase
     }
 
     return Ok(new { message = "Lösenordet har uppdaterats." });
+  }
+
+  /// <summary>
+  /// Hämtar alla recensioner som den inloggade användaren har skrivit.
+  /// </summary>
+  [Authorize]
+  [HttpGet("me/reviews")]
+  public async Task<ActionResult<List<ReviewDto>>> GetCurrentUserReviews()
+  {
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+    if (string.IsNullOrWhiteSpace(userIdClaim))
+      return Unauthorized();
+
+    if (!int.TryParse(userIdClaim, out var userId))
+      return Unauthorized();
+
+    var reviews = await _userService.GetCurrentUserReviewsAsync(userId);
+
+    return Ok(reviews);
   }
 
 }
