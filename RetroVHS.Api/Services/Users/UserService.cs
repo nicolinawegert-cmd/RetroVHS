@@ -120,6 +120,27 @@ public class UserService : IUserService
   }
 
   /// <summary>
+  /// Hämtar alla användare i systemet.
+  /// Endast avsett för administrativ översikt.
+  /// </summary>
+  public async Task<List<UserDto>> GetAllUsersAsync()
+  {
+    return await _context.Users
+        .OrderBy(u => u.FirstName)
+        .ThenBy(u => u.LastName)
+        .Select(u => new UserDto
+        {
+          Id = u.Id,
+          FirstName = u.FirstName,
+          LastName = u.LastName,
+          Nickname = u.Nickname,
+          Email = u.Email ?? string.Empty,
+          IsBlocked = u.IsBlocked
+        })
+        .ToListAsync();
+  }
+
+  /// <summary>
   /// Hämtar alla recensioner som en specifik användare har skrivit.
   /// </summary>
   public async Task<List<ReviewDto>> GetUserReviewsByIdAsync(int userId)
@@ -165,26 +186,5 @@ public class UserService : IUserService
       Email = user.Email ?? string.Empty,
       IsBlocked = user.IsBlocked
     };
-  }
-
-  /// <summary>
-  /// Hämtar alla användare i systemet.
-  /// Endast avsett för administrativ översikt.
-  /// </summary>
-  public async Task<List<UserDto>> GetAllUsersAsync()
-  {
-    return await _context.Users
-        .OrderBy(u => u.FirstName)
-        .ThenBy(u => u.LastName)
-        .Select(u => new UserDto
-        {
-          Id = u.Id,
-          FirstName = u.FirstName,
-          LastName = u.LastName,
-          Nickname = u.Nickname,
-          Email = u.Email ?? string.Empty,
-          IsBlocked = u.IsBlocked
-        })
-        .ToListAsync();
   }
 }

@@ -113,6 +113,19 @@ public class UsersController : ControllerBase
   }
 
   /// <summary>
+  /// Hämtar alla användare i systemet.
+  /// Endast administratörer har åtkomst.
+  /// </summary>
+  [Authorize(Roles = "Admin")]
+  [HttpGet]
+  public async Task<ActionResult<List<UserDto>>> GetAllUsers()
+  {
+    var users = await _userService.GetAllUsersAsync();
+    return Ok(users);
+  }
+
+
+  /// <summary>
   /// Hämtar profilinformationen för en specifik användare. Endast administratörer har åtkomst.
   /// </summary>
   [Authorize(Roles = "Admin")]
