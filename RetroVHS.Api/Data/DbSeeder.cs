@@ -95,12 +95,6 @@ public static class DbSeeder
         }
 
         // =========================
-        // Stoppa om data redan finns
-        // =========================
-        if (await context.Movies.AnyAsync())
-            return;
-
-        // =========================
         // Seed: Genres
         // =========================
         var genres = new List<Genre>
