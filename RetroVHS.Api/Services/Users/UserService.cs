@@ -118,24 +118,7 @@ public class UserService : IUserService
   /// </summary>
   public async Task<List<ReviewDto>> GetCurrentUserReviewsAsync(int userId)
   {
-    return await _context.Reviews
-        .Include(r => r.User)
-        .Where(r => r.UserId == userId && !r.IsDeleted)
-        .OrderByDescending(r => r.CreatedAt)
-        .Select(r => new ReviewDto
-        {
-          Id = r.Id,
-          MovieId = r.MovieId,
-          UserId = r.UserId,
-          UserDisplayName = r.UseNickname && !string.IsNullOrWhiteSpace(r.User.Nickname)
-                ? r.User.Nickname!
-                : r.User.FullName,
-          Comment = r.Comment ?? string.Empty,
-          Rating = r.Rating,
-          CreatedAt = r.CreatedAt,
-          IsEdited = r.IsEdited
-        })
-        .ToListAsync();
+    return await BuildUserReviewsQuery(userId).ToListAsync();
   }
 
   /// <summary>
@@ -185,7 +168,15 @@ public class UserService : IUserService
   /// </summary>
   public async Task<List<ReviewDto>> GetUserReviewsByIdAsync(int userId)
   {
-    return await _context.Reviews
+    return await BuildUserReviewsQuery(userId).ToListAsync();
+  }
+
+  /// <summary>
+  /// Bygger en gemensam query för att hämta en användares recensioner.
+  /// </summary>
+  private IQueryable<ReviewDto> BuildUserReviewsQuery(int userId)
+  {
+    return _context.Reviews
         .Include(r => r.User)
         .Where(r => r.UserId == userId && !r.IsDeleted)
         .OrderByDescending(r => r.CreatedAt)
@@ -201,8 +192,7 @@ public class UserService : IUserService
           Rating = r.Rating,
           CreatedAt = r.CreatedAt,
           IsEdited = r.IsEdited
-        })
-        .ToListAsync();
+        });
   }
 
 }

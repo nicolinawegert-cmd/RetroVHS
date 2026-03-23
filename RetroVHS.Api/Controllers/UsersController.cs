@@ -160,4 +160,15 @@ public class UsersController : ControllerBase
     return Ok(new { message = "Kommentartexten har tagits bort, men betyget är kvar." });
   }
 
+  /// <summary>
+  /// Hämtar alla recensioner som en specifik användare har skrivit.
+  /// Endast administratörer har åtkomst.
+  /// </summary>
+  [Authorize(Roles = "Admin")]
+  [HttpGet("{id:int}/reviews")]
+  public async Task<ActionResult<List<ReviewDto>>> GetUserReviewsById(int id)
+  {
+    var reviews = await _userService.GetUserReviewsByIdAsync(id);
+    return Ok(reviews);
+  }
 }
