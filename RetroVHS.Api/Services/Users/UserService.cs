@@ -122,7 +122,7 @@ public class UserService : IUserService
           UserDisplayName = r.UseNickname && !string.IsNullOrWhiteSpace(r.User.Nickname)
                 ? r.User.Nickname!
                 : r.User.FullName,
-          Conmment = r.Comment ?? string.Empty,
+          Comment = r.Comment ?? string.Empty,
           Rating = r.Rating,
           CreatedAt = r.CreatedAt,
           IsEdited = r.IsEdited

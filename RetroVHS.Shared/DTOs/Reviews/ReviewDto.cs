@@ -28,7 +28,7 @@ public class ReviewDto
     /// <summary>
     /// Själva recensionstexten
     /// </summary>
-    public string Conmment { get; set; } = string.Empty;
+    public string Comment { get; set; } = string.Empty;
 
     /// <summary>
     /// Betyg mellan 1 och 5

@@ -180,9 +180,9 @@ else
                                 <span class="review-stars">@(new string('★', review.Rating))@(new string('☆', 5 - review.Rating))</span>
                                 <span class="review-date">@review.CreatedAt.ToString("d MMM yyyy")</span>
                             </div>
-                            @if (!string.IsNullOrWhiteSpace(review.Conmment))
+                            @if (!string.IsNullOrWhiteSpace(review.Comment))
                             {
-                                <p class="review-comment">@review.Conmment</p>
+                                <p class="review-comment">@review.Comment</p>
                             }
                         </div>
                     }
