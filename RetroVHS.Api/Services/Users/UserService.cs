@@ -36,15 +36,7 @@ public class UserService : IUserService
     if (user == null)
       return null;
 
-    return new UserDto
-    {
-      Id = user.Id,
-      FirstName = user.FirstName,
-      LastName = user.LastName,
-      Nickname = user.Nickname,
-      Email = user.Email ?? string.Empty,
-      IsBlocked = user.IsBlocked
-    };
+    return MapToUserDto(user);
   }
 
   /// <summary>
@@ -77,15 +69,7 @@ public class UserService : IUserService
 
     await _context.SaveChangesAsync();
 
-    return new UserDto
-    {
-      Id = user.Id,
-      FirstName = user.FirstName,
-      LastName = user.LastName,
-      Nickname = user.Nickname,
-      Email = user.Email ?? string.Empty,
-      IsBlocked = user.IsBlocked
-    };
+    return MapToUserDto(user);
   }
 
   /// <summary>
@@ -132,15 +116,7 @@ public class UserService : IUserService
     if (user == null)
       return null;
 
-    return new UserDto
-    {
-      Id = user.Id,
-      FirstName = user.FirstName,
-      LastName = user.LastName,
-      Nickname = user.Nickname,
-      Email = user.Email ?? string.Empty,
-      IsBlocked = user.IsBlocked
-    };
+    return MapToUserDto(user);
   }
 
   /// <summary>
@@ -195,4 +171,19 @@ public class UserService : IUserService
         });
   }
 
+  /// <summary>
+  /// Mappar en användare till UserDto.
+  /// </summary>
+  private static UserDto MapToUserDto(ApplicationUser user)
+  {
+    return new UserDto
+    {
+      Id = user.Id,
+      FirstName = user.FirstName,
+      LastName = user.LastName,
+      Nickname = user.Nickname,
+      Email = user.Email ?? string.Empty,
+      IsBlocked = user.IsBlocked
+    };
+  }
 }
