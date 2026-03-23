@@ -63,8 +63,8 @@ public class UserService : IUserService
     user.Nickname = dto.Nickname;
     user.Email = dto.Email;
     user.UserName = dto.Email;
-    user.NormalizedEmail = dto.Email.ToUpper();
-    user.NormalizedUserName = dto.Email.ToUpper();
+    user.NormalizedEmail = dto.Email.ToUpperInvariant();
+    user.NormalizedUserName = dto.Email.ToUpperInvariant();
     user.UpdatedAt = DateTime.UtcNow;
 
     await _context.SaveChangesAsync();
