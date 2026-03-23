@@ -323,7 +323,9 @@ else
         if (movie is not null)
         {
             var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-            var idClaim = authState.User.FindFirst("nameid")?.Value;
+            var idClaim = authState.User.FindFirst("nameid")?.Value
+                ?? authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                ?? authState.User.FindFirst("sub")?.Value;
             if (int.TryParse(idClaim, out var currentUserId) && currentUserId > 0)
             {
                 existingReview = movie.Reviews.FirstOrDefault(r => r.UserId == currentUserId);
