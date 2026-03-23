@@ -1,7 +1,69 @@
 ﻿@page "/"
+@using RetroVHS.Shared.DTOs.Movies
+@inject IMovieClient MovieClient
+@inject NavigationManager Navigation
 
-<PageTitle>Home</PageTitle>
+<PageTitle>RetroVHS</PageTitle>
 
-<h1>Hello, world!</h1>
+@if (isLoading)
+{
+    <div class="movie-section">
+        <div class="loading-spinner">
+            <div class="spinner-border" role="status" style="color: #e94560; width: 2.5rem; height: 2.5rem;"></div>
+            <p>Laddar filmer...</p>
+        </div>
+    </div>
+}
+else
+{
+    @if (featuredMovies.Count > 0)
+    {
+        <div class="movie-section">
+            <h2 class="section-title">⭐ Utvalda filmer</h2>
+            <div class="movie-grid">
+                @foreach (var movie in featuredMovies)
+                {
+                    <MovieCard Movie="movie" OnMovieSelected="GoToMovie" />
+                }
+            </div>
+        </div>
+    }
 
-Welcome to your new app.
+	// TODO: Lägg till en sektion för alla filmer när vi har tillräckligt med data i databasen
+    @* @if (allMovies.Count > 0)
+    {
+        <div class="movie-section">
+            <h2 class="section-title">🎬 Alla filmer</h2>
+            <div class="movie-grid">
+                @foreach (var movie in allMovies)
+                {
+                    <MovieCard Movie="movie" OnMovieSelected="GoToMovie" />
+                }
+            </div>
+        </div>
+    } *@
+}
+
+@code {
+    private List<MovieListDto> featuredMovies = [];
+    private List<MovieListDto> allMovies = [];
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Yield();
+
+        var featuredTask = MovieClient.GetFeaturedMoviesAsync();
+        var allTask = MovieClient.GetAllMoviesAsync();
+
+        featuredMovies = await featuredTask;
+        allMovies = await allTask;
+
+        isLoading = false;
+    }
+
+    private void GoToMovie(MovieListDto movie)
+    {
+        Navigation.NavigateTo($"/movie/{movie.Id}");
+    }
+}

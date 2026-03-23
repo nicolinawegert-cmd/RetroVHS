@@ -1,10 +1,25 @@
+using Microsoft.AspNetCore.Components.Authorization;
 using RetroVHS.Client.Components;
+using RetroVHS.Client.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddScoped(sp => new HttpClient
+{
+    BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"] ?? "https://localhost:7173")
+});
+
+// Auth: JWT-state hanteras av JwtAuthStateProvider som läser claims från API:ts token
+builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthStateProvider>();
+builder.Services.AddAuthorizationCore();
+builder.Services.AddCascadingAuthenticationState();
+
+builder.Services.AddScoped<IAuthClient, AuthClient>();
+builder.Services.AddScoped<IMovieClient, MovieClient>();
 
 var app = builder.Build();
 

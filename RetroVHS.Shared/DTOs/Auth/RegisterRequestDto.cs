@@ -11,14 +11,14 @@ public class RegisterRequestDto
     /// <summary>
     /// Användarens förnamn
     /// </summary>
-    [Required]
+    [Required(ErrorMessage = "Förnamn är obligatoriskt.")]
     [StringLength(100)]
     public string FirstName { get; set; } = string.Empty;
 
     /// <summary>
     /// Användarens efternamn
     /// </summary>
-    [Required]
+    [Required(ErrorMessage = "Efternamn är obligatoriskt.")]
     [StringLength(100)]
     public string LastName { get; set; } = string.Empty;
 
@@ -31,21 +31,23 @@ public class RegisterRequestDto
     /// <summary>
     /// E-postadress som används för inloggning
     /// </summary>
-    [Required]
-    [EmailAddress]
+    [Required(ErrorMessage = "E-post är obligatoriskt.")]
+    [EmailAddress(ErrorMessage = "Ogiltig e-postadress.")]
     public string Email { get; set; } = string.Empty;
 
     /// <summary>
     /// Lösenord för kontot
     /// </summary>
-    [Required]
-    [StringLength(100, MinimumLength = 6)]
+    [Required(ErrorMessage = "Lösenord är obligatoriskt.")]
+    [StringLength(100, MinimumLength = 6, ErrorMessage = "Lösenordet måste vara minst 6 tecken.")]
+    [RegularExpression(@"^(?=.*\d).+$",
+        ErrorMessage = "Lösenordet måste innehålla minst en siffra.")]
     public string Password { get; set; } = string.Empty;
 
     /// <summary>
     /// Bekräftelse av lösenord för att minska risken för felskrivning
     /// </summary>
-    [Required]
-    [Compare(nameof(Password))]
+    [Required(ErrorMessage = "Bekräfta lösenordet.")]
+    [Compare(nameof(Password), ErrorMessage = "Lösenorden matchar inte.")]
     public string ConfirmPassword { get; set; } = string.Empty;
 }

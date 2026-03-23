@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RetroVHS.Api.Services.Auth;
 using RetroVHS.Shared.DTOs.Auth;
 
@@ -87,7 +88,9 @@ public class AuthController : ControllerBase
 
     /// <summary>
     /// Loggar ut användaren genom att återkalla refresh token.
+    /// Man måste vara autentiserad för att kunna logga ut, eftersom vi behöver veta vilken användare som loggar ut för att återkalla rätt refresh token.
     /// </summary>
+    [Authorize]
     [HttpPost("logout")]
     public async Task<IActionResult> Logout([FromBody] RefreshTokenRequestDto request)
     {
