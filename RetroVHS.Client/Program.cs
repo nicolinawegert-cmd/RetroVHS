@@ -20,6 +20,7 @@ builder.Services.AddCascadingAuthenticationState();
 
 builder.Services.AddScoped<IAuthClient, AuthClient>();
 builder.Services.AddScoped<IMovieClient, MovieClient>();
+builder.Services.AddScoped<IUserClient, UserClient>();
 
 var app = builder.Build();
 

@@ -44,4 +44,9 @@ public class ReviewDto
     /// Anger om recensionen har blivit redigerad
     /// </summary>
     public bool IsEdited { get; set; }
+
+    /// <summary>
+    /// Filmens titel — sätts när recensionen hämtas i användarkontext
+    /// </summary>
+    public string? MovieTitle { get; set; }
 }

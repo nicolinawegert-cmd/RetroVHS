@@ -134,6 +134,7 @@ public class UserService : IUserService
   {
     return _context.Reviews
         .Include(r => r.User)
+        .Include(r => r.Movie)
         .Where(r => r.UserId == userId && !r.IsDeleted)
         .OrderByDescending(r => r.CreatedAt)
         .Select(r => new ReviewDto
@@ -147,7 +148,8 @@ public class UserService : IUserService
           Comment = r.Comment ?? string.Empty,
           Rating = r.Rating,
           CreatedAt = r.CreatedAt,
-          IsEdited = r.IsEdited
+          IsEdited = r.IsEdited,
+          MovieTitle = r.Movie.Title
         });
   }
 
