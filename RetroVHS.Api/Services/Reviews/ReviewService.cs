@@ -82,7 +82,6 @@ public class ReviewService : IReviewService
   {
     var review = await _context.Reviews
         .Include(r => r.User)
-        .Include(r => r.Movie)
         .FirstOrDefaultAsync(r => r.Id == reviewId && r.UserId == userId && !r.IsDeleted);
 
     if (review == null)
@@ -118,7 +117,6 @@ public class ReviewService : IReviewService
   public async Task<bool> RemoveReviewCommentAsync(int userId, int reviewId)
   {
     var review = await _context.Reviews
-        .Include(r => r.Movie)
         .FirstOrDefaultAsync(r => r.Id == reviewId && r.UserId == userId && !r.IsDeleted);
 
     if (review == null)
