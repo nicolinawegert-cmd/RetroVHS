@@ -28,4 +28,8 @@ public interface IUserService
   /// </summary>
   Task<List<ReviewDto>> GetCurrentUserReviewsAsync(int userId);
 
+  /// <summary>
+  /// Hämtar profilinformationen för en specifik användare.
+  /// </summary>
+  Task<UserDto?> GetUserByIdAsync(int userId);
 }
