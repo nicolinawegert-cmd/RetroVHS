@@ -45,4 +45,31 @@ public class UsersController : ControllerBase
 
     return Ok(user);
   }
+
+  /// <summary>
+  /// Uppdaterar profilinformationen för den inloggade användaren.
+  /// </summary>
+  [Authorize]
+  [HttpPut("me")]
+  public async Task<ActionResult<UserDto>> UpdateCurrentUser([FromBody] UpdateUserProfileDto dto)
+  {
+    if (!ModelState.IsValid)
+      return BadRequest(ModelState);
+
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+    if (string.IsNullOrWhiteSpace(userIdClaim))
+      return Unauthorized();
+
+    if (!int.TryParse(userIdClaim, out var userId))
+      return Unauthorized();
+
+    var updatedUser = await _userService.UpdateCurrentUserAsync(userId, dto);
+
+    if (updatedUser == null)
+      return NotFound();
+
+    return Ok(updatedUser);
+  }
+
 }
