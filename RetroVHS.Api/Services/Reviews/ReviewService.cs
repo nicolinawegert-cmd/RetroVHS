@@ -113,9 +113,9 @@ public class ReviewService : IReviewService
   }
 
   /// <summary>
-  /// Tar bort den aktuella användarens recension.
+  /// Tar bort den aktuella användarens recension/kommentar.
   /// </summary>
-  public async Task<bool> DeleteReviewAsync(int userId, int reviewId)
+  public async Task<bool> RemoveReviewCommentAsync(int userId, int reviewId)
   {
     var review = await _context.Reviews
         .Include(r => r.Movie)
@@ -129,8 +129,6 @@ public class ReviewService : IReviewService
     review.UpdatedAt = DateTime.UtcNow;
 
     await _context.SaveChangesAsync();
-
-    await UpdateMovieRatingAsync(review.MovieId);
 
     return true;
   }
