@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Moq;
 using RetroVHS.Api.Data;
 using RetroVHS.Api.Models;
 using RetroVHS.Api.Services.Auth;
 using RetroVHS.Shared.DTOs.Auth;
 using Xunit;
+
 
 
 namespace RetroVHS.Tests.Services
