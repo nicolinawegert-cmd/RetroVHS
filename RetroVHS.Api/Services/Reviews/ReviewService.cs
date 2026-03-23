@@ -59,20 +59,8 @@ public class ReviewService : IReviewService
     await _context.SaveChangesAsync();
 
     await UpdateMovieRatingAsync(review.MovieId);
-    
-    return new ReviewDto
-    {
-      Id = review.Id,
-      MovieId = review.MovieId,
-      UserId = review.UserId,
-      UserDisplayName = review.UseNickname && !string.IsNullOrWhiteSpace(user.Nickname)
-            ? user.Nickname!
-            : user.FullName,
-      Comment = review.Comment ?? string.Empty,
-      Rating = review.Rating,
-      CreatedAt = review.CreatedAt,
-      IsEdited = review.IsEdited
-    };
+
+    return MapToReviewDto(review, user);
   }
 
   /// <summary>
@@ -96,19 +84,7 @@ public class ReviewService : IReviewService
 
     await UpdateMovieRatingAsync(review.MovieId);
 
-    return new ReviewDto
-    {
-      Id = review.Id,
-      MovieId = review.MovieId,
-      UserId = review.UserId,
-      UserDisplayName = review.UseNickname && !string.IsNullOrWhiteSpace(review.User.Nickname)
-            ? review.User.Nickname!
-            : review.User.FullName,
-      Comment = review.Comment ?? string.Empty,
-      Rating = review.Rating,
-      CreatedAt = review.CreatedAt,
-      IsEdited = review.IsEdited
-    };
+    return MapToReviewDto(review, review.User);
   }
 
   /// <summary>
@@ -154,4 +130,23 @@ public class ReviewService : IReviewService
     await _context.SaveChangesAsync();
   }
 
+  /// <summary>
+  /// Mappar en review och tillhörande användare till ReviewDto.
+  /// </summary>
+  private static ReviewDto MapToReviewDto(Review review, ApplicationUser user)
+  {
+    return new ReviewDto
+    {
+      Id = review.Id,
+      MovieId = review.MovieId,
+      UserId = review.UserId,
+      UserDisplayName = review.UseNickname && !string.IsNullOrWhiteSpace(user.Nickname)
+            ? user.Nickname!
+            : user.FullName,
+      Comment = review.Comment ?? string.Empty,
+      Rating = review.Rating,
+      CreatedAt = review.CreatedAt,
+      IsEdited = review.IsEdited
+    };
+  }
 }
