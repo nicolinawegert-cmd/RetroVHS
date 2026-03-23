@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using RetroVHS.Shared.DTOs.Movies;
+using RetroVHS.Shared.DTOs.Reviews;
 
 namespace RetroVHS.Client.Services;
 
@@ -40,6 +41,46 @@ public class MovieClient : IMovieClient
         catch
         {
             return [];
+        }
+    }
+
+    public async Task<List<MovieListDto>> GetAllMoviesAsync()
+    {
+        try
+        {
+            var result = await _httpClient.GetFromJsonAsync<List<MovieListDto>>("api/movies");
+            return result ?? [];
+        }
+        catch
+        {
+            return [];
+        }
+    }
+
+    public async Task<MovieDetailsDto?> GetMovieDetailsAsync(int id)
+    {
+        try
+        {
+            return await _httpClient.GetFromJsonAsync<MovieDetailsDto>($"api/movies/{id}");
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public async Task<ReviewDto?> CreateReviewAsync(CreateReviewDto dto)
+    {
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync("api/reviews", dto);
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadFromJsonAsync<ReviewDto>();
+            return null;
+        }
+        catch
+        {
+            return null;
         }
     }
 }

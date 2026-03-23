@@ -1,0 +1,273 @@
+@page "/movie/{Id:int}"
+@using RetroVHS.Shared.DTOs.Movies
+@using RetroVHS.Shared.DTOs.Reviews
+@inject IMovieClient MovieClient
+@inject NavigationManager Navigation
+
+<PageTitle>@(movie?.Title ?? "Laddar...")</PageTitle>
+
+@if (isLoading)
+{
+    <div class="movie-section">
+        <div class="loading-spinner">
+            <div class="spinner-border" role="status" style="color: #e94560; width: 2.5rem; height: 2.5rem;"></div>
+            <p>Laddar film...</p>
+        </div>
+    </div>
+}
+else if (movie is null)
+{
+    <div class="movie-section">
+        <p class="details-not-found">Filmen hittades inte.</p>
+    </div>
+}
+else
+{
+    <div class="details-page">
+
+        <div class="details-header">
+            <div class="details-header-top">
+                <div class="details-poster">
+                    @if (!string.IsNullOrEmpty(movie.PosterUrl))
+                    {
+                        <img src="@movie.PosterUrl" alt="@movie.Title" />
+                    }
+                    else
+                    {
+                        <div class="details-no-poster">🎬</div>
+                    }
+                </div>
+
+                <div class="details-info">
+                    <h1 class="details-title">@movie.Title</h1>
+
+                    <div class="details-meta">
+                        <span>@movie.ReleaseYear</span>
+                        <span class="meta-sep">·</span>
+                        <span>@movie.DurationMinutes min</span>
+                        @if (movie.RatingCount > 0)
+                        {
+                            <span class="meta-sep">·</span>
+                            <span>⭐ @movie.RatingAverage.ToString("0.0") (@movie.RatingCount)</span>
+                        }
+                    </div>
+
+                    @if (movie.Genres.Count > 0)
+                    {
+                        <div class="details-genres">
+                            @foreach (var genre in movie.Genres)
+                            {
+                                <span class="genre-tag">@genre</span>
+                            }
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(movie.Synopsis))
+                    {
+                        <p class="details-synopsis">@movie.Synopsis</p>
+                    }
+
+                    @if (movie.Directors.Count > 0)
+                    {
+                        <div class="details-credit-row">
+                            <span class="credit-label">Regi</span>
+                            <span>@string.Join(", ", movie.Directors.Select(d => d.FullName))</span>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(movie.ProductionCompanyName))
+                    {
+                        <div class="details-credit-row">
+                            <span class="credit-label">Produktionsbolag</span>
+                            <span>@movie.ProductionCompanyName</span>
+                        </div>
+                    }
+
+                    <div class="details-credit-row">
+                        <span class="credit-label">Status</span>
+                        <span class="details-status">@movie.AvailabilityStatus</span>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(GetEmbedUrl()))
+                {
+                    <div class="details-trailer">
+                        <p class="cast-label">Trailer</p>
+                        <div class="trailer-wrapper">
+                            <iframe src="@GetEmbedUrl()"
+                                    title="@movie.Title trailer"
+                                    frameborder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen>
+                            </iframe>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (movie.Cast.Count > 0)
+            {
+                <div class="cast-section">
+                    <p class="cast-label">Skådespelare</p>
+                    <div class="cast-grid">
+                        @foreach (var person in movie.Cast)
+                        {
+                            <div class="cast-card">
+                                <span class="cast-name">@person.FullName</span>
+                                @if (!string.IsNullOrEmpty(person.CharacterName))
+                                {
+                                    <span class="cast-character">@person.CharacterName</span>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="details-section">
+            <h2 class="section-title">Recensioner</h2>
+
+            <AuthorizeView>
+                <Authorized>
+                    <div class="review-form">
+                        <div class="star-row">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                var star = i;
+                                <button type="button"
+                                        class="star-btn @(star <= (hoverRating > 0 ? hoverRating : newRating) ? "star-filled" : "")"
+                                        @onclick="() => newRating = star"
+                                        @onmouseenter="() => hoverRating = star"
+                                        @onmouseleave="() => hoverRating = 0">
+                                    @(star <= (hoverRating > 0 ? hoverRating : newRating) ? "★" : "☆")
+                                </button>
+                            }
+                        </div>
+                        <textarea class="review-textarea"
+                                  placeholder="Kommentar (valfritt)"
+                                  @bind="newComment"
+                                  rows="3"
+                                  maxlength="1000"></textarea>
+                        @if (!string.IsNullOrEmpty(submitError))
+                        {
+                            <p class="review-error">@submitError</p>
+                        }
+                        @if (submitSuccess)
+                        {
+                            <p class="review-success">Recension sparad!</p>
+                        }
+                        <button class="btn-submit review-submit"
+                                @onclick="SubmitReviewAsync"
+                                disabled="@(submitting || newRating == 0)">
+                            @(submitting ? "Sparar..." : "Skicka recension")
+                        </button>
+                    </div>
+                </Authorized>
+                <NotAuthorized>
+                    <p class="review-login-prompt">Logga in för att betygsätta filmen.</p>
+                </NotAuthorized>
+            </AuthorizeView>
+
+            @if (movie.Reviews.Count > 0)
+            {
+                <div class="review-list">
+                    @foreach (var review in movie.Reviews.OrderByDescending(r => r.CreatedAt))
+                    {
+                        <div class="review-item">
+                            <div class="review-header">
+                                <span class="review-user">@review.UserDisplayName</span>
+                                <span class="review-stars">@(new string('★', review.Rating))@(new string('☆', 5 - review.Rating))</span>
+                                <span class="review-date">@review.CreatedAt.ToString("d MMM yyyy")</span>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(review.Conmment))
+                            {
+                                <p class="review-comment">@review.Conmment</p>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="review-empty">Inga recensioner ännu. Bli den första!</p>
+            }
+        </div>
+
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private MovieDetailsDto? movie;
+    private bool isLoading = true;
+
+    private int newRating;
+    private int hoverRating;
+    private string newComment = string.Empty;
+    private bool submitting;
+    private string? submitError;
+    private bool submitSuccess;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Yield();
+        movie = await MovieClient.GetMovieDetailsAsync(Id);
+        isLoading = false;
+    }
+
+    private async Task SubmitReviewAsync()
+    {
+        if (newRating == 0) return;
+        submitting = true;
+        submitError = null;
+        submitSuccess = false;
+
+        var dto = new CreateReviewDto
+        {
+            MovieId = Id,
+            Rating = newRating,
+            Comment = newComment
+        };
+
+        var result = await MovieClient.CreateReviewAsync(dto);
+        if (result is not null)
+        {
+            movie!.Reviews.Add(result);
+            newRating = 0;
+            newComment = string.Empty;
+            submitSuccess = true;
+        }
+        else
+        {
+            submitError = "Kunde inte spara recensionen. Försök igen.";
+        }
+
+        submitting = false;
+    }
+
+    private string? GetEmbedUrl()
+    {
+        if (string.IsNullOrEmpty(movie?.TrailerUrl)) return null;
+
+        var url = movie.TrailerUrl;
+
+        // https://www.youtube.com/watch?v=VIDEO_ID
+        var watchIndex = url.IndexOf("v=");
+        if (watchIndex >= 0)
+        {
+            var videoId = url[(watchIndex + 2)..].Split('&')[0];
+            return $"https://www.youtube.com/embed/{videoId}";
+        }
+
+        // https://youtu.be/VIDEO_ID
+        if (url.Contains("youtu.be/"))
+        {
+            var videoId = url.Split("youtu.be/")[1].Split('?')[0];
+            return $"https://www.youtube.com/embed/{videoId}";
+        }
+
+        return null;
+    }
+}

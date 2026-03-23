@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using RetroVHS.Api.Data;
+using RetroVHS.Api.Services.Movies;
 using RetroVHS.Shared.DTOs.Movies;
-
+using Microsoft.AspNetCore.Authorization;
 namespace RetroVHS.Api.Controllers;
 
 /// <summary>
@@ -12,56 +11,101 @@ namespace RetroVHS.Api.Controllers;
 [Route("api/[controller]")]
 public class MoviesController : ControllerBase
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IMovieService _movieService;
 
-    public MoviesController(ApplicationDbContext context)
+    /// <summary>
+    /// Skapar en ny instans av controllern och injicerar movie-servicen.
+    /// </summary>
+    public MoviesController(IMovieService movieService)
     {
-        _context = context;
+        _movieService = movieService;
     }
 
     /// <summary>
-    /// Hämtar filmer med valfri filtrering.
-    /// Om searchTerm anges filtreras på titel.
-    /// Om featured=true returneras bara featured-filmer.
+    /// Hämtar filmer från katalogen med stöd för sökning, filtrering och sortering.
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<List<MovieListDto>>> GetMovies(
-        [FromQuery] string? searchTerm = null,
-        [FromQuery] bool? featured = null)
+    public async Task<ActionResult<List<MovieListDto>>> GetMovies([FromQuery] MovieFilterDto filter)
     {
-        var query = _context.Movies
-            .Include(m => m.MovieGenres)
-                .ThenInclude(mg => mg.Genre)
-            .AsQueryable();
-
-        if (!string.IsNullOrWhiteSpace(searchTerm))
-        {
-            query = query.Where(m => EF.Functions.Like(m.Title, $"%{searchTerm}%"));
-        }
-
-        if (featured == true)
-        {
-            query = query.Where(m => m.IsFeatured);
-        }
-
-        var movies = await query
-            .OrderBy(m => m.Title)
-            .Select(m => new MovieListDto
-            {
-                Id = m.Id,
-                Title = m.Title,
-                ReleaseYear = m.ReleaseYear,
-                DurationMinutes = m.DurationMinutes,
-                RentalPrice = m.RentalPrice,
-                RatingAverage = m.RatingAverage,
-                RatingCount = m.RatingCount,
-                PosterUrl = m.PosterUrl,
-                AvailabilityStatus = m.AvailabilityStatus.ToString(),
-                IsFeatured = m.IsFeatured,
-                Genres = m.MovieGenres.Select(mg => mg.Genre.Name).ToList()
-            })
-            .ToListAsync();
-
+        var movies = await _movieService.GetMoviesAsync(filter);
         return Ok(movies);
+    }
+
+    /// <summary>
+    /// Hämtar fullständig information om en specifik film.
+    /// </summary>
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<MovieDetailsDto>> GetMovieById(int id)
+    {
+        var movie = await _movieService.GetMovieByIdAsync(id);
+
+        if (movie == null)
+            return NotFound();
+
+        return Ok(movie);
+    }
+
+    /// <summary>
+    /// Skapar en ny film i katalogen. Endast administratörer har åtkomst.
+    /// </summary>
+    [Authorize(Roles = "Admin")]
+    [HttpPost]
+    public async Task<ActionResult<MovieDetailsDto>> CreateMovie([FromBody] CreateMovieDto dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        try
+        {
+            var created = await _movieService.CreateMovieAsync(dto);
+            return CreatedAtAction(nameof(GetMovieById), new { id = created.Id }, created);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Uppdaterar en befintlig film och dess relationer. Endast administratörer har åtkomst.
+    /// </summary>
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id:int}")]
+    public async Task<ActionResult<MovieDetailsDto>> UpdateMovie(int id, [FromBody] UpdateMovieDto dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        if (id != dto.Id)
+            return BadRequest(new { message = "Route id och dto.Id matchar inte." });
+
+        try
+        {
+            var updated = await _movieService.UpdateMovieAsync(id, dto);
+
+            if (updated == null)
+                return NotFound();
+
+            return Ok(updated);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Tar bort en film från katalogen. Endast administratörer har åtkomst.
+    /// </summary>
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteMovie(int id)
+    {
+        var deleted = await _movieService.DeleteMovieAsync(id);
+
+        if (!deleted)
+            return NotFound();
+
+        return NoContent();
     }
 }

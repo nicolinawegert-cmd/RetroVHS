@@ -15,6 +15,11 @@ public class MovieFilterDto
     public string? SearchTerm { get; set; }
 
     /// <summary>
+    /// Filtrera på utvalda filmer (featured)
+    /// </summary>    
+    public bool? Featured { get; set; }
+
+    /// <summary>
     /// Filtrera på genre
     /// </summary>
     public int? GenreId { get; set; }
@@ -53,4 +58,4 @@ public class MovieFilterDto
     /// Anger om sorteringen ska vara fallande
     /// </summary>
     public bool Desc { get; set; } = false;
-}
+}   
