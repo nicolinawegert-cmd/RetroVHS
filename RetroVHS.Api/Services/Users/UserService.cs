@@ -141,29 +141,16 @@ public class UserService : IUserService
     return await BuildUserReviewsQuery(userId).ToListAsync();
   }
 
-  /// <summary>
-  /// Hämtar alla uthyrningar/beställningar för en specifik användare.
-  /// Endast avsett för administrativ översikt.
-  /// </summary>
   public async Task<List<RentalDto>> GetUserRentalsByIdAsync(int userId)
   {
-    return await _context.Rentals
+    var rentals = await _context.Rentals
         .Include(r => r.Movie)
         .Where(r => r.UserId == userId)
         .OrderByDescending(r => r.RentedAt)
-        .Select(r => new RentalDto
-        {
-          Id = r.Id,
-          MovieId = r.MovieId,
-          Title = r.Movie.Title,
-          PricePaid = r.PricePaid,
-          RentedAt = r.RentedAt,
-          ExpiresAt = r.ExpiresAt,
-          Status = r.Status.ToString()
-        })
         .ToListAsync();
-  }
 
+    return rentals.Select(MapToRentalDto).ToList();
+  }
 
   /// <summary>
   /// Bygger en gemensam query för att hämta en användares recensioner.
@@ -204,4 +191,22 @@ public class UserService : IUserService
       IsBlocked = user.IsBlocked
     };
   }
+
+  /// <summary>
+  /// Mappar en uthyrning till RentalDto.
+  /// </summary>
+  private static RentalDto MapToRentalDto(Rental rental)
+  {
+    return new RentalDto
+    {
+      Id = rental.Id,
+      MovieId = rental.MovieId,
+      Title = rental.Movie.Title,
+      PricePaid = rental.PricePaid,
+      RentedAt = rental.RentedAt,
+      ExpiresAt = rental.ExpiresAt,
+      Status = rental.Status.ToString()
+    };
+  }
+
 }
