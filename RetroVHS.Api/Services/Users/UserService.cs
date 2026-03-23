@@ -118,24 +118,7 @@ public class UserService : IUserService
   /// </summary>
   public async Task<List<ReviewDto>> GetCurrentUserReviewsAsync(int userId)
   {
-    return await _context.Reviews
-        .Include(r => r.User)
-        .Where(r => r.UserId == userId && !r.IsDeleted)
-        .OrderByDescending(r => r.CreatedAt)
-        .Select(r => new ReviewDto
-        {
-          Id = r.Id,
-          MovieId = r.MovieId,
-          UserId = r.UserId,
-          UserDisplayName = r.UseNickname && !string.IsNullOrWhiteSpace(r.User.Nickname)
-                ? r.User.Nickname!
-                : r.User.FullName,
-          Comment = r.Comment ?? string.Empty,
-          Rating = r.Rating,
-          CreatedAt = r.CreatedAt,
-          IsEdited = r.IsEdited
-        })
-        .ToListAsync();
+    return await BuildUserReviewsQuery(userId).ToListAsync();
   }
 
   /// <summary>
@@ -158,6 +141,58 @@ public class UserService : IUserService
       Email = user.Email ?? string.Empty,
       IsBlocked = user.IsBlocked
     };
+  }
+
+  /// <summary>
+  /// Tar bort kommentartexten från en recension men behåller betyget.
+  /// Endast avsett för administrativ moderering.
+  /// </summary>
+  public async Task<bool> RemoveReviewCommentAsync(int reviewId)
+  {
+    var review = await _context.Reviews
+        .FirstOrDefaultAsync(r => r.Id == reviewId && !r.IsDeleted);
+
+    if (review == null)
+      return false;
+
+    review.Comment = null;
+    review.IsEdited = true;
+    review.UpdatedAt = DateTime.UtcNow;
+
+    await _context.SaveChangesAsync();
+    return true;
+  }
+
+  /// <summary>
+  /// Hämtar alla recensioner som en specifik användare har skrivit.
+  /// </summary>
+  public async Task<List<ReviewDto>> GetUserReviewsByIdAsync(int userId)
+  {
+    return await BuildUserReviewsQuery(userId).ToListAsync();
+  }
+
+  /// <summary>
+  /// Bygger en gemensam query för att hämta en användares recensioner.
+  /// </summary>
+  private IQueryable<ReviewDto> BuildUserReviewsQuery(int userId)
+  {
+    return _context.Reviews
+        .Include(r => r.User)
+        .Where(r => r.UserId == userId && !r.IsDeleted)
+        .OrderByDescending(r => r.CreatedAt)
+        .Select(r => new ReviewDto
+        {
+          Id = r.Id,
+          MovieId = r.MovieId,
+          UserId = r.UserId,
+          UserDisplayName = r.UseNickname && !string.IsNullOrWhiteSpace(r.User.Nickname)
+                ? r.User.Nickname!
+                : r.User.FullName,
+          Comment = r.Comment ?? string.Empty,
+          Rating = r.Rating,
+          CreatedAt = r.CreatedAt,
+          IsEdited = r.IsEdited
+        });
   }
 
 }
