@@ -4,7 +4,7 @@ using RetroVHS.Shared.DTOs.Auth;
 using RetroVHS.Api.Models;
 using Microsoft.AspNetCore.Identity;
 using RetroVHS.Shared.DTOs.Reviews;
-
+using RetroVHS.Shared.DTOs.Rentals;
 
 namespace RetroVHS.Api.Services.Users;
 
@@ -147,6 +147,30 @@ public class UserService : IUserService
   {
     return await BuildUserReviewsQuery(userId).ToListAsync();
   }
+
+  /// <summary>
+  /// Hämtar alla uthyrningar/beställningar för en specifik användare.
+  /// Endast avsett för administrativ översikt.
+  /// </summary>
+  public async Task<List<RentalDto>> GetUserRentalsByIdAsync(int userId)
+  {
+    return await _context.Rentals
+        .Include(r => r.Movie)
+        .Where(r => r.UserId == userId)
+        .OrderByDescending(r => r.RentedAt)
+        .Select(r => new RentalDto
+        {
+          Id = r.Id,
+          MovieId = r.MovieId,
+          Title = r.Movie.Title,
+          PricePaid = r.PricePaid,
+          RentedAt = r.RentedAt,
+          ExpiresAt = r.ExpiresAt,
+          Status = r.Status.ToString()
+        })
+        .ToListAsync();
+  }
+
 
   /// <summary>
   /// Bygger en gemensam query för att hämta en användares recensioner.
