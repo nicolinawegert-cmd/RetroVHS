@@ -144,4 +144,20 @@ public class UsersController : ControllerBase
     return Ok(user);
   }
 
+  /// <summary>
+  /// Tar bort kommentartexten från en recension men behåller betyget.
+  /// Endast administratörer har åtkomst.
+  /// </summary>
+  [Authorize(Roles = "Admin")]
+  [HttpPut("reviews/{reviewId:int}/remove-comment")]
+  public async Task<IActionResult> RemoveReviewComment(int reviewId)
+  {
+    var result = await _userService.RemoveReviewCommentAsync(reviewId);
+
+    if (!result)
+      return NotFound();
+
+    return Ok(new { message = "Kommentartexten har tagits bort, men betyget är kvar." });
+  }
+
 }
