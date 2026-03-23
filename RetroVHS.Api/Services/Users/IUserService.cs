@@ -39,4 +39,9 @@ public interface IUserService
   /// </summary>
   Task<bool> RemoveReviewCommentAsync(int reviewId);
 
+  /// <summary>
+  /// Hämtar alla recensioner som en specifik användare har skrivit.
+  /// </summary>
+  Task<List<ReviewDto>> GetUserReviewsByIdAsync(int userId);
+
 }
