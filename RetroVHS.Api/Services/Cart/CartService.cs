@@ -102,7 +102,7 @@ namespace RetroVHS.Api.Services.Cart
                     MovieId = item.MovieId,
                     PricePaid = item.UnitPrice,
                     RentedAt = DateTime.UtcNow,
-                    ExpiresAt = DateTime.UtcNow.AddDays(2),
+                    ExpiresAt = DateTime.MaxValue,          // Köpt film – ingen utgångstid
                     Status = RentalStatus.Active,
                     PaymentReference = $"SIM-{Guid.NewGuid():N}"[..16]
                 };
@@ -127,7 +127,7 @@ namespace RetroVHS.Api.Services.Cart
             return new CheckoutResponseDto
             {
                 Success = true,
-                Message = $"Köpet genomfört! Du hyrde {rentals.Count} film(er).",
+                Message = $"Köpet genomfört! Du köpte {rentals.Count} film(er).",
                 Rentals = rentals.Select(r => new RentalDto
                 {
                     Id = r.Id,
