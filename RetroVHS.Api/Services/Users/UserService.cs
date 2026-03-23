@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using RetroVHS.Api.Data;
 using RetroVHS.Shared.DTOs.Auth;
 using RetroVHS.Api.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace RetroVHS.Api.Services.Users;
 
@@ -11,13 +12,15 @@ namespace RetroVHS.Api.Services.Users;
 public class UserService : IUserService
 {
   private readonly ApplicationDbContext _context;
+  private readonly UserManager<ApplicationUser> _userManager;
 
   /// <summary>
   /// Skapar en ny instans av servicen och injicerar databaskontexten.
   /// </summary>
-  public UserService(ApplicationDbContext context)
+  public UserService(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
   {
     _context = context;
+    _userManager = userManager;
   }
 
   /// <summary>
@@ -75,4 +78,28 @@ public class UserService : IUserService
     };
   }
 
+  /// <summary>
+  /// Byter lösenord för den aktuella användaren.
+  /// </summary>
+  public async Task<(bool Succeeded, List<string> Errors)> ChangePasswordAsync(int userId, ChangePasswordDto dto)
+  {
+    var user = await _userManager.FindByIdAsync(userId.ToString());
+
+    if (user == null)
+    {
+      return (false, new List<string> { "Användaren kunde inte hittas." });
+    }
+
+    var result = await _userManager.ChangePasswordAsync(user, dto.CurrentPassword, dto.NewPassword);
+
+    if (!result.Succeeded)
+    {
+      return (false, result.Errors.Select(e => e.Description).ToList());
+    }
+
+    user.UpdatedAt = DateTime.UtcNow;
+    await _userManager.UpdateAsync(user);
+
+    return (true, new List<string>());
+  }
 }

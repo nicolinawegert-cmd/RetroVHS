@@ -11,9 +11,15 @@ public interface IUserService
   /// Hämtar profilinformationen för den aktuella användaren.
   /// </summary>
   Task<UserDto?> GetCurrentUserAsync(int userId);
-  
+
   /// <summary>
   /// Uppdaterar profilinformationen för den aktuella användaren.
   /// </summary>
   Task<UserDto?> UpdateCurrentUserAsync(int userId, UpdateUserProfileDto dto);
+
+  /// <summary>
+  /// Byter lösenord för den aktuella användaren.
+  /// </summary>
+  Task<(bool Succeeded, List<string> Errors)> ChangePasswordAsync(int userId, ChangePasswordDto dto);
+
 }
