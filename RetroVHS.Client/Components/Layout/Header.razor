@@ -2,6 +2,8 @@
 @using RetroVHS.Shared.DTOs.Movies
 @inject IAuthClient AuthClient
 @inject IMovieClient MovieClient
+@inject ICartClient CartClient
+@inject CartState CartState
 @inject NavigationManager Navigation
 @implements IDisposable
 
@@ -43,6 +45,10 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
                     </svg>
+                    @if (CartState.ItemCount > 0)
+                    {
+                        <span class="cart-badge">@CartState.ItemCount</span>
+                    }
                 </a>
                 <div class="user-menu-wrapper">
                     <button class="user-menu-btn" @onclick="ToggleUserMenu">
@@ -232,6 +238,25 @@
     private void ToggleUserMenu() => showUserMenu = !showUserMenu;
     private void CloseUserMenu() => showUserMenu = false;
 
+    protected override async Task OnInitializedAsync()
+    {
+        CartState.OnChange += StateHasChanged;
+        await LoadCartCount();
+    }
+
+    private async Task LoadCartCount()
+    {
+        try
+        {
+            var cart = await CartClient.GetCartAsync();
+            CartState.SetCount(cart?.TotalItems ?? 0);
+        }
+        catch
+        {
+            CartState.SetCount(0);
+        }
+    }
+
     private LoginRequestDto loginRequest = new();
     private bool showLoginForm;
     private bool isLoggingIn;
@@ -322,6 +347,7 @@
         {
             showLoginForm = false;
             loginRequest = new();
+            await LoadCartCount();
         }
         else
         {
@@ -365,6 +391,7 @@
 
     public void Dispose()
     {
+        CartState.OnChange -= StateHasChanged;
         _debounceTokenSource?.Dispose();
     }
 }

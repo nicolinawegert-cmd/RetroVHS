@@ -1,6 +1,7 @@
 ﻿@page "/cart"
 @using RetroVHS.Shared.DTOs.Cart
 @inject ICartClient CartClient
+@inject CartState CartState
 @inject NavigationManager Navigation
 
 <PageTitle>Varukorg</PageTitle>
@@ -86,6 +87,7 @@
     {
         isLoading = true;
         cart = await CartClient.GetCartAsync();
+        CartState.SetCount(cart?.TotalItems ?? 0);
         isLoading = false;
     }
 

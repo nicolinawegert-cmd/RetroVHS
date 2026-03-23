@@ -4,6 +4,7 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @inject IMovieClient MovieClient
 @inject ICartClient CartClient
+@inject CartState CartState
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthStateProvider
 
@@ -303,7 +304,10 @@ else
 
         var result = await CartClient.AddToCartAsync(movie.Id);
         if (result != null)
+        {
             cartMessage = "✅ Filmen har lagts i varukorgen!";
+            CartState.SetCount(result.TotalItems);
+        }
         else
             cartMessage = "⚠️ Kunde inte lägga till filmen. Den kanske redan finns i varukorgen.";
 
