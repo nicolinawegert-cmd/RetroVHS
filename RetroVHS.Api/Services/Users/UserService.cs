@@ -3,6 +3,8 @@ using RetroVHS.Api.Data;
 using RetroVHS.Shared.DTOs.Auth;
 using RetroVHS.Api.Models;
 using Microsoft.AspNetCore.Identity;
+using RetroVHS.Shared.DTOs.Reviews;
+
 
 namespace RetroVHS.Api.Services.Users;
 
@@ -101,5 +103,30 @@ public class UserService : IUserService
     await _userManager.UpdateAsync(user);
 
     return (true, new List<string>());
+  }
+
+  /// <summary>
+  /// Hämtar alla recensioner som den aktuella användaren har skrivit.
+  /// </summary>
+  public async Task<List<ReviewDto>> GetCurrentUserReviewsAsync(int userId)
+  {
+    return await _context.Reviews
+        .Include(r => r.User)
+        .Where(r => r.UserId == userId && !r.IsDeleted)
+        .OrderByDescending(r => r.CreatedAt)
+        .Select(r => new ReviewDto
+        {
+          Id = r.Id,
+          MovieId = r.MovieId,
+          UserId = r.UserId,
+          UserDisplayName = r.UseNickname && !string.IsNullOrWhiteSpace(r.User.Nickname)
+                ? r.User.Nickname!
+                : r.User.FullName,
+          Conmment = r.Comment ?? string.Empty,
+          Rating = r.Rating,
+          CreatedAt = r.CreatedAt,
+          IsEdited = r.IsEdited
+        })
+        .ToListAsync();
   }
 }
