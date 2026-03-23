@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using RetroVHS.Api.Data;
 using RetroVHS.Shared.DTOs.Auth;
+using RetroVHS.Api.Models;
 
 namespace RetroVHS.Api.Services.Users;
 
@@ -40,4 +41,38 @@ public class UserService : IUserService
       IsBlocked = user.IsBlocked
     };
   }
+
+  /// <summary>
+  /// Uppdaterar profilinformationen för den aktuella användaren.
+  /// </summary>
+  public async Task<UserDto?> UpdateCurrentUserAsync(int userId, UpdateUserProfileDto dto)
+  {
+    var user = await _context.Users
+        .FirstOrDefaultAsync(u => u.Id == userId);
+
+    if (user == null)
+      return null;
+
+    user.FirstName = dto.FirstName;
+    user.LastName = dto.LastName;
+    user.Nickname = dto.Nickname;
+    user.Email = dto.Email;
+    user.UserName = dto.Email;
+    user.NormalizedEmail = dto.Email.ToUpper();
+    user.NormalizedUserName = dto.Email.ToUpper();
+    user.UpdatedAt = DateTime.UtcNow;
+
+    await _context.SaveChangesAsync();
+
+    return new UserDto
+    {
+      Id = user.Id,
+      FirstName = user.FirstName,
+      LastName = user.LastName,
+      Nickname = user.Nickname,
+      Email = user.Email ?? string.Empty,
+      IsBlocked = user.IsBlocked
+    };
+  }
+
 }

@@ -11,4 +11,9 @@ public interface IUserService
   /// Hämtar profilinformationen för den aktuella användaren.
   /// </summary>
   Task<UserDto?> GetCurrentUserAsync(int userId);
+  
+  /// <summary>
+  /// Uppdaterar profilinformationen för den aktuella användaren.
+  /// </summary>
+  Task<UserDto?> UpdateCurrentUserAsync(int userId, UpdateUserProfileDto dto);
 }
