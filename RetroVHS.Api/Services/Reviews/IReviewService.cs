@@ -22,4 +22,10 @@ public interface IReviewService
   /// </summary>
   Task<bool> RemoveReviewCommentAsync(int userId, int reviewId);
 
+  /// <summary>
+  /// Tar bort kommentartexten från en recension men behåller betyget.
+  /// Avsett för administrativ moderering.
+  /// </summary>
+  Task<bool> RemoveReviewCommentAsync(int reviewId);
+
 }
