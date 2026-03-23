@@ -66,12 +66,19 @@ public class UsersController : ControllerBase
     if (!int.TryParse(userIdClaim, out var userId))
       return Unauthorized();
 
-    var updatedUser = await _userService.UpdateCurrentUserAsync(userId, dto);
+    try
+    {
+      var updatedUser = await _userService.UpdateCurrentUserAsync(userId, dto);
 
-    if (updatedUser == null)
-      return NotFound();
+      if (updatedUser == null)
+        return NotFound();
 
-    return Ok(updatedUser);
+      return Ok(updatedUser);
+    }
+    catch (ArgumentException ex)
+    {
+      return BadRequest(new { message = ex.Message });
+    }
   }
 
   /// <summary>
