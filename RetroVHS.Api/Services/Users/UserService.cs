@@ -125,19 +125,12 @@ public class UserService : IUserService
   /// </summary>
   public async Task<List<UserDto>> GetAllUsersAsync()
   {
-    return await _context.Users
+    var users = await _context.Users
         .OrderBy(u => u.FirstName)
         .ThenBy(u => u.LastName)
-        .Select(u => new UserDto
-        {
-          Id = u.Id,
-          FirstName = u.FirstName,
-          LastName = u.LastName,
-          Nickname = u.Nickname,
-          Email = u.Email ?? string.Empty,
-          IsBlocked = u.IsBlocked
-        })
         .ToListAsync();
+
+    return users.Select(MapToUserDto).ToList();
   }
 
   /// <summary>
