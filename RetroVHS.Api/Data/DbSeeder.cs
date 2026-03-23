@@ -167,7 +167,7 @@ public static class DbSeeder
         // Seed: Movies
         // =========================
         var movies = new List<Movie>
-{
+    {
     new Movie
     {
         Title = "Avatar",
@@ -998,8 +998,21 @@ public static class DbSeeder
 
 };
 
-        context.Movies.AddRange(movies);
-        await context.SaveChangesAsync();
+        var existingMovieTitles = await context.Movies
+    .Select(m => m.Title)
+    .ToListAsync();
+
+        var missingMovies = movies
+            .Where(m => !existingMovieTitles.Contains(m.Title))
+            .ToList();
+
+        if (missingMovies.Count > 0)
+        {
+            context.Movies.AddRange(missingMovies);
+            await context.SaveChangesAsync();
+        }
+
+        movies = await context.Movies.ToListAsync();
 
         // =========================
         // Seed: MovieGenre-kopplingar
