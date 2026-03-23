@@ -29,6 +29,15 @@
                 @string.Join(" · ", Movie.Genres)
             </div>
         }
+        @if (ShowWishlist)
+        {
+            <button class="movie-card-wishlist @(IsInWishlist ? "wishlisted" : "")"
+                    @onclick="ToggleWishlist"
+                    @onclick:stopPropagation="true"
+                    title="@(IsInWishlist ? "Ta bort från önskelista" : "Lägg till i önskelista")">
+                @(IsInWishlist ? "❤️" : "🤍")
+            </button>
+        }
     </div>
 </div>
 
@@ -37,13 +46,30 @@
     public MovieListDto Movie { get; set; } = default!;
 
     [Parameter]
+    public bool IsInWishlist { get; set; }
+
+    [Parameter]
+    public bool ShowWishlist { get; set; }
+
+    [Parameter]
     public EventCallback<MovieListDto> OnMovieSelected { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnWishlistToggled { get; set; }
 
     private async Task OnClick()
     {
         if (OnMovieSelected.HasDelegate)
         {
             await OnMovieSelected.InvokeAsync(Movie);
+        }
+    }
+
+    private async Task ToggleWishlist()
+    {
+        if (OnWishlistToggled.HasDelegate)
+        {
+            await OnWishlistToggled.InvokeAsync(Movie.Id);
         }
     }
 }

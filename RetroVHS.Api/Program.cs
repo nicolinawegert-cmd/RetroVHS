@@ -12,6 +12,7 @@ using RetroVHS.Api.Services.Movies;
 using RetroVHS.Api.Services.Rentals;
 using RetroVHS.Api.Services.Reviews;
 using RetroVHS.Api.Services.Users;
+using RetroVHS.Api.Services.Wishlists;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,6 +55,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IRentalService, RentalService>();
+builder.Services.AddScoped<IWishlistService, WishlistService>();
 
 
 // =========================

@@ -4,6 +4,7 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @inject IMovieClient MovieClient
 @inject ICartClient CartClient
+@inject IWishlistClient WishlistClient
 @inject CartState CartState
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthStateProvider
@@ -93,6 +94,9 @@ else
                                 <span class="details-price">@movie.RentalPrice.ToString("0.00") kr</span>
                                 <button class="btn-submit" @onclick="AddToCart" disabled="@addingToCart">
                                     @(addingToCart ? "Lägger till..." : "🛒 Lägg i varukorg")
+                                </button>
+                                <button class="btn-wishlist" @onclick="ToggleWishlist" disabled="@togglingWishlist">
+                                    @(isInWishlist ? "❤️" : "🤍")
                                 </button>
                                 @if (!string.IsNullOrEmpty(cartMessage))
                                 {
@@ -296,6 +300,9 @@ else
     private bool addingToCart;
     private string? cartMessage;
 
+    private bool isInWishlist;
+    private bool togglingWishlist;
+
     private async Task AddToCart()
     {
         if (movie == null) return;
@@ -312,6 +319,25 @@ else
             cartMessage = "⚠️ Kunde inte lägga till filmen. Den kanske redan finns i varukorgen.";
 
         addingToCart = false;
+    }
+
+    private async Task ToggleWishlist()
+    {
+        if (movie == null) return;
+        togglingWishlist = true;
+
+        if (isInWishlist)
+        {
+            var success = await WishlistClient.RemoveFromWishlistAsync(movie.Id);
+            if (success) isInWishlist = false;
+        }
+        else
+        {
+            var success = await WishlistClient.AddToWishlistAsync(movie.Id);
+            if (success) isInWishlist = true;
+        }
+
+        togglingWishlist = false;
     }
 
     protected override async Task OnInitializedAsync()
@@ -334,6 +360,9 @@ else
                     newRating = existingReview.Rating;
                     newComment = existingReview.Comment ?? string.Empty;
                 }
+
+                var wishlist = await WishlistClient.GetWishlistAsync();
+                isInWishlist = wishlist.Any(w => w.MovieId == movie.Id);
             }
         }
     }
