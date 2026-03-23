@@ -34,12 +34,6 @@ public interface IUserService
   Task<UserDto?> GetUserByIdAsync(int userId);
 
   /// <summary>
-  /// Tar bort kommentartexten från en recension men behåller betyget.
-  /// Endast avsett för administrativ moderering.
-  /// </summary>
-  Task<bool> RemoveReviewCommentAsync(int reviewId);
-
-  /// <summary>
   /// Hämtar alla recensioner som en specifik användare har skrivit.
   /// </summary>
   Task<List<ReviewDto>> GetUserReviewsByIdAsync(int userId);
