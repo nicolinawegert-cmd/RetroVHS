@@ -55,4 +55,34 @@ public class ReviewsController : ControllerBase
       return BadRequest(new { message = ex.Message });
     }
   }
+
+  /// <summary>
+  /// Uppdaterar en befintlig recension för den inloggade användaren.
+  /// </summary>
+  [Authorize]
+  [HttpPut("{id:int}")]
+  public async Task<ActionResult<ReviewDto>> UpdateReview(int id, [FromBody] UpdateReviewDto dto)
+  {
+    if (!ModelState.IsValid)
+      return BadRequest(ModelState);
+
+    if (id != dto.Id)
+      return BadRequest(new { message = "Route id och dto.Id matchar inte." });
+
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+    if (string.IsNullOrWhiteSpace(userIdClaim))
+      return Unauthorized();
+
+    if (!int.TryParse(userIdClaim, out var userId))
+      return Unauthorized();
+
+    var review = await _reviewService.UpdateReviewAsync(userId, id, dto);
+
+    if (review == null)
+      return NotFound();
+
+    return Ok(review);
+  }
+
 }
