@@ -1,8 +1,13 @@
 @page "/movie/{Id:int}"
 @using RetroVHS.Shared.DTOs.Movies
 @using RetroVHS.Shared.DTOs.Reviews
+@using Microsoft.AspNetCore.Components.Authorization
 @inject IMovieClient MovieClient
+@inject ICartClient CartClient
+@inject IWishlistClient WishlistClient
+@inject CartState CartState
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>@(movie?.Title ?? "Laddar...")</PageTitle>
 
@@ -45,11 +50,6 @@ else
                         <span>@movie.ReleaseYear</span>
                         <span class="meta-sep">·</span>
                         <span>@movie.DurationMinutes min</span>
-                        @if (movie.RatingCount > 0)
-                        {
-                            <span class="meta-sep">·</span>
-                            <span>⭐ @movie.RatingAverage.ToString("0.0") (@movie.RatingCount)</span>
-                        }
                     </div>
 
                     @if (movie.Genres.Count > 0)
@@ -87,20 +87,51 @@ else
                         <span class="credit-label">Status</span>
                         <span class="details-status">@movie.AvailabilityStatus</span>
                     </div>
+
+                    <AuthorizeView>
+                        <Authorized>
+                            <div class="details-actions">
+                                <span class="details-price">@movie.RentalPrice.ToString("0.00") kr</span>
+                                <button class="btn-submit" @onclick="AddToCart" disabled="@addingToCart">
+                                    @(addingToCart ? "Lägger till..." : "🛒 Lägg i varukorg")
+                                </button>
+                                <button class="btn-wishlist" @onclick="ToggleWishlist" disabled="@togglingWishlist">
+                                    @(isInWishlist ? "❤️" : "🤍")
+                                </button>
+                                @if (!string.IsNullOrEmpty(cartMessage))
+                                {
+                                    <p class="cart-message">@cartMessage</p>
+                                }
+                            </div>
+                        </Authorized>
+                    </AuthorizeView>
                 </div>
 
-                @if (!string.IsNullOrEmpty(GetEmbedUrl()))
+                @if (!string.IsNullOrEmpty(GetEmbedUrl()) || movie.RatingCount > 0)
                 {
-                    <div class="details-trailer">
-                        <p class="cast-label">Trailer</p>
-                        <div class="trailer-wrapper">
-                            <iframe src="@GetEmbedUrl()"
-                                    title="@movie.Title trailer"
-                                    frameborder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowfullscreen>
-                            </iframe>
-                        </div>
+                    <div class="details-side-col">
+                        @if (!string.IsNullOrEmpty(GetEmbedUrl()))
+                        {
+                            <div class="details-trailer">
+                                <p class="cast-label">Trailer</p>
+                                <div class="trailer-wrapper">
+                                    <iframe src="@GetEmbedUrl()"
+                                            title="@movie.Title trailer"
+                                            frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowfullscreen>
+                                    </iframe>
+                                </div>
+                            </div>
+                        }
+                        @if (movie.RatingCount > 0)
+                        {
+                            <div class="details-rating">
+                                <span class="details-rating-star">★</span>
+                                <span class="details-rating-value">@movie.RatingAverage.ToString("0.0")</span>
+                                <span class="details-rating-count">/ 5 · @movie.RatingCount betyg</span>
+                            </div>
+                        }
                     </div>
                 }
             </div>
@@ -130,67 +161,119 @@ else
 
             <AuthorizeView>
                 <Authorized>
-                    <div class="review-form">
-                        <div class="star-row">
-                            @for (int i = 1; i <= 5; i++)
+                    @if (existingReview is not null && !isEditingReview)
+                    {
+                        <div class="review-summary">
+                            <div class="review-summary-info">
+                                <span class="review-summary-label">Ditt betyg</span>
+                                <div class="review-summary-rating">
+                                    <span class="review-stars">@(new string('★', existingReview.Rating))@(new string('☆', 5 - existingReview.Rating))</span>
+                                    <span class="review-rating-label">@existingReview.Rating / 5</span>
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(existingReview.Comment))
+                                {
+                                    <p class="review-summary-comment">@existingReview.Comment</p>
+                                }
+                            </div>
+                            <button class="btn-edit-review" @onclick="StartEditing">Redigera</button>
+                        </div>
+                        @if (!string.IsNullOrEmpty(submitSuccessMessage))
+                        {
+                            <p class="review-success" style="margin-top:0.5rem">@submitSuccessMessage</p>
+                        }
+                    }
+                    else
+                    {
+                        <div class="review-form">
+                            <div class="star-row">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    var star = i;
+                                    <button type="button"
+                                            class="star-btn @(star <= (hoverRating > 0 ? hoverRating : newRating) ? "star-filled" : "")"
+                                            @onclick="() => newRating = star"
+                                            @onmouseenter="() => hoverRating = star"
+                                            @onmouseleave="() => hoverRating = 0">
+                                        @(star <= (hoverRating > 0 ? hoverRating : newRating) ? "★" : "☆")
+                                    </button>
+                                }
+                                @if ((hoverRating > 0 ? hoverRating : newRating) > 0)
+                                {
+                                    <span class="star-row-label">@(hoverRating > 0 ? hoverRating : newRating) / 5</span>
+                                }
+                            </div>
+                            <textarea class="review-textarea"
+                                      placeholder="Kommentar (valfritt)"
+                                      @bind="newComment"
+                                      rows="3"
+                                      maxlength="1000"></textarea>
+                            @if (!string.IsNullOrEmpty(submitError))
                             {
-                                var star = i;
-                                <button type="button"
-                                        class="star-btn @(star <= (hoverRating > 0 ? hoverRating : newRating) ? "star-filled" : "")"
-                                        @onclick="() => newRating = star"
-                                        @onmouseenter="() => hoverRating = star"
-                                        @onmouseleave="() => hoverRating = 0">
-                                    @(star <= (hoverRating > 0 ? hoverRating : newRating) ? "★" : "☆")
-                                </button>
+                                <p class="review-error">@submitError</p>
+                            }
+                            @if (!showUpdateConfirm)
+                            {
+                                <div class="review-form-actions">
+                                    <button class="btn-submit review-submit"
+                                            @onclick="HandleSubmitClick"
+                                            disabled="@(submitting || newRating == 0)">
+                                        @(submitting ? "Sparar..." : (existingReview is not null ? "Uppdatera recension" : "Skicka recension"))
+                                    </button>
+                                    @if (isEditingReview)
+                                    {
+                                        <button class="btn-cancel-edit" @onclick="CancelEditing" disabled="@submitting">Avbryt</button>
+                                    }
+                                </div>
+                            }
+                            @if (showUpdateConfirm)
+                            {
+                                <div class="review-update-confirm">
+                                    <p class="review-update-confirm-text">Vill du uppdatera din recension för den här filmen?</p>
+                                    <div class="review-update-confirm-actions">
+                                        <button class="btn-confirm-yes" @onclick="SubmitReviewAsync" disabled="@submitting">
+                                            @(submitting ? "Uppdaterar..." : "Ja, uppdatera")
+                                        </button>
+                                        <button class="btn-confirm-cancel" @onclick="() => showUpdateConfirm = false" disabled="@submitting">
+                                            Avbryt
+                                        </button>
+                                    </div>
+                                </div>
                             }
                         </div>
-                        <textarea class="review-textarea"
-                                  placeholder="Kommentar (valfritt)"
-                                  @bind="newComment"
-                                  rows="3"
-                                  maxlength="1000"></textarea>
-                        @if (!string.IsNullOrEmpty(submitError))
-                        {
-                            <p class="review-error">@submitError</p>
-                        }
-                        @if (submitSuccess)
-                        {
-                            <p class="review-success">Recension sparad!</p>
-                        }
-                        <button class="btn-submit review-submit"
-                                @onclick="SubmitReviewAsync"
-                                disabled="@(submitting || newRating == 0)">
-                            @(submitting ? "Sparar..." : "Skicka recension")
-                        </button>
-                    </div>
+                    }
                 </Authorized>
                 <NotAuthorized>
                     <p class="review-login-prompt">Logga in för att betygsätta filmen.</p>
                 </NotAuthorized>
             </AuthorizeView>
 
-            @if (movie.Reviews.Count > 0)
+            @{
+                var reviewsWithComment = movie.Reviews
+                    .Where(r => !string.IsNullOrWhiteSpace(r.Comment))
+                    .OrderByDescending(r => r.CreatedAt)
+                    .ToList();
+            }
+
+            @if (reviewsWithComment.Count > 0)
             {
                 <div class="review-list">
-                    @foreach (var review in movie.Reviews.OrderByDescending(r => r.CreatedAt))
+                    @foreach (var review in reviewsWithComment)
                     {
                         <div class="review-item">
                             <div class="review-header">
                                 <span class="review-user">@review.UserDisplayName</span>
                                 <span class="review-stars">@(new string('★', review.Rating))@(new string('☆', 5 - review.Rating))</span>
+                                <span class="review-rating-label">@review.Rating / 5</span>
                                 <span class="review-date">@review.CreatedAt.ToString("d MMM yyyy")</span>
                             </div>
-                            @if (!string.IsNullOrWhiteSpace(review.Conmment))
-                            {
-                                <p class="review-comment">@review.Conmment</p>
-                            }
+                            <p class="review-comment">@review.Comment</p>
                         </div>
                     }
                 </div>
             }
             else
             {
-                <p class="review-empty">Inga recensioner ännu. Bli den första!</p>
+                <p class="review-empty">Inga kommentarer ännu. Bli den första!</p>
             }
         </div>
 
@@ -208,13 +291,112 @@ else
     private string newComment = string.Empty;
     private bool submitting;
     private string? submitError;
-    private bool submitSuccess;
+    private string? submitSuccessMessage;
+
+    private ReviewDto? existingReview;
+    private bool showUpdateConfirm;
+    private bool isEditingReview;
+
+    private bool addingToCart;
+    private string? cartMessage;
+
+    private bool isInWishlist;
+    private bool togglingWishlist;
+
+    private async Task AddToCart()
+    {
+        if (movie == null) return;
+        addingToCart = true;
+        cartMessage = null;
+
+        var result = await CartClient.AddToCartAsync(movie.Id);
+        if (result != null)
+        {
+            cartMessage = "✅ Filmen har lagts i varukorgen!";
+            CartState.SetCount(result.TotalItems);
+        }
+        else
+            cartMessage = "⚠️ Kunde inte lägga till filmen. Den kanske redan finns i varukorgen.";
+
+        addingToCart = false;
+    }
+
+    private async Task ToggleWishlist()
+    {
+        if (movie == null) return;
+        togglingWishlist = true;
+
+        if (isInWishlist)
+        {
+            var success = await WishlistClient.RemoveFromWishlistAsync(movie.Id);
+            if (success) isInWishlist = false;
+        }
+        else
+        {
+            var success = await WishlistClient.AddToWishlistAsync(movie.Id);
+            if (success) isInWishlist = true;
+        }
+
+        togglingWishlist = false;
+    }
 
     protected override async Task OnInitializedAsync()
     {
         await Task.Yield();
         movie = await MovieClient.GetMovieDetailsAsync(Id);
         isLoading = false;
+
+        if (movie is not null)
+        {
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var idClaim = authState.User.FindFirst("nameid")?.Value
+                ?? authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                ?? authState.User.FindFirst("sub")?.Value;
+            if (int.TryParse(idClaim, out var currentUserId) && currentUserId > 0)
+            {
+                existingReview = movie.Reviews.FirstOrDefault(r => r.UserId == currentUserId);
+                if (existingReview is not null)
+                {
+                    newRating = existingReview.Rating;
+                    newComment = existingReview.Comment ?? string.Empty;
+                }
+
+                var wishlist = await WishlistClient.GetWishlistAsync();
+                isInWishlist = wishlist.Any(w => w.MovieId == movie.Id);
+            }
+        }
+    }
+
+    private void StartEditing()
+    {
+        newRating = existingReview!.Rating;
+        newComment = existingReview.Comment ?? string.Empty;
+        hoverRating = 0;
+        submitError = null;
+        submitSuccessMessage = null;
+        showUpdateConfirm = false;
+        isEditingReview = true;
+    }
+
+    private void CancelEditing()
+    {
+        isEditingReview = false;
+        showUpdateConfirm = false;
+        submitError = null;
+    }
+
+    private async Task HandleSubmitClick()
+    {
+        if (existingReview is not null)
+        {
+            submitError = null;
+            submitSuccessMessage = null;
+            showUpdateConfirm = true;
+        }
+        else
+        {
+            await SubmitReviewAsync();
+        }
     }
 
     private async Task SubmitReviewAsync()
@@ -222,26 +404,67 @@ else
         if (newRating == 0) return;
         submitting = true;
         submitError = null;
-        submitSuccess = false;
+        submitSuccessMessage = null;
+        showUpdateConfirm = false;
 
-        var dto = new CreateReviewDto
+        if (existingReview is not null)
         {
-            MovieId = Id,
-            Rating = newRating,
-            Comment = newComment
-        };
+            var updateDto = new UpdateReviewDto
+            {
+                Id = existingReview.Id,
+                Rating = newRating,
+                Comment = newComment
+            };
 
-        var result = await MovieClient.CreateReviewAsync(dto);
-        if (result is not null)
-        {
-            movie!.Reviews.Add(result);
-            newRating = 0;
-            newComment = string.Empty;
-            submitSuccess = true;
+            var result = await MovieClient.UpdateReviewAsync(updateDto);
+            if (result is not null)
+            {
+                // Räkna om genomsnittsbetyget client-side
+                var oldRating = existingReview.Rating;
+                if (movie!.RatingCount > 0)
+                    movie.RatingAverage = (movie.RatingAverage * movie.RatingCount - oldRating + newRating) / movie.RatingCount;
+
+                // Uppdatera recensionen i listan
+                var idx = movie.Reviews.FindIndex(r => r.Id == existingReview.Id);
+                if (idx >= 0)
+                    movie.Reviews[idx] = result;
+
+                existingReview = result;
+                newComment = string.Empty;
+                isEditingReview = false;
+                submitSuccessMessage = "Recension uppdaterad!";
+            }
+            else
+            {
+                submitError = "Kunde inte uppdatera recensionen. Försök igen.";
+            }
         }
         else
         {
-            submitError = "Kunde inte spara recensionen. Försök igen.";
+            var createDto = new CreateReviewDto
+            {
+                MovieId = Id,
+                Rating = newRating,
+                Comment = newComment
+            };
+
+            var result = await MovieClient.CreateReviewAsync(createDto);
+            if (result is not null)
+            {
+                // Räkna om genomsnittsbetyget client-side
+                var newCount = movie!.RatingCount + 1;
+                movie.RatingAverage = (movie.RatingAverage * movie.RatingCount + newRating) / newCount;
+                movie.RatingCount = newCount;
+
+                movie.Reviews.Add(result);
+                existingReview = result;
+                newComment = string.Empty;
+                submitSuccessMessage = "Recension sparad!";
+            }
+            else
+            {
+                submitError = "Kunde inte spara recensionen. Försök igen.";
+            }
         }
 
         submitting = false;

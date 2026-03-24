@@ -10,7 +10,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddScoped(sp => new HttpClient
 {
-    BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"] ?? "https://localhost:7173")
+    BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"] ?? "http://localhost:5275")
 });
 
 // Auth: JWT-state hanteras av JwtAuthStateProvider som läser claims från API:ts token
@@ -20,6 +20,10 @@ builder.Services.AddCascadingAuthenticationState();
 
 builder.Services.AddScoped<IAuthClient, AuthClient>();
 builder.Services.AddScoped<IMovieClient, MovieClient>();
+builder.Services.AddScoped<ICartClient, CartClient>();
+builder.Services.AddScoped<CartState>();
+builder.Services.AddScoped<IWishlistClient, WishlistClient>();
+builder.Services.AddScoped<IUserClient, UserClient>();
 
 var app = builder.Build();
 

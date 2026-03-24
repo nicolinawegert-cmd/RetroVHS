@@ -83,4 +83,19 @@ public class MovieClient : IMovieClient
             return null;
         }
     }
+
+    public async Task<ReviewDto?> UpdateReviewAsync(UpdateReviewDto dto)
+    {
+        try
+        {
+            var response = await _httpClient.PutAsJsonAsync($"api/reviews/{dto.Id}", dto);
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadFromJsonAsync<ReviewDto>();
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
 }

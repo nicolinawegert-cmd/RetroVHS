@@ -1,0 +1,94 @@
+@page "/wishlist"
+@using RetroVHS.Shared.DTOs.Wishlist
+@inject IWishlistClient WishlistClient
+@inject ICartClient CartClient
+@inject CartState CartState
+@inject NavigationManager Navigation
+
+<PageTitle>Min önskelista</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <div class="cart-page">
+            <h1 class="section-title">💝 Min önskelista</h1>
+
+            @if (isLoading)
+            {
+                <div class="loading-spinner">
+                    <div class="spinner-border" role="status" style="color: #e94560; width: 2.5rem; height: 2.5rem;"></div>
+                    <p>Laddar önskelista...</p>
+                </div>
+            }
+            else if (items.Count == 0)
+            {
+                <p style="color: #a0a0b0;">Din önskelista är tom. Bläddra bland filmer och lägg till dem med ❤️-knappen!</p>
+            }
+            else
+            {
+                <div class="cart-items">
+                    @foreach (var item in items)
+                    {
+                        <div class="cart-item">
+                            @if (!string.IsNullOrEmpty(item.PosterUrl))
+                            {
+                                <img src="@item.PosterUrl" alt="@item.Title" class="wishlist-poster" />
+                            }
+                            <div class="cart-item-info">
+                                <h3 class="wishlist-title" @onclick="() => GoToMovie(item.MovieId)">@item.Title</h3>
+                                <p style="color: #a0a0b0; font-size: 0.85rem;">
+                                    Tillagd @item.AddedAt.ToString("d MMM yyyy")
+                                </p>
+                            </div>
+                            <div class="cart-item-actions">
+                                <button class="btn-submit" style="font-size: 0.85rem; padding: 6px 14px;" @onclick="() => AddToCartFromWishlist(item)">
+                                    🛒 Köp
+                                </button>
+                                <button class="btn-remove" @onclick="() => RemoveItem(item.MovieId)">✕</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <div class="cart-page">
+            <p>Du måste logga in för att se din önskelista.</p>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private List<WishlistItemDto> items = [];
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        items = await WishlistClient.GetWishlistAsync();
+        isLoading = false;
+    }
+
+    private async Task RemoveItem(int movieId)
+    {
+        var success = await WishlistClient.RemoveFromWishlistAsync(movieId);
+        if (success)
+        {
+            items.RemoveAll(i => i.MovieId == movieId);
+        }
+    }
+
+    private async Task AddToCartFromWishlist(WishlistItemDto item)
+    {
+        var result = await CartClient.AddToCartAsync(item.MovieId);
+        if (result != null)
+        {
+            CartState.SetCount(result.TotalItems);
+            await RemoveItem(item.MovieId);
+        }
+    }
+
+    private void GoToMovie(int movieId)
+    {
+        Navigation.NavigateTo($"/movie/{movieId}");
+    }
+}

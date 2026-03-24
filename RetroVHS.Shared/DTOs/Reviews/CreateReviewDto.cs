@@ -16,7 +16,6 @@ public class CreateReviewDto
     /// <summary>
     /// Själva recensionstexten
     /// </summary>
-    [Required]
     [StringLength(1000)]
     public string Comment { get; set; } = string.Empty;
 

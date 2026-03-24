@@ -16,7 +16,6 @@ public class UpdateReviewDto
     /// <summary>
     /// Uppdaterad recensionstext
     /// </summary>
-    [Required]
     [StringLength(1000)]
     public string Comment { get; set; } = string.Empty;
 
