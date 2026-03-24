@@ -30,14 +30,14 @@ public interface IAdminService
     Task<UserDto?> GetUserByIdAsync(int userId);
 
     /// <summary>
-    /// Uppdaterar en användares namn och e-post.
-    /// </summary>
-    Task<UserDto?> UpdateUserAsync(int userId, UpdateUserProfileDto dto);
-
-    /// <summary>
     /// Raderar en användare och all relaterad data.
     /// </summary>
     Task<(bool Success, string Message)> DeleteUserAsync(int userId);
+
+    /// <summary>
+    /// Sätter ett nytt nickname på en användare.
+    /// </summary>
+    Task<(bool Success, string Message)> UpdateNicknameAsync(int userId, AdminSetNicknameDto dto);
 
     /// <summary>
     /// Blockerar en användare.
@@ -55,11 +55,6 @@ public interface IAdminService
     /// Hämtar alla recensioner för en specifik användare.
     /// </summary>
     Task<List<ReviewDto>> GetUserReviewsAsync(int userId);
-
-    /// <summary>
-    /// Redigerar en recensionskommentar och/eller betyg.
-    /// </summary>
-    Task<(bool Success, string Message)> UpdateReviewAsync(int reviewId, AdminUpdateReviewDto dto);
 
     /// <summary>
     /// Tar bort kommentartexten men behåller betyget.

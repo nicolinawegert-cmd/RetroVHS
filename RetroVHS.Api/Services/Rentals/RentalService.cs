@@ -44,10 +44,11 @@ public class RentalService : IRentalService
   }
 
   /// <summary>
-  /// Avbryter en beställning (Cancelled). Endast admin.
+  /// Avbryter en aktiv beställning (Cancelled).
+  /// Användaren kan avbryta sin egen, admin kan avbryta vilken som helst.
   /// Återställer lagersaldo för filmen.
   /// </summary>
-  public async Task<(bool Success, string Message)> CancelRentalAsync(int rentalId)
+  public async Task<(bool Success, string Message)> CancelRentalAsync(int rentalId, int userId, bool isAdmin)
   {
     var rental = await _context.Rentals
         .Include(r => r.Movie)
@@ -56,11 +57,14 @@ public class RentalService : IRentalService
     if (rental == null)
       return (false, "Beställningen hittades inte.");
 
+    if (!isAdmin && rental.UserId != userId)
+      return (false, "Du har inte behörighet att avbryta denna beställning.");
+
     if (rental.Status == RentalStatus.Cancelled)
       return (false, "Beställningen är redan avbruten.");
 
-    if (rental.Status == RentalStatus.Completed)
-      return (false, "En slutförd beställning kan inte avbrytas.");
+    if (rental.Status != RentalStatus.Active)
+      return (false, "Bara aktiva beställningar kan avbrytas.");
 
     rental.Status = RentalStatus.Cancelled;
 

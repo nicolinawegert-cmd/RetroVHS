@@ -151,7 +151,7 @@ namespace RetroVHS.Api.Services.Cart
                     PricePaid = r.PricePaid,
                     RentedAt = r.RentedAt,
                     ExpiresAt = r.ExpiresAt,
-                    Status = r.Status.ToString()
+                    Status = r.Status
                 }).ToList()
             };
         }

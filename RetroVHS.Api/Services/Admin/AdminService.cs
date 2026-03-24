@@ -56,28 +56,16 @@ public class AdminService : IAdminService
         return user == null ? null : MapToUserDto(user);
     }
 
-    public async Task<UserDto?> UpdateUserAsync(int userId, UpdateUserProfileDto dto)
+    public async Task<(bool Success, string Message)> UpdateNicknameAsync(int userId, AdminSetNicknameDto dto)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
-        if (user == null) return null;
+        if (user == null) return (false, "Användaren hittades inte.");
 
-        var emailTaken = await _context.Users
-            .AnyAsync(u => u.Email == dto.Email && u.Id != userId);
-
-        if (emailTaken)
-            throw new ArgumentException("E-postadressen används redan av en annan användare.");
-
-        user.FirstName = dto.FirstName;
-        user.LastName = dto.LastName;
         user.Nickname = dto.Nickname;
-        user.Email = dto.Email;
-        user.UserName = dto.Email;
-        user.NormalizedEmail = dto.Email.ToUpperInvariant();
-        user.NormalizedUserName = dto.Email.ToUpperInvariant();
         user.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
-        return MapToUserDto(user);
+        return (true, "Nickname har uppdaterats.");
     }
 
     public async Task<(bool Success, string Message)> DeleteUserAsync(int userId)
@@ -163,22 +151,6 @@ public class AdminService : IAdminService
                 MovieTitle = r.Movie.Title
             })
             .ToListAsync();
-    }
-
-    public async Task<(bool Success, string Message)> UpdateReviewAsync(int reviewId, AdminUpdateReviewDto dto)
-    {
-        var review = await _context.Reviews.FirstOrDefaultAsync(r => r.Id == reviewId && !r.IsDeleted);
-        if (review == null) return (false, "Recensionen hittades inte.");
-
-        review.Comment = dto.Comment;
-        review.Rating = dto.Rating;
-        review.IsEdited = true;
-        review.UpdatedAt = DateTime.UtcNow;
-
-        await _context.SaveChangesAsync();
-        await UpdateMovieRatingAsync(review.MovieId);
-
-        return (true, "Recensionen har uppdaterats.");
     }
 
     public async Task<(bool Success, string Message)> RemoveReviewCommentAsync(int reviewId)
@@ -274,7 +246,7 @@ public class AdminService : IAdminService
             PricePaid = rental.PricePaid,
             RentedAt = rental.RentedAt,
             ExpiresAt = rental.ExpiresAt,
-            Status = rental.Status.ToString()
+            Status = rental.Status
         };
     }
 
