@@ -67,27 +67,6 @@ public class AdminController : ControllerBase
     }
 
     /// <summary>
-    /// Uppdaterar en användares namn och e-post.
-    /// PUT /api/admin/users/{id}
-    /// </summary>
-    [HttpPut("users/{id:int}")]
-    public async Task<ActionResult<UserDto>> UpdateUser(int id, [FromBody] UpdateUserProfileDto dto)
-    {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
-
-        try
-        {
-            var updated = await _adminService.UpdateUserAsync(id, dto);
-            if (updated == null) return NotFound();
-            return Ok(updated);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-    }
-
-    /// <summary>
     /// Raderar en användare och all relaterad data.
     /// DELETE /api/admin/users/{id}
     /// </summary>
@@ -123,6 +102,20 @@ public class AdminController : ControllerBase
         return Ok(new { message });
     }
 
+    /// <summary>
+    /// Sätter ett nytt nickname på en användare.
+    /// PUT /api/admin/users/{id}/nickname
+    /// </summary>
+    [HttpPut("users/{id:int}/nickname")]
+    public async Task<IActionResult> UpdateNickname(int id, [FromBody] AdminSetNicknameDto dto)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        var (success, message) = await _adminService.UpdateNicknameAsync(id, dto);
+        if (!success) return BadRequest(new { message });
+        return Ok(new { message });
+    }
+
     // ========== Användarens recensioner ==========
 
     /// <summary>
@@ -134,20 +127,6 @@ public class AdminController : ControllerBase
     {
         var reviews = await _adminService.GetUserReviewsAsync(id);
         return Ok(reviews);
-    }
-
-    /// <summary>
-    /// Redigerar en recensionskommentar och/eller betyg.
-    /// PUT /api/admin/reviews/{id}
-    /// </summary>
-    [HttpPut("reviews/{id:int}")]
-    public async Task<IActionResult> UpdateReview(int id, [FromBody] AdminUpdateReviewDto dto)
-    {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
-
-        var (success, message) = await _adminService.UpdateReviewAsync(id, dto);
-        if (!success) return BadRequest(new { message });
-        return Ok(new { message });
     }
 
     /// <summary>

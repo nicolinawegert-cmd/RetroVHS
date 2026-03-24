@@ -1,4 +1,6 @@
-﻿namespace RetroVHS.Shared.DTOs.Rentals;
+﻿using RetroVHS.Shared.Enums;
+
+namespace RetroVHS.Shared.DTOs.Rentals;
 
 /// <summary>
 /// DTO som representerar en uthyrning.
@@ -36,7 +38,7 @@ public class RentalDto
     public DateTime ExpiresAt { get; set; }
 
     /// <summary>
-    /// Anger om hyran fortfarande är aktiv
+    /// Beställningens status (Active, Expired, Cancelled, Completed)
     /// </summary>
-    public string Status { get; set; } = string.Empty;
+    public RentalStatus Status { get; set; }
 }

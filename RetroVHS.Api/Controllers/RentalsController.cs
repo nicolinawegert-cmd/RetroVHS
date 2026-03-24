@@ -40,14 +40,17 @@ public class RentalsController : ControllerBase
   }
 
   /// <summary>
-  /// Avbryter en beställning. Endast admin.
+  /// Avbryter en aktiv beställning.
+  /// Användaren kan avbryta sin egen, admin kan avbryta vilken som helst.
   /// PUT /api/rentals/{id}/cancel
   /// </summary>
-  [Authorize(Roles = "Admin")]
   [HttpPut("{id:int}/cancel")]
   public async Task<IActionResult> CancelRental(int id)
   {
-    var (success, message) = await _rentalService.CancelRentalAsync(id);
+    var userId = GetUserId();
+    var isAdmin = User.IsInRole("Admin");
+
+    var (success, message) = await _rentalService.CancelRentalAsync(id, userId, isAdmin);
 
     if (!success)
       return BadRequest(new { message });

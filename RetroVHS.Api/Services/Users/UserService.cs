@@ -221,7 +221,7 @@ public class UserService : IUserService
       PricePaid = rental.PricePaid,
       RentedAt = rental.RentedAt,
       ExpiresAt = rental.ExpiresAt,
-      Status = rental.Status.ToString()
+      Status = rental.Status
     };
   }
 
