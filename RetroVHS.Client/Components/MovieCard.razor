@@ -13,12 +13,30 @@
     </div>
     <div class="movie-card-info">
         <h3 class="movie-card-title">@Movie.Title</h3>
-        <span class="movie-card-year">@Movie.ReleaseYear</span>
+        <div class="movie-card-meta">
+            <span class="movie-card-year">@Movie.ReleaseYear</span>
+            @if (Movie.RatingCount > 0)
+            {
+                <div class="movie-card-rating">
+                    <span class="movie-card-star">★</span>
+                    <span class="movie-card-rating-value">@Movie.RatingAverage.ToString("0.0")</span>
+                </div>
+            }
+        </div>
         @if (Movie.Genres.Count > 0)
         {
             <div class="movie-card-genres">
                 @string.Join(" · ", Movie.Genres)
             </div>
+        }
+        @if (ShowWishlist)
+        {
+            <button class="movie-card-wishlist @(IsInWishlist ? "wishlisted" : "")"
+                    @onclick="ToggleWishlist"
+                    @onclick:stopPropagation="true"
+                    title="@(IsInWishlist ? "Ta bort från önskelista" : "Lägg till i önskelista")">
+                @(IsInWishlist ? "❤️" : "🤍")
+            </button>
         }
     </div>
 </div>
@@ -28,13 +46,30 @@
     public MovieListDto Movie { get; set; } = default!;
 
     [Parameter]
+    public bool IsInWishlist { get; set; }
+
+    [Parameter]
+    public bool ShowWishlist { get; set; }
+
+    [Parameter]
     public EventCallback<MovieListDto> OnMovieSelected { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnWishlistToggled { get; set; }
 
     private async Task OnClick()
     {
         if (OnMovieSelected.HasDelegate)
         {
             await OnMovieSelected.InvokeAsync(Movie);
+        }
+    }
+
+    private async Task ToggleWishlist()
+    {
+        if (OnWishlistToggled.HasDelegate)
+        {
+            await OnWishlistToggled.InvokeAsync(Movie.Id);
         }
     }
 }

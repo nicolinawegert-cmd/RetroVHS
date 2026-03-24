@@ -3,8 +3,8 @@ using RetroVHS.Api.Data;
 using RetroVHS.Shared.DTOs.Auth;
 using RetroVHS.Api.Models;
 using Microsoft.AspNetCore.Identity;
+using RetroVHS.Shared.DTOs.Rentals;
 using RetroVHS.Shared.DTOs.Reviews;
-
 
 namespace RetroVHS.Api.Services.Users;
 
@@ -36,15 +36,7 @@ public class UserService : IUserService
     if (user == null)
       return null;
 
-    return new UserDto
-    {
-      Id = user.Id,
-      FirstName = user.FirstName,
-      LastName = user.LastName,
-      Nickname = user.Nickname,
-      Email = user.Email ?? string.Empty,
-      IsBlocked = user.IsBlocked
-    };
+    return MapToUserDto(user);
   }
 
   /// <summary>
@@ -71,21 +63,13 @@ public class UserService : IUserService
     user.Nickname = dto.Nickname;
     user.Email = dto.Email;
     user.UserName = dto.Email;
-    user.NormalizedEmail = dto.Email.ToUpper();
-    user.NormalizedUserName = dto.Email.ToUpper();
+    user.NormalizedEmail = dto.Email.ToUpperInvariant();
+    user.NormalizedUserName = dto.Email.ToUpperInvariant();
     user.UpdatedAt = DateTime.UtcNow;
 
     await _context.SaveChangesAsync();
 
-    return new UserDto
-    {
-      Id = user.Id,
-      FirstName = user.FirstName,
-      LastName = user.LastName,
-      Nickname = user.Nickname,
-      Email = user.Email ?? string.Empty,
-      IsBlocked = user.IsBlocked
-    };
+    return MapToUserDto(user);
   }
 
   /// <summary>
@@ -132,35 +116,21 @@ public class UserService : IUserService
     if (user == null)
       return null;
 
-    return new UserDto
-    {
-      Id = user.Id,
-      FirstName = user.FirstName,
-      LastName = user.LastName,
-      Nickname = user.Nickname,
-      Email = user.Email ?? string.Empty,
-      IsBlocked = user.IsBlocked
-    };
+    return MapToUserDto(user);
   }
 
   /// <summary>
-  /// Tar bort kommentartexten från en recension men behåller betyget.
-  /// Endast avsett för administrativ moderering.
+  /// Hämtar alla användare i systemet.
+  /// Endast avsett för administrativ översikt.
   /// </summary>
-  public async Task<bool> RemoveReviewCommentAsync(int reviewId)
+  public async Task<List<UserDto>> GetAllUsersAsync()
   {
-    var review = await _context.Reviews
-        .FirstOrDefaultAsync(r => r.Id == reviewId && !r.IsDeleted);
+    var users = await _context.Users
+        .OrderBy(u => u.FirstName)
+        .ThenBy(u => u.LastName)
+        .ToListAsync();
 
-    if (review == null)
-      return false;
-
-    review.Comment = null;
-    review.IsEdited = true;
-    review.UpdatedAt = DateTime.UtcNow;
-
-    await _context.SaveChangesAsync();
-    return true;
+    return users.Select(MapToUserDto).ToList();
   }
 
   /// <summary>
@@ -171,6 +141,31 @@ public class UserService : IUserService
     return await BuildUserReviewsQuery(userId).ToListAsync();
   }
 
+  public async Task<List<RentalDto>> GetUserRentalsByIdAsync(int userId)
+  {
+    var rentals = await _context.Rentals
+        .Include(r => r.Movie)
+        .Where(r => r.UserId == userId)
+        .OrderByDescending(r => r.RentedAt)
+        .ToListAsync();
+
+    return rentals.Select(MapToRentalDto).ToList();
+  }
+
+  /// <summary>
+  /// Hämtar alla beställningar (köp) som den aktuella användaren har gjort.
+  /// </summary>
+  public async Task<List<RentalDto>> GetCurrentUserRentalsAsync(int userId)
+  {
+    var rentals = await _context.Rentals
+        .Include(r => r.Movie)
+        .Where(r => r.UserId == userId)
+        .OrderByDescending(r => r.RentedAt)
+        .ToListAsync();
+
+    return rentals.Select(MapToRentalDto).ToList();
+  }
+
   /// <summary>
   /// Bygger en gemensam query för att hämta en användares recensioner.
   /// </summary>
@@ -178,6 +173,7 @@ public class UserService : IUserService
   {
     return _context.Reviews
         .Include(r => r.User)
+        .Include(r => r.Movie)
         .Where(r => r.UserId == userId && !r.IsDeleted)
         .OrderByDescending(r => r.CreatedAt)
         .Select(r => new ReviewDto
@@ -191,8 +187,42 @@ public class UserService : IUserService
           Comment = r.Comment ?? string.Empty,
           Rating = r.Rating,
           CreatedAt = r.CreatedAt,
-          IsEdited = r.IsEdited
+          IsEdited = r.IsEdited,
+          MovieTitle = r.Movie.Title
         });
+  }
+
+  /// <summary>
+  /// Mappar en användare till UserDto.
+  /// </summary>
+  private static UserDto MapToUserDto(ApplicationUser user)
+  {
+    return new UserDto
+    {
+      Id = user.Id,
+      FirstName = user.FirstName,
+      LastName = user.LastName,
+      Nickname = user.Nickname,
+      Email = user.Email ?? string.Empty,
+      IsBlocked = user.IsBlocked
+    };
+  }
+
+  /// <summary>
+  /// Mappar en uthyrning till RentalDto.
+  /// </summary>
+  private static RentalDto MapToRentalDto(Rental rental)
+  {
+    return new RentalDto
+    {
+      Id = rental.Id,
+      MovieId = rental.MovieId,
+      Title = rental.Movie.Title,
+      PricePaid = rental.PricePaid,
+      RentedAt = rental.RentedAt,
+      ExpiresAt = rental.ExpiresAt,
+      Status = rental.Status.ToString()
+    };
   }
 
 }

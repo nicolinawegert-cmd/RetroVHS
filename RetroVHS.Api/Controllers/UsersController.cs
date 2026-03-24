@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RetroVHS.Api.Services.Users;
 using RetroVHS.Shared.DTOs.Auth;
+using RetroVHS.Shared.DTOs.Rentals;
 using RetroVHS.Shared.DTOs.Reviews;
-
+using RetroVHS.Api.Services.Reviews;
 
 namespace RetroVHS.Api.Controllers;
 
@@ -16,13 +17,14 @@ namespace RetroVHS.Api.Controllers;
 public class UsersController : ControllerBase
 {
   private readonly IUserService _userService;
-
+  private readonly IReviewService _reviewService;
   /// <summary>
-  /// Skapar en ny instans av controllern och injicerar user-servicen.
+  /// Skapar en ny instans av controllern och injicerar user- och review-servicen.
   /// </summary>
-  public UsersController(IUserService userService)
+  public UsersController(IUserService userService, IReviewService reviewService)
   {
     _userService = userService;
+    _reviewService = reviewService;
   }
 
   /// <summary>
@@ -32,12 +34,7 @@ public class UsersController : ControllerBase
   [HttpGet("me")]
   public async Task<ActionResult<UserDto>> GetCurrentUser()
   {
-    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-    if (string.IsNullOrWhiteSpace(userIdClaim))
-      return Unauthorized();
-
-    if (!int.TryParse(userIdClaim, out var userId))
+    if (!TryGetCurrentUserId(out var userId))
       return Unauthorized();
 
     var user = await _userService.GetCurrentUserAsync(userId);
@@ -58,12 +55,7 @@ public class UsersController : ControllerBase
     if (!ModelState.IsValid)
       return BadRequest(ModelState);
 
-    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-    if (string.IsNullOrWhiteSpace(userIdClaim))
-      return Unauthorized();
-
-    if (!int.TryParse(userIdClaim, out var userId))
+    if (!TryGetCurrentUserId(out var userId))
       return Unauthorized();
 
     try
@@ -91,12 +83,7 @@ public class UsersController : ControllerBase
     if (!ModelState.IsValid)
       return BadRequest(ModelState);
 
-    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-    if (string.IsNullOrWhiteSpace(userIdClaim))
-      return Unauthorized();
-
-    if (!int.TryParse(userIdClaim, out var userId))
+    if (!TryGetCurrentUserId(out var userId))
       return Unauthorized();
 
     var result = await _userService.ChangePasswordAsync(userId, dto);
@@ -116,17 +103,39 @@ public class UsersController : ControllerBase
   [HttpGet("me/reviews")]
   public async Task<ActionResult<List<ReviewDto>>> GetCurrentUserReviews()
   {
-    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-    if (string.IsNullOrWhiteSpace(userIdClaim))
-      return Unauthorized();
-
-    if (!int.TryParse(userIdClaim, out var userId))
+    if (!TryGetCurrentUserId(out var userId))
       return Unauthorized();
 
     var reviews = await _userService.GetCurrentUserReviewsAsync(userId);
 
     return Ok(reviews);
+  }
+
+  /// <summary>
+  /// Hämtar alla användare i systemet.
+  /// Endast administratörer har åtkomst.
+  /// </summary>
+  [Authorize(Roles = "Admin")]
+  [HttpGet]
+  public async Task<ActionResult<List<UserDto>>> GetAllUsers()
+  {
+    var users = await _userService.GetAllUsersAsync();
+    return Ok(users);
+  }
+
+  /// <summary>
+  /// Hämtar alla beställningar (köp) som den inloggade användaren har gjort.
+  /// </summary>
+  [Authorize]
+  [HttpGet("me/rentals")]
+  public async Task<ActionResult<List<RentalDto>>> GetCurrentUserRentals()
+  {
+    if (!TryGetCurrentUserId(out var userId))
+      return Unauthorized();
+
+    var rentals = await _userService.GetCurrentUserRentalsAsync(userId);
+
+    return Ok(rentals);
   }
 
   /// <summary>
@@ -152,7 +161,7 @@ public class UsersController : ControllerBase
   [HttpPut("reviews/{reviewId:int}/remove-comment")]
   public async Task<IActionResult> RemoveReviewComment(int reviewId)
   {
-    var result = await _userService.RemoveReviewCommentAsync(reviewId);
+    var result = await _reviewService.RemoveReviewCommentAsync(reviewId);
 
     if (!result)
       return NotFound();
@@ -171,4 +180,33 @@ public class UsersController : ControllerBase
     var reviews = await _userService.GetUserReviewsByIdAsync(id);
     return Ok(reviews);
   }
+
+  /// <summary>
+  /// Hämtar alla uthyrningar/beställningar för en specifik användare.
+  /// Endast administratörer har åtkomst.
+  /// </summary>
+  [Authorize(Roles = "Admin")]
+  [HttpGet("{id:int}/rentals")]
+  public async Task<ActionResult<List<RentalDto>>> GetUserRentalsById(int id)
+  {
+    var rentals = await _userService.GetUserRentalsByIdAsync(id);
+    return Ok(rentals);
+  }
+
+
+  /// <summary>
+  /// Hämtar id för den aktuella inloggade användaren från JWT-tokenen.
+  /// </summary>
+  private bool TryGetCurrentUserId(out int userId)
+  {
+    userId = 0;
+
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+    if (string.IsNullOrWhiteSpace(userIdClaim))
+      return false;
+
+    return int.TryParse(userIdClaim, out userId);
+  }
+
 }

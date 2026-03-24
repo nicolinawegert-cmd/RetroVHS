@@ -33,12 +33,7 @@ public class ReviewsController : ControllerBase
     if (!ModelState.IsValid)
       return BadRequest(ModelState);
 
-    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-    if (string.IsNullOrWhiteSpace(userIdClaim))
-      return Unauthorized();
-
-    if (!int.TryParse(userIdClaim, out var userId))
+    if (!TryGetCurrentUserId(out var userId))
       return Unauthorized();
 
     try
@@ -69,12 +64,7 @@ public class ReviewsController : ControllerBase
     if (id != dto.Id)
       return BadRequest(new { message = "Route id och dto.Id matchar inte." });
 
-    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-    if (string.IsNullOrWhiteSpace(userIdClaim))
-      return Unauthorized();
-
-    if (!int.TryParse(userIdClaim, out var userId))
+    if (!TryGetCurrentUserId(out var userId))
       return Unauthorized();
 
     var review = await _reviewService.UpdateReviewAsync(userId, id, dto);
@@ -86,25 +76,35 @@ public class ReviewsController : ControllerBase
   }
 
   /// <summary>
-  /// Tar bort den inloggade användarens recension genom mjuk borttagning.
+  /// Tar bort den aktuella användarens recension/kommentar.
   /// </summary>
   [Authorize]
   [HttpDelete("{id:int}")]
-  public async Task<IActionResult> DeleteReview(int id)
+  public async Task<IActionResult> RemoveReviewComment(int id)
   {
-    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-    if (string.IsNullOrWhiteSpace(userIdClaim))
+    if (!TryGetCurrentUserId(out var userId))
       return Unauthorized();
 
-    if (!int.TryParse(userIdClaim, out var userId))
-      return Unauthorized();
-
-    var deleted = await _reviewService.DeleteReviewAsync(userId, id);
+    var deleted = await _reviewService.RemoveReviewCommentAsync(userId, id);
 
     if (!deleted)
       return NotFound();
 
     return NoContent();
+  }
+
+  /// <summary>
+  /// Hämtar id för den aktuella inloggade användaren från JWT-tokenen.
+  /// </summary>
+  private bool TryGetCurrentUserId(out int userId)
+  {
+    userId = 0;
+
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+    if (string.IsNullOrWhiteSpace(userIdClaim))
+      return false;
+
+    return int.TryParse(userIdClaim, out userId);
   }
 }

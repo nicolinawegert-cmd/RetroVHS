@@ -45,6 +45,26 @@ public class JwtAuthStateProvider : AuthenticationStateProvider
     }
 
     /// <summary>
+    /// Uppdaterar visningsnamn-claims i minnet efter profiluppdatering.
+    /// Rör inte JWT-tokenen — enbart in-memory state.
+    /// </summary>
+    public void UpdateDisplayClaims(RetroVHS.Shared.DTOs.Auth.UserDto user)
+    {
+        var identity = _currentUser.Identity as ClaimsIdentity;
+        if (identity == null) return;
+
+        foreach (var claim in identity.Claims.Where(c => c.Type is "firstName" or "lastName" or "nickname").ToList())
+            identity.RemoveClaim(claim);
+
+        identity.AddClaim(new Claim("firstName", user.FirstName));
+        identity.AddClaim(new Claim("lastName", user.LastName));
+        if (!string.IsNullOrWhiteSpace(user.Nickname))
+            identity.AddClaim(new Claim("nickname", user.Nickname));
+
+        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+    }
+
+    /// <summary>
     /// Parsar payload-delen av en JWT-token och returnerar claims.
     /// </summary>
     private static IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
