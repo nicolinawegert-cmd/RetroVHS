@@ -10,7 +10,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddScoped(sp => new HttpClient
 {
-    BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"] ?? "https://localhost:7173")
+    BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"] ?? "http://localhost:5275")
 });
 
 // Auth: JWT-state hanteras av JwtAuthStateProvider som läser claims från API:ts token
