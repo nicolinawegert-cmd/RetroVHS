@@ -106,5 +106,41 @@ namespace RetroVHS.Tests.Services
 
             Assert.False(result.Succeeded);
         }
+        [Fact]
+        public async Task LoginAsync_WrongPassword_ReturnsFailed()
+        {
+            //Arrange
+            _mockUserManager.Setup(userManager => userManager.FindByEmailAsync("test@test.com"))
+                   .ReturnsAsync(new ApplicationUser());
+            _mockSigninManager.Setup(signinManager => signinManager.CheckPasswordSignInAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>(), false))
+               .ReturnsAsync(SignInResult.Failed);
+
+            //Act 
+            var request = new LoginRequestDto { Email = "test@test.com" };
+            var result = await _authService.LoginAsync(request);
+            
+            //Assert
+            Assert.False(result.Succeeded);
+        }
+        [Fact]
+        public async Task LogoutAsync_InvalidToken_ReturnsFailed()
+        {
+            //Act
+            var result = await _authService.LogoutAsync("Invalid-token");
+
+            Assert.False(result.Succeeded);
+        }
+        [Fact]
+        public async Task LogoutAsync_Success_ReturnsSucceeded()
+        {
+            //Arrange
+            _context.RefreshTokens.Add(new RefreshToken { Token = "valid-token" });
+            await _context.SaveChangesAsync();
+
+            //Act 
+            var result = await _authService.LogoutAsync("valid-token");
+
+            Assert.True(result.Succeeded);
+        }
     }
 }
