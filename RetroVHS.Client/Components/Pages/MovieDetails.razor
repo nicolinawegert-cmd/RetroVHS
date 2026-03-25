@@ -84,8 +84,19 @@ else
                     }
 
                     <div class="details-credit-row">
-                        <span class="credit-label">Status</span>
-                        <span class="details-status">@movie.AvailabilityStatus</span>
+                        <span class="credit-label">Tillgänglighet</span>
+                        @if (movie.StockQuantity >= 5)
+                        {
+                            <span style="color: #50c878; font-weight: 600;">Tillgänglig</span>
+                        }
+                        else if (movie.StockQuantity >= 1)
+                        {
+                            <span style="color: #f0a050; font-weight: 600;">Få kvar</span>
+                        }
+                        else
+                        {
+                            <span style="color: #e94560; font-weight: 600;">Tillfälligt slut i lager</span>
+                        }
                     </div>
 
                     <AuthorizeView>

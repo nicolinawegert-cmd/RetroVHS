@@ -1361,7 +1361,15 @@ h1:focus {
 .confirm-inline .btn-confirm-cancel:hover { color: #e0e0f0; border-color: #e0e0f0; }
 
 /* ── Admin pages ──────────────────────────────────────── */
-.admin-page { padding: 2rem 1.5rem; max-width: 1100px; margin: 0 auto; }
+.admin-page {
+    padding: 2rem 1.5rem;
+    max-width: 1100px;
+    margin: 1rem auto 0;
+    background: rgba(10, 10, 26, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 12px;
+}
 .admin-stat-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
@@ -1416,7 +1424,15 @@ h1:focus {
 .admin-actions { display: flex; flex-direction: column; gap: 0.5rem; max-width: 400px; }
 
 /* ── Movie list page ──────────────────────────────────── */
-.movies-page { padding: 2rem 1.5rem; max-width: 900px; margin: 0 auto; }
+.movies-page {
+    padding: 2rem 1.5rem;
+    max-width: 900px;
+    margin: 1rem auto 0;
+    background: rgba(10, 10, 26, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 12px;
+}
 .movies-controls {
     display: flex;
     gap: 1rem;
@@ -1461,7 +1477,15 @@ h1:focus {
 .see-all-link:hover { text-decoration: underline; }
 
 /* ── Movie form (admin) ───────────────────────────────── */
-.movie-form-page { padding: 2rem 1.5rem; max-width: 800px; margin: 0 auto; }
+.movie-form-page {
+    padding: 2rem 1.5rem;
+    max-width: 800px;
+    margin: 1rem auto 0;
+    background: rgba(10, 10, 26, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 12px;
+}
 .movie-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .movie-form-grid .full-width { grid-column: 1 / -1; }
 .movie-form-field { display: flex; flex-direction: column; gap: 0.3rem; }
