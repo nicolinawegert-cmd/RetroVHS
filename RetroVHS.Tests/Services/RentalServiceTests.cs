@@ -36,7 +36,7 @@ namespace RetroVHS.Tests.Services
         public async Task CancelRental_RentalNotFound_ReturnsFalse()
         {
             //Act
-            var result = await _rentalService.CancelRentalAsync(1);
+            var result = await _rentalService.CancelRentalAsync(1, 1, false);
             Assert.False(result.Success);
         }
         [Fact]
