@@ -144,6 +144,10 @@ public class MovieService : IMovieService
       TrailerUrl = movie.TrailerUrl,
       AvailabilityStatus = movie.AvailabilityStatus.ToString(),
       StockQuantity = movie.StockQuantity,
+      IsFeatured = movie.IsFeatured,
+      Language = movie.Language,
+      Country = movie.Country,
+      ProductionCompanyId = movie.ProductionCompanyId,
       ProductionCompanyName = movie.ProductionCompany?.Name,
       Genres = movie.MovieGenres.Select(mg => mg.Genre.Name).ToList(),
 
