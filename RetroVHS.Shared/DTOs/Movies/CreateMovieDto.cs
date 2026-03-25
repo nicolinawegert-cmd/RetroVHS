@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using RetroVHS.Shared.Enums;
+using RetroVHS.Shared.Validation;
 
 namespace RetroVHS.Shared.DTOs.Movies;
 
@@ -27,7 +28,7 @@ public class CreateMovieDto
     /// <summary>
     /// Filmens utgivningsår
     /// </summary>
-    [Range(1910, 2100)]
+    [MaxCurrentYear(1888)]
     public int ReleaseYear { get; set; }
 
     /// <summary>
