@@ -29,36 +29,36 @@
 
             <div class="movie-form-field">
                 <label>Titel *</label>
-                <input type="text" @bind="title" placeholder="Filmens titel" />
-                @if (showErrors && string.IsNullOrWhiteSpace(title))
+                <input type="text" @bind="title" @onblur="() => _tTitle = true" placeholder="Filmens titel" />
+                @if (ShowTitle && string.IsNullOrWhiteSpace(title))
                 { <span class="validation-message">Titel krävs.</span> }
             </div>
 
             <div class="movie-form-field">
                 <label>Utgivningsår *</label>
-                <input type="number" @bind="releaseYear" min="1888" max="@DateTime.Now.Year" />
-                @if (showErrors && (releaseYear < 1888 || releaseYear > DateTime.Now.Year))
+                <input type="number" @bind="releaseYear" @onblur="() => _tYear = true" min="1888" max="@DateTime.Now.Year" />
+                @if (ShowYear && (releaseYear < 1888 || releaseYear > DateTime.Now.Year))
                 { <span class="validation-message">Ange ett giltigt år (1888–@DateTime.Now.Year).</span> }
             </div>
 
             <div class="movie-form-field">
                 <label>Längd (minuter) *</label>
-                <input type="number" @bind="durationMinutes" min="1" max="600" />
-                @if (showErrors && (durationMinutes < 1 || durationMinutes > 600))
+                <input type="number" @bind="durationMinutes" @onblur="() => _tDuration = true" min="1" max="600" />
+                @if (ShowDuration && (durationMinutes < 1 || durationMinutes > 600))
                 { <span class="validation-message">Filmlängden måste vara mellan 1 och 600 minuter.</span> }
             </div>
 
             <div class="movie-form-field">
                 <label>Hyrespris (kr) *</label>
-                <input type="number" @bind="rentalPrice" min="0.01" max="999.99" step="0.01" />
-                @if (showErrors && (rentalPrice < 0.01m || rentalPrice > 999.99m))
+                <input type="number" @bind="rentalPrice" @onblur="() => _tPrice = true" min="0.01" max="999.99" step="0.01" />
+                @if (ShowPrice && (rentalPrice < 0.01m || rentalPrice > 999.99m))
                 { <span class="validation-message">Priset måste vara mellan 0,01 och 999,99 kr.</span> }
             </div>
 
             <div class="movie-form-field">
                 <label>Lagersaldo</label>
-                <input type="number" @bind="stockQuantity" min="0" max="10000" />
-                @if (showErrors && (stockQuantity < 0 || stockQuantity > 10000))
+                <input type="number" @bind="stockQuantity" @onblur="() => _tStock = true" min="0" max="10000" />
+                @if (ShowStock && (stockQuantity < 0 || stockQuantity > 10000))
                 { <span class="validation-message">Lagersaldo måste vara mellan 0 och 10 000.</span> }
             </div>
 
@@ -99,8 +99,8 @@
 
             <div class="movie-form-field full-width">
                 <label>Synopsis *</label>
-                <textarea @bind="synopsis" rows="4" maxlength="1000" placeholder="Filmens beskrivning..."></textarea>
-                @if (showErrors && string.IsNullOrWhiteSpace(synopsis))
+                <textarea @bind="synopsis" @onblur="() => _tSynopsis = true" rows="4" maxlength="1000" placeholder="Filmens beskrivning..."></textarea>
+                @if (ShowSynopsis && string.IsNullOrWhiteSpace(synopsis))
                 { <span class="validation-message">Synopsis krävs.</span> }
             </div>
 
@@ -235,6 +235,15 @@
     private bool submitting;
     private bool showErrors;
     private string? submitError;
+
+    // Per-fält touched-flaggor — visas direkt när fältet lämnas
+    private bool _tTitle, _tYear, _tDuration, _tPrice, _tStock, _tSynopsis;
+    private bool ShowTitle => showErrors || _tTitle;
+    private bool ShowYear => showErrors || _tYear;
+    private bool ShowDuration => showErrors || _tDuration;
+    private bool ShowPrice => showErrors || _tPrice;
+    private bool ShowStock => showErrors || _tStock;
+    private bool ShowSynopsis => showErrors || _tSynopsis;
 
     private CancellationTokenSource? _debounce;
 
