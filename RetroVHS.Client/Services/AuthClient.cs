@@ -1,6 +1,5 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using RetroVHS.Shared.DTOs.Auth;
 
@@ -8,50 +7,64 @@ namespace RetroVHS.Client.Services;
 
 /// <summary>
 /// HTTP-klient som anropar API:ts auth-endpoints.
-/// JWT-state delegeras till JwtAuthStateProvider.
+/// JWT-state delegeras till IAppAuthStateProvider.
 /// Refresh token sparas krypterat i localStorage för att överleva sidladdning.
 /// </summary>
 public class AuthClient : IAuthClient
 {
     private readonly HttpClient _httpClient;
-    private readonly JwtAuthStateProvider _authStateProvider;
+    private readonly IAppAuthStateProvider _authStateProvider;
     private readonly ProtectedLocalStorage _storage;
     private string? _refreshToken;
 
     private const string StorageKey = "retrovhs_refresh";
 
-    public AuthClient(HttpClient httpClient, AuthenticationStateProvider authStateProvider,
+    public AuthClient(HttpClient httpClient, IAppAuthStateProvider authStateProvider,
         ProtectedLocalStorage storage)
     {
         _httpClient = httpClient;
-        _authStateProvider = (JwtAuthStateProvider)authStateProvider;
+        _authStateProvider = authStateProvider;
         _storage = storage;
     }
 
     public async Task<AuthResultDto> LoginAsync(LoginRequestDto request)
     {
-        var response = await _httpClient.PostAsJsonAsync("api/auth/login", request);
-        var result = await response.Content.ReadFromJsonAsync<AuthResultDto>();
-
-        if (result is { Succeeded: true, Data: not null })
+        try
         {
-            await SetAuthStateAsync(result.Data);
-        }
+            var response = await _httpClient.PostAsJsonAsync("api/auth/login", request);
+            var result = await response.Content.ReadFromJsonAsync<AuthResultDto>();
+            if (result is null)
+                return new AuthResultDto { Succeeded = false, Message = "Ogiltigt svar från servern." };
 
-        return result!;
+            if (result is { Succeeded: true, Data: not null })
+                await SetAuthStateAsync(result.Data);
+
+            return result;
+        }
+        catch
+        {
+            return new AuthResultDto { Succeeded = false, Message = "Kunde inte nå servern. Försök igen." };
+        }
     }
 
     public async Task<AuthResultDto> RegisterAsync(RegisterRequestDto request)
     {
-        var response = await _httpClient.PostAsJsonAsync("api/auth/register", request);
-        var result = await response.Content.ReadFromJsonAsync<AuthResultDto>();
-
-        if (result is { Succeeded: true, Data: not null })
+        try
         {
-            await SetAuthStateAsync(result.Data);
-        }
+            var response = await _httpClient.PostAsJsonAsync("api/auth/register", request);
+            var result = await response.Content.ReadFromJsonAsync<AuthResultDto>();
+            if (result is null)
+                return new AuthResultDto { Succeeded = false, Message = "Ogiltigt svar från servern." };
 
-        return result!;
+            if (result is { Succeeded: true, Data: not null })
+                await SetAuthStateAsync(result.Data);
+
+            return result;
+        }
+        catch
+        {
+            return new AuthResultDto { Succeeded = false, Message = "Kunde inte nå servern. Försök igen." };
+        }
     }
 
     public async Task LogoutAsync()
@@ -63,10 +76,7 @@ public class AuthClient : IAuthClient
                 await _httpClient.PostAsJsonAsync("api/auth/logout",
                     new RefreshTokenRequestDto { RefreshToken = _refreshToken });
             }
-            catch
-            {
-                // Ignorera eventuella fel vid utloggning
-            }
+            catch { }
         }
 
         _refreshToken = null;
@@ -76,10 +86,6 @@ public class AuthClient : IAuthClient
         try { await _storage.DeleteAsync(StorageKey); } catch { }
     }
 
-    /// <summary>
-    /// Försöker återställa sessionen vid sidladdning via sparad refresh token.
-    /// Anropas från Routes.razor i OnAfterRenderAsync(firstRender).
-    /// </summary>
     public async Task TryRestoreSessionAsync()
     {
         try
@@ -103,10 +109,7 @@ public class AuthClient : IAuthClient
             else
                 await _storage.DeleteAsync(StorageKey);
         }
-        catch
-        {
-            // Tyst fel — användaren förblir utloggad
-        }
+        catch { }
     }
 
     private async Task SetAuthStateAsync(AuthResponseDto data)

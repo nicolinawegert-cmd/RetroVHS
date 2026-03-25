@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RetroVHS.Api.Data;
+using RetroVHS.Api.Models;
 using RetroVHS.Shared.DTOs.ProductionCompanies;
 
 namespace RetroVHS.Api.Controllers;
@@ -24,5 +26,24 @@ public class ProductionCompaniesController : ControllerBase
             .Select(pc => new ProductionCompanyDto { Id = pc.Id, Name = pc.Name })
             .ToListAsync();
         return Ok(companies);
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ProductionCompanyDto>> Create([FromBody] CreateProductionCompanyDto dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var exists = await _context.ProductionCompanies
+            .AnyAsync(pc => pc.Name.ToLower() == dto.Name.ToLower());
+        if (exists)
+            return Conflict(new { message = $"Produktionsbolaget '{dto.Name}' finns redan." });
+
+        var company = new ProductionCompany { Name = dto.Name.Trim() };
+        _context.ProductionCompanies.Add(company);
+        await _context.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(GetAll), new ProductionCompanyDto { Id = company.Id, Name = company.Name });
     }
 }

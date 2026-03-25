@@ -10,7 +10,7 @@ namespace RetroVHS.Client.Services;
 /// och integrerar med Blazors autentiseringssystem.
 /// Stödjer AuthorizeView, [Authorize] och CascadingAuthenticationState.
 /// </summary>
-public class JwtAuthStateProvider : AuthenticationStateProvider
+public class JwtAuthStateProvider : AuthenticationStateProvider, IAppAuthStateProvider
 {
     private ClaimsPrincipal _currentUser = new(new ClaimsIdentity());
 

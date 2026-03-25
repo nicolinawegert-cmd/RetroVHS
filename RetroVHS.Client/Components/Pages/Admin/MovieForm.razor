@@ -105,17 +105,6 @@
             </div>
 
             <div class="movie-form-field full-width">
-                <label>Produktionsbolag</label>
-                <select @bind="productionCompanyIdStr">
-                    <option value="">— Inget —</option>
-                    @foreach (var c in companies)
-                    {
-                        <option value="@c.Id">@c.Name</option>
-                    }
-                </select>
-            </div>
-
-            <div class="movie-form-field full-width">
                 <label>Genres</label>
                 <div class="genre-tag-list">
                     @foreach (var g in allGenres)
@@ -127,6 +116,50 @@
                         </span>
                     }
                 </div>
+                <div class="new-genre-row">
+                    <input type="text" @bind="newGenreName" @bind:event="oninput"
+                           placeholder="Ny genre..." style="flex:1;" />
+                    <button type="button" class="btn-add-row"
+                            @onclick="CreateGenreAsync"
+                            disabled="@(string.IsNullOrWhiteSpace(newGenreName))">
+                        + Lägg till genre
+                    </button>
+                </div>
+                @if (!string.IsNullOrEmpty(genreError))
+                { <span class="validation-message">@genreError</span> }
+            </div>
+
+            <div class="movie-form-field full-width">
+                <label>Produktionsbolag</label>
+                <div class="person-search-row">
+                    <div class="person-row-inputs">
+                        <input type="text" placeholder="Sök eller skriv nytt produktionsbolag..."
+                               value="@companySearchText"
+                               @oninput="OnCompanyInput"
+                               @onfocus="() => showCompanyDropdown = true"
+                               style="flex:1;" />
+                        @if (selectedCompanyId.HasValue || !string.IsNullOrWhiteSpace(companySearchText))
+                        {
+                            <button type="button" class="btn-remove-row" @onclick="ClearCompany">✕</button>
+                        }
+                    </div>
+                    @if (showCompanyDropdown && !string.IsNullOrWhiteSpace(companySearchText))
+                    {
+                        <div class="person-search-result-dropdown">
+                            @foreach (var c in filteredCompanies)
+                            {
+                                var company = c;
+                                <div class="person-result-item" @onmousedown="() => SelectCompany(company)">@c.Name</div>
+                            }
+                            @if (!filteredCompanies.Any(c => c.Name.Equals(companySearchText, StringComparison.OrdinalIgnoreCase)))
+                            {
+                                <div class="person-result-item create-new-item" @onmousedown="CreateCompanyAsync">➕ Skapa "@companySearchText"</div>
+                            }
+                        </div>
+                    }
+                </div>
+                @if (!string.IsNullOrEmpty(companyError))
+                { <span class="validation-message">@companyError</span> }
             </div>
 
             <div class="movie-form-field full-width">
@@ -222,7 +255,13 @@
     private int stockQuantity = 0;
     private MovieAvailabilityStatus availabilityStatus = MovieAvailabilityStatus.Available;
     private bool isFeatured = false;
-    private string productionCompanyIdStr = "";
+
+    // Production company — searchable + create
+    private string companySearchText = "";
+    private int? selectedCompanyId;
+    private bool showCompanyDropdown;
+    private List<ProductionCompanyDto> filteredCompanies = [];
+    private string? companyError;
 
     private HashSet<int> selectedGenreIds = [];
     private List<PersonRow> directors = [];
@@ -230,6 +269,10 @@
 
     private List<GenreDto> allGenres = [];
     private List<ProductionCompanyDto> companies = [];
+
+    // Genre creation
+    private string newGenreName = "";
+    private string? genreError;
 
     private bool isLoading = true;
     private bool submitting;
@@ -270,7 +313,8 @@
                 isFeatured = movie.IsFeatured;
                 language = movie.Language;
                 country = movie.Country;
-                productionCompanyIdStr = movie.ProductionCompanyId?.ToString() ?? "";
+                selectedCompanyId = movie.ProductionCompanyId;
+                companySearchText = companies.FirstOrDefault(c => c.Id == movie.ProductionCompanyId)?.Name ?? "";
                 selectedGenreIds = allGenres
                     .Where(g => movie.Genres.Contains(g.Name))
                     .Select(g => g.Id)
@@ -344,7 +388,7 @@
         foreach (var c in cast.Where(c => c.PersonId.HasValue))
             credits.Add(new CreateMovieCreditDto { PersonId = c.PersonId!.Value, Role = CreditRole.Actor, CharacterName = c.CharacterName, DisplayOrder = c.DisplayOrder });
 
-        int? companyId = int.TryParse(productionCompanyIdStr, out var cid) && cid > 0 ? cid : null;
+        int? companyId = selectedCompanyId;
 
         if (Id.HasValue)
         {
@@ -378,6 +422,68 @@
         }
 
         submitting = false;
+    }
+
+    private void OnCompanyInput(ChangeEventArgs e)
+    {
+        companySearchText = e.Value?.ToString() ?? "";
+        selectedCompanyId = null;
+        showCompanyDropdown = true;
+        filteredCompanies = string.IsNullOrWhiteSpace(companySearchText)
+            ? []
+            : companies.Where(c => c.Name.Contains(companySearchText, StringComparison.OrdinalIgnoreCase)).ToList();
+    }
+
+    private void SelectCompany(ProductionCompanyDto company)
+    {
+        selectedCompanyId = company.Id;
+        companySearchText = company.Name;
+        showCompanyDropdown = false;
+        filteredCompanies = [];
+    }
+
+    private void ClearCompany()
+    {
+        selectedCompanyId = null;
+        companySearchText = "";
+        showCompanyDropdown = false;
+        filteredCompanies = [];
+    }
+
+    private async Task CreateCompanyAsync()
+    {
+        companyError = null;
+        showCompanyDropdown = false;
+        var created = await AdminClient.CreateProductionCompanyAsync(companySearchText.Trim());
+        if (created is not null)
+        {
+            companies.Add(created);
+            companies = [.. companies.OrderBy(c => c.Name)];
+            SelectCompany(created);
+        }
+        else
+        {
+            companyError = $"Kunde inte skapa produktionsbolaget. Det kanske redan finns.";
+        }
+    }
+
+    private async Task CreateGenreAsync()
+    {
+        genreError = null;
+        var name = newGenreName.Trim();
+        if (string.IsNullOrWhiteSpace(name)) return;
+        var created = await AdminClient.CreateGenreAsync(name);
+        if (created is not null)
+        {
+            allGenres.Add(created);
+            allGenres = [.. allGenres.OrderBy(g => g.Name)];
+            selectedGenreIds.Add(created.Id);
+            newGenreName = "";
+        }
+        else
+        {
+            genreError = $"Kunde inte lägga till genre. Den kanske redan finns.";
+        }
     }
 
     private class PersonRow

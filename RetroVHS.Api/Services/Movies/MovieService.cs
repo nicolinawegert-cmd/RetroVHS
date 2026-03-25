@@ -332,6 +332,109 @@ public class MovieService : IMovieService
     return true;
   }
 
+  public async Task<List<MovieListDto>> GetTopRatedAsync()
+  {
+    var movies = await _context.Movies
+        .Where(m => m.RatingCount > 0)
+        .Include(m => m.MovieGenres).ThenInclude(mg => mg.Genre)
+        .OrderByDescending(m => m.RatingAverage)
+        .Take(5)
+        .Select(MovieListProjection)
+        .ToListAsync();
+
+    return await FillToFive(movies, []);
+  }
+
+  public async Task<List<MovieListDto>> GetBestsellersAsync()
+  {
+    var topMovieIds = await _context.Rentals
+        .GroupBy(r => r.MovieId)
+        .OrderByDescending(g => g.Count())
+        .Take(5)
+        .Select(g => g.Key)
+        .ToListAsync();
+
+    var movies = await _context.Movies
+        .Where(m => topMovieIds.Contains(m.Id))
+        .Include(m => m.MovieGenres).ThenInclude(mg => mg.Genre)
+        .Select(MovieListProjection)
+        .ToListAsync();
+
+    var result = movies.OrderBy(m => topMovieIds.IndexOf(m.Id)).ToList();
+    return await FillToFive(result, []);
+  }
+
+  public async Task<List<GenreSectionDto>> GetTopGenreSectionsAsync()
+  {
+    var topGenreIds = await _context.Rentals
+        .Join(_context.MovieGenres,
+            r => r.MovieId,
+            mg => mg.MovieId,
+            (r, mg) => mg.GenreId)
+        .GroupBy(gid => gid)
+        .OrderByDescending(g => g.Count())
+        .Take(5)
+        .Select(g => g.Key)
+        .ToListAsync();
+
+    var genreNames = await _context.Genres
+        .Where(g => topGenreIds.Contains(g.Id))
+        .ToDictionaryAsync(g => g.Id, g => g.Name);
+
+    var sections = new List<GenreSectionDto>();
+    foreach (var genreId in topGenreIds)
+    {
+      if (!genreNames.TryGetValue(genreId, out var genreName)) continue;
+
+      var movies = await _context.Movies
+          .Where(m => m.MovieGenres.Any(mg => mg.GenreId == genreId))
+          .Include(m => m.MovieGenres).ThenInclude(mg => mg.Genre)
+          .OrderByDescending(m => m.RatingAverage)
+          .Take(5)
+          .Select(MovieListProjection)
+          .ToListAsync();
+
+      movies = await FillToFive(movies, [genreId]);
+
+      sections.Add(new GenreSectionDto { GenreId = genreId, GenreName = genreName, Movies = movies });
+    }
+    return sections;
+  }
+
+  // Fyller listan till 5 filmer med slumpmässigt valda filmer som inte redan finns med.
+  // Om genreIds anges begränsas fyllningen till filmer i de genrerna.
+  private async Task<List<MovieListDto>> FillToFive(List<MovieListDto> existing, List<int> genreIds)
+  {
+    if (existing.Count >= 5) return existing;
+
+    var excludeIds = existing.Select(m => m.Id).ToList();
+    var query = _context.Movies
+        .Where(m => !excludeIds.Contains(m.Id))
+        .Include(m => m.MovieGenres).ThenInclude(mg => mg.Genre);
+
+    IQueryable<Movie> filtered = genreIds.Count > 0
+        ? query.Where(m => m.MovieGenres.Any(mg => genreIds.Contains(mg.GenreId)))
+        : query;
+
+    var fill = await filtered
+        .OrderBy(m => m.Title)
+        .Take(5 - existing.Count)
+        .Select(MovieListProjection)
+        .ToListAsync();
+
+    existing.AddRange(fill);
+    return existing;
+  }
+
+  private static readonly System.Linq.Expressions.Expression<Func<Movie, MovieListDto>> MovieListProjection = m => new MovieListDto
+  {
+    Id = m.Id, Title = m.Title, ReleaseYear = m.ReleaseYear,
+    DurationMinutes = m.DurationMinutes, RentalPrice = m.RentalPrice,
+    RatingAverage = m.RatingAverage, RatingCount = m.RatingCount,
+    PosterUrl = m.PosterUrl, AvailabilityStatus = m.AvailabilityStatus.ToString(),
+    IsFeatured = m.IsFeatured, Genres = m.MovieGenres.Select(mg => mg.Genre.Name).ToList()
+  };
+
   /// <summary>
   /// Validerar att relaterade id:n för produktionsbolag, genres och personer finns i databasen.
   /// </summary>

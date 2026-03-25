@@ -1,14 +1,13 @@
 @page "/profile"
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
 @using RetroVHS.Shared.DTOs.Auth
-@using Microsoft.AspNetCore.Components.Authorization
 @inject IUserClient UserClient
-@inject AuthenticationStateProvider AuthStateProvider
-@inject NavigationManager Navigation
+@inject IAppAuthStateProvider AppAuthState
 
 <PageTitle>Min profil</PageTitle>
 
-<AuthorizeView Context="authCtx">
-    <Authorized>
+<div>
         @if (isLoading)
         {
             <div class="movie-section">
@@ -116,11 +115,7 @@
                 </div>
             </div>
         }
-    </Authorized>
-    <NotAuthorized>
-        @{ Navigation.NavigateTo("/"); }
-    </NotAuthorized>
-</AuthorizeView>
+</div>
 
 @code {
     private UpdateUserProfileDto profileDto = new();
@@ -165,8 +160,7 @@
 
         if (user is not null)
         {
-            var provider = (JwtAuthStateProvider)AuthStateProvider;
-            provider.UpdateDisplayClaims(user);
+            AppAuthState.UpdateDisplayClaims(user);
             profileSuccess = "Profilen har uppdaterats.";
         }
         else

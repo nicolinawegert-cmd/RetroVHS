@@ -40,6 +40,8 @@ public interface IAdminClient
 
     // Reference data
     Task<List<GenreDto>> GetGenresAsync();
+    Task<GenreDto?> CreateGenreAsync(string name);
     Task<List<PersonDto>> GetPersonsAsync(string? search = null);
     Task<List<ProductionCompanyDto>> GetProductionCompaniesAsync();
+    Task<ProductionCompanyDto?> CreateProductionCompanyAsync(string name);
 }
