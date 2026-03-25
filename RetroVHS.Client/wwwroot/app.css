@@ -1210,9 +1210,15 @@ a, .btn-link {
         margin: 0.5rem;
         border-radius: 8px;
     }
-    .movie-list-rating { display: none; }
-    .movie-list-year { min-width: 2.5rem; }
+    .movie-list-rating { font-size: 0.75rem; min-width: 3rem; }
+    .movie-list-year { min-width: 2.5rem; font-size: 0.75rem; }
     .movie-list-actions a { font-size: 0.78rem; }
+    .movie-list-row { gap: 0.5rem; }
+
+    .btn-login, .btn-register {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+    }
 
     /* Admin / movie form */
     .movie-form-grid { grid-template-columns: 1fr; }
