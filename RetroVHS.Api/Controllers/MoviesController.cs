@@ -29,6 +29,10 @@ public class MoviesController : ControllerBase
     public async Task<ActionResult<List<MovieListDto>>> GetBestsellers()
         => Ok(await _movieService.GetBestsellersAsync());
 
+    [HttpGet("genre-sections")]
+    public async Task<ActionResult<List<GenreSectionDto>>> GetGenreSections()
+        => Ok(await _movieService.GetTopGenreSectionsAsync());
+
     /// <summary>
     /// Hämtar filmer från katalogen med stöd för sökning, filtrering och sortering.
     /// </summary>

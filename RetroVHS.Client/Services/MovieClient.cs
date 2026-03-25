@@ -69,6 +69,12 @@ public class MovieClient : IMovieClient
         catch { return []; }
     }
 
+    public async Task<List<GenreSectionDto>> GetTopGenreSectionsAsync()
+    {
+        try { return await _httpClient.GetFromJsonAsync<List<GenreSectionDto>>("api/movies/genre-sections") ?? []; }
+        catch { return []; }
+    }
+
     public async Task<MovieDetailsDto?> GetMovieDetailsAsync(int id)
     {
         try
