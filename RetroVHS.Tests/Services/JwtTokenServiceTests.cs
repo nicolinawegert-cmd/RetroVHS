@@ -21,7 +21,7 @@ namespace RetroVHS.Tests.Services
             _jwtTokenService = new JwtTokenService(_mockConfiguration.Object);
         }
         [Fact]
-        public async Task GenerateAccessToken_ValidUser_ReturnsToken()
+        public void GenerateAccessToken_ValidUser_ReturnsToken()
         {
             //Arrange
             _mockConfiguration.Setup(config => config["Jwt:Key"]).Returns("test-secret-key-1234567890123456");
