@@ -14,4 +14,6 @@ public interface IUserClient
     Task<string?> ChangePasswordAsync(ChangePasswordDto dto);
     Task<List<ReviewDto>> GetMyReviewsAsync();
     Task<List<RentalDto>> GetMyOrdersAsync();
+    Task<bool> CompleteRentalAsync(int rentalId);
+    Task<bool> CancelRentalAsync(int rentalId);
 }
