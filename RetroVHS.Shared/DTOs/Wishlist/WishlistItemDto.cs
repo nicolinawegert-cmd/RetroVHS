@@ -21,6 +21,11 @@ public class WishlistItemDto
     public string? PosterUrl { get; set; }
 
     /// <summary>
+    /// Filmens pris
+    /// </summary>
+    public decimal RentalPrice { get; set; }
+
+    /// <summary>
     /// När filmen lades till i wishlist
     /// </summary>
     public DateTime AddedAt { get; set; }

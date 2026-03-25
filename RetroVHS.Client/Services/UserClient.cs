@@ -103,4 +103,24 @@ public class UserClient : IUserClient
             return [];
         }
     }
+
+    public async Task<bool> CompleteRentalAsync(int rentalId)
+    {
+        try
+        {
+            var response = await _httpClient.PutAsync($"api/rentals/{rentalId}/complete", null);
+            return response.IsSuccessStatusCode;
+        }
+        catch { return false; }
+    }
+
+    public async Task<bool> CancelRentalAsync(int rentalId)
+    {
+        try
+        {
+            var response = await _httpClient.PutAsync($"api/rentals/{rentalId}/cancel", null);
+            return response.IsSuccessStatusCode;
+        }
+        catch { return false; }
+    }
 }

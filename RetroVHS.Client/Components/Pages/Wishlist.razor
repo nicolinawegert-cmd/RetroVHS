@@ -35,15 +35,18 @@
                             }
                             <div class="cart-item-info">
                                 <h3 class="wishlist-title" @onclick="() => GoToMovie(item.MovieId)">@item.Title</h3>
-                                <p style="color: #a0a0b0; font-size: 0.85rem;">
+                                <p style="color: #a0a0b0; font-size: 0.85rem; margin: 2px 0 0;">
                                     Tillagd @item.AddedAt.ToString("d MMM yyyy")
+                                </p>
+                                <p style="color: #e0e0f0; font-size: 0.85rem; font-weight: 600; margin: 2px 0 0;">
+                                    @item.RentalPrice.ToString("0.00") kr
                                 </p>
                             </div>
                             <div class="cart-item-actions">
                                 <button class="btn-submit" style="font-size: 0.85rem; padding: 6px 14px;" @onclick="() => AddToCartFromWishlist(item)">
                                     🛒 Köp
                                 </button>
-                                <button class="btn-remove" @onclick="() => RemoveItem(item.MovieId)">✕</button>
+                                <button class="btn-remove" style="font-size: 0.75rem; padding: 4px 8px; color: #e94560; border-color: rgba(233,69,96,0.4);" @onclick="() => RemoveItem(item.MovieId)">✕</button>
                             </div>
                         </div>
                     }

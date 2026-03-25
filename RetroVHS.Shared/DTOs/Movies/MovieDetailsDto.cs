@@ -70,6 +70,26 @@ public class MovieDetailsDto
     public int StockQuantity { get; set; }
 
     /// <summary>
+    /// Anger om filmen ska lyftas extra
+    /// </summary>
+    public bool IsFeatured { get; set; }
+
+    /// <summary>
+    /// Språk filmen är på
+    /// </summary>
+    public string? Language { get; set; }
+
+    /// <summary>
+    /// Ursprungsland
+    /// </summary>
+    public string? Country { get; set; }
+
+    /// <summary>
+    /// Id för produktionsbolag (om kopplat)
+    /// </summary>
+    public int? ProductionCompanyId { get; set; }
+
+    /// <summary>
     /// Namnet på produktionsbolaget
     /// </summary>
     public string? ProductionCompanyName { get; set; }

@@ -1,0 +1,104 @@
+@page "/admin/users"
+@attribute [Authorize(Roles = "Admin")]
+@using RetroVHS.Shared.DTOs.Auth
+@using Microsoft.AspNetCore.Authorization
+@inject IAdminClient AdminClient
+@inject NavigationManager Navigation
+
+<PageTitle>Admin — Användare</PageTitle>
+
+<div class="admin-page">
+    <a href="/admin" class="admin-back-link">← Dashboard</a>
+    <h1 class="section-title">👥 Användare</h1>
+
+    @if (isLoading)
+    {
+        <div class="loading-spinner">
+            <div class="spinner-border" role="status" style="color:#e94560;width:2.5rem;height:2.5rem;"></div>
+            <p>Laddar användare...</p>
+        </div>
+    }
+    else if (users.Count == 0)
+    {
+        <p style="color:#a0a0b0;">Inga användare hittades.</p>
+    }
+    else
+    {
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Namn</th>
+                    <th>E-post</th>
+                    <th>Nickname</th>
+                    <th>Status</th>
+                    <th>Åtgärder</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in users)
+                {
+                    var u = user;
+                    <tr>
+                        <td>@u.FullName</td>
+                        <td>@u.Email</td>
+                        <td>@(u.Nickname ?? "—")</td>
+                        <td>
+                            @if (u.IsBlocked)
+                            {
+                                <span class="rental-status status-cancelled">Blockerad</span>
+                            }
+                            else
+                            {
+                                <span class="rental-status status-completed">Aktiv</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="action-links">
+                                <a href="/admin/users/@u.Id">Profil</a>
+                                <a href="/admin/users/@u.Id/reviews">Recensioner</a>
+                                <a href="/admin/users/@u.Id/orders">Beställningar</a>
+                                @if (confirmDeleteId == u.Id)
+                                {
+                                    <div class="confirm-inline" style="margin-top:0.3rem;">
+                                        <p>Radera @u.FullName?</p>
+                                        <button class="btn-confirm-yes" @onclick="() => DeleteUserAsync(u.Id)" disabled="@deleting">
+                                            @(deleting ? "..." : "Ja, radera")
+                                        </button>
+                                        <button class="btn-confirm-cancel" @onclick="() => confirmDeleteId = null" disabled="@deleting">Avbryt</button>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <button class="btn-remove" style="font-size:0.8rem;padding:3px 10px;"
+                                            @onclick="() => confirmDeleteId = u.Id">Radera</button>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    private List<UserDto> users = [];
+    private bool isLoading = true;
+    private int? confirmDeleteId;
+    private bool deleting;
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await AdminClient.GetAllUsersAsync();
+        isLoading = false;
+    }
+
+    private async Task DeleteUserAsync(int id)
+    {
+        deleting = true;
+        var success = await AdminClient.DeleteUserAsync(id);
+        if (success) users.RemoveAll(u => u.Id == id);
+        confirmDeleteId = null;
+        deleting = false;
+    }
+}

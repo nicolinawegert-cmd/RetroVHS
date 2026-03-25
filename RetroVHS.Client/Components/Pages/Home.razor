@@ -1,12 +1,18 @@
-﻿@page "/"
+@page "/"
 @using RetroVHS.Shared.DTOs.Movies
 @inject IMovieClient MovieClient
 @inject IWishlistClient WishlistClient
+@inject ICartClient CartClient
+@inject CartState CartState
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthStateProvider
 @implements IDisposable
 
 <PageTitle>RetroVHS</PageTitle>
+
+<div style="padding: 1rem 1.5rem 0;">
+    <a href="/movies" class="see-all-link">Se alla filmer →</a>
+</div>
 
 @if (isLoading)
 {
@@ -27,40 +33,23 @@ else
 				@foreach (var movie in featuredMovies)
 				{
 								<MovieCard Movie="movie"
-											   ShowWishlist="isAuthenticated"
-											   IsInWishlist="wishlistIds.Contains(movie.Id)"
-											   OnMovieSelected="GoToMovie"
-											   OnWishlistToggled="ToggleWishlist" />
+										   ShowWishlist="isAuthenticated && !isAdmin"
+										   IsInWishlist="wishlistIds.Contains(movie.Id)"
+										   OnMovieSelected="GoToMovie"
+										   OnWishlistToggled="ToggleWishlist"
+										   OnAddToCart="AddToCart" />
 								}
 							</div>
 						</div>
 					}
-
-					// TODO: Lägg till en sektion för alla filmer när vi har tillräckligt med data i databasen
-					@* @if (allMovies.Count > 0)
-					{
-						<div class="movie-section">
-							<h2 class="section-title">🎬 Alla filmer</h2>
-							<div class="movie-grid">
-								@foreach (var movie in allMovies)
-								{
-									<MovieCard Movie="movie"
-											   ShowWishlist="isAuthenticated"
-											   IsInWishlist="wishlistIds.Contains(movie.Id)"
-											   OnMovieSelected="GoToMovie"
-											   OnWishlistToggled="ToggleWishlist" />
-				}
-			</div>
-		</div>
-	} *@
 }
 
 @code {
 	private List<MovieListDto> featuredMovies = [];
-	private List<MovieListDto> allMovies = [];
 	private HashSet<int> wishlistIds = [];
 	private bool isLoading = true;
 	private bool isAuthenticated;
+	private bool isAdmin;
 	private bool hasLoaded;
 
 	protected override void OnInitialized()
@@ -80,12 +69,11 @@ else
 	{
 		var authState = await AuthStateProvider.GetAuthenticationStateAsync();
 		isAuthenticated = authState.User.Identity?.IsAuthenticated == true;
+		isAdmin = authState.User.IsInRole("Admin");
 
 		var featuredTask = MovieClient.GetFeaturedMoviesAsync();
-		var allTask = MovieClient.GetAllMoviesAsync();
 
 		featuredMovies = await featuredTask;
-		allMovies = await allTask;
 
 		if (isAuthenticated)
 		{
@@ -117,6 +105,15 @@ else
 		{
 			var success = await WishlistClient.AddToWishlistAsync(movieId);
 			if (success) wishlistIds.Add(movieId);
+		}
+	}
+
+	private async Task AddToCart(int movieId)
+	{
+		var result = await CartClient.AddToCartAsync(movieId);
+		if (result is not null)
+		{
+			CartState.SetCount(result.Items.Count);
 		}
 	}
 

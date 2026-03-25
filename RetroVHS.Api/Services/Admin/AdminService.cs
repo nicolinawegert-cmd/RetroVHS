@@ -33,7 +33,8 @@ public class AdminService : IAdminService
             BlockedUsers = await _context.Users.CountAsync(u => u.IsBlocked),
             TotalMovies = await _context.Movies.CountAsync(),
             ActiveRentals = await _context.Rentals.CountAsync(r => r.Status == RentalStatus.Active),
-            TotalRentals = await _context.Rentals.CountAsync(),
+            TotalRentals = await _context.Rentals.CountAsync(r => r.Status == RentalStatus.Completed),
+            CancelledRentals = await _context.Rentals.CountAsync(r => r.Status == RentalStatus.Cancelled),
             TotalReviews = await _context.Reviews.CountAsync(r => !r.IsDeleted)
         };
     }
