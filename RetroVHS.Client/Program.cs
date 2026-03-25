@@ -24,6 +24,7 @@ builder.Services.AddScoped<ICartClient, CartClient>();
 builder.Services.AddScoped<CartState>();
 builder.Services.AddScoped<IWishlistClient, WishlistClient>();
 builder.Services.AddScoped<IUserClient, UserClient>();
+builder.Services.AddScoped<IAdminClient, AdminClient>();
 
 var app = builder.Build();
 

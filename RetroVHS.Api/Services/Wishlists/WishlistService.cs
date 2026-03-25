@@ -31,6 +31,7 @@ public class WishlistService : IWishlistService
           MovieId = w.MovieId,
           Title = w.Movie.Title,
           PosterUrl = w.Movie.PosterUrl,
+          RentalPrice = w.Movie.RentalPrice,
           AddedAt = w.CreatedAt
         })
         .ToListAsync();

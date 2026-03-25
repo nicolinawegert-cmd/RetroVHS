@@ -1,0 +1,392 @@
+@page "/admin/movies/new"
+@page "/admin/movies/{Id:int}/edit"
+@attribute [Authorize(Roles = "Admin")]
+@using RetroVHS.Shared.DTOs.Movies
+@using RetroVHS.Shared.DTOs.Genres
+@using RetroVHS.Shared.DTOs.Persons
+@using RetroVHS.Shared.DTOs.ProductionCompanies
+@using RetroVHS.Shared.Enums
+@using Microsoft.AspNetCore.Authorization
+@inject IAdminClient AdminClient
+@inject NavigationManager Navigation
+
+<PageTitle>@(Id.HasValue ? "Redigera film" : "Lägg till film")</PageTitle>
+
+<div class="movie-form-page">
+    <a href="/admin/movies" class="admin-back-link">← Filmlistan</a>
+    <h1 class="section-title">@(Id.HasValue ? "✏️ Redigera film" : "➕ Lägg till film")</h1>
+
+    @if (isLoading)
+    {
+        <div class="loading-spinner">
+            <div class="spinner-border" role="status" style="color:#e94560;width:2.5rem;height:2.5rem;"></div>
+            <p>Laddar...</p>
+        </div>
+    }
+    else
+    {
+        <div class="movie-form-grid">
+
+            <div class="movie-form-field">
+                <label>Titel *</label>
+                <input type="text" @bind="title" @onblur="() => _tTitle = true" placeholder="Filmens titel" />
+                @if (ShowTitle && string.IsNullOrWhiteSpace(title))
+                { <span class="validation-message">Titel krävs.</span> }
+            </div>
+
+            <div class="movie-form-field">
+                <label>Utgivningsår *</label>
+                <input type="number" @bind="releaseYear" @onblur="() => _tYear = true" min="1888" max="@DateTime.Now.Year" />
+                @if (ShowYear && (releaseYear < 1888 || releaseYear > DateTime.Now.Year))
+                { <span class="validation-message">Ange ett giltigt år (1888–@DateTime.Now.Year).</span> }
+            </div>
+
+            <div class="movie-form-field">
+                <label>Längd (minuter) *</label>
+                <input type="number" @bind="durationMinutes" @onblur="() => _tDuration = true" min="1" max="600" />
+                @if (ShowDuration && (durationMinutes < 1 || durationMinutes > 600))
+                { <span class="validation-message">Filmlängden måste vara mellan 1 och 600 minuter.</span> }
+            </div>
+
+            <div class="movie-form-field">
+                <label>Hyrespris (kr) *</label>
+                <input type="number" @bind="rentalPrice" @onblur="() => _tPrice = true" min="0.01" max="999.99" step="0.01" />
+                @if (ShowPrice && (rentalPrice < 0.01m || rentalPrice > 999.99m))
+                { <span class="validation-message">Priset måste vara mellan 0,01 och 999,99 kr.</span> }
+            </div>
+
+            <div class="movie-form-field">
+                <label>Lagersaldo</label>
+                <input type="number" @bind="stockQuantity" @onblur="() => _tStock = true" min="0" max="10000" />
+                @if (ShowStock && (stockQuantity < 0 || stockQuantity > 10000))
+                { <span class="validation-message">Lagersaldo måste vara mellan 0 och 10 000.</span> }
+            </div>
+
+            <div class="movie-form-field">
+                <label>Tillgänglighetsstatus</label>
+                <select @bind="availabilityStatus">
+                    @foreach (var s in Enum.GetValues<MovieAvailabilityStatus>())
+                    {
+                        <option value="@s">@s</option>
+                    }
+                </select>
+            </div>
+
+            <div class="movie-form-field">
+                <label>Poster-URL</label>
+                <input type="text" @bind="posterUrl" placeholder="https://..." />
+            </div>
+
+            <div class="movie-form-field">
+                <label>Trailer-URL (YouTube)</label>
+                <input type="text" @bind="trailerUrl" placeholder="https://youtube.com/..." />
+            </div>
+
+            <div class="movie-form-field">
+                <label>Språk</label>
+                <input type="text" @bind="language" placeholder="t.ex. English" />
+            </div>
+
+            <div class="movie-form-field">
+                <label>Land</label>
+                <input type="text" @bind="country" placeholder="t.ex. USA" />
+            </div>
+
+            <div class="movie-form-field full-width" style="flex-direction:row;align-items:center;gap:0.75rem;">
+                <input type="checkbox" id="featured" @bind="isFeatured" />
+                <label for="featured" style="margin:0;font-size:0.9rem;color:#e0e0f0;">Utvald (visas på startsidan)</label>
+            </div>
+
+            <div class="movie-form-field full-width">
+                <label>Synopsis *</label>
+                <textarea @bind="synopsis" @onblur="() => _tSynopsis = true" rows="4" maxlength="1000" placeholder="Filmens beskrivning..."></textarea>
+                @if (ShowSynopsis && string.IsNullOrWhiteSpace(synopsis))
+                { <span class="validation-message">Synopsis krävs.</span> }
+            </div>
+
+            <div class="movie-form-field full-width">
+                <label>Produktionsbolag</label>
+                <select @bind="productionCompanyIdStr">
+                    <option value="">— Inget —</option>
+                    @foreach (var c in companies)
+                    {
+                        <option value="@c.Id">@c.Name</option>
+                    }
+                </select>
+            </div>
+
+            <div class="movie-form-field full-width">
+                <label>Genres</label>
+                <div class="genre-tag-list">
+                    @foreach (var g in allGenres)
+                    {
+                        var genre = g;
+                        <span class="genre-form-tag @(selectedGenreIds.Contains(genre.Id) ? "selected" : "")"
+                              @onclick="() => ToggleGenre(genre.Id)">
+                            @genre.Name
+                        </span>
+                    }
+                </div>
+            </div>
+
+            <div class="movie-form-field full-width">
+                <label>Regissörer</label>
+                @for (int i = 0; i < directors.Count; i++)
+                {
+                    var idx = i;
+                    <div class="person-search-row">
+                        <div class="person-row-inputs">
+                            <input type="text" placeholder="Sök person..."
+                                   value="@directors[idx].DisplayName"
+                                   @oninput="e => OnPersonSearchInput(e, idx, directors)"
+                                   style="flex:1;" />
+                            <button type="button" class="btn-remove-row" @onclick="() => directors.RemoveAt(idx)">✕</button>
+                        </div>
+                        @if (directors[idx].ShowDropdown && directors[idx].SearchResults.Count > 0)
+                        {
+                            <div class="person-search-result-dropdown">
+                                @foreach (var p in directors[idx].SearchResults)
+                                {
+                                    var person = p;
+                                    <div class="person-result-item" @onmousedown="() => SelectPerson(person, idx, directors)">@p.FullName</div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+                <button type="button" class="btn-add-row" @onclick="() => directors.Add(new PersonRow())">+ Lägg till regissör</button>
+            </div>
+
+            <div class="movie-form-field full-width">
+                <label>Skådespelare</label>
+                @for (int i = 0; i < cast.Count; i++)
+                {
+                    var idx = i;
+                    <div class="person-search-row">
+                        <div class="person-row-inputs">
+                            <input type="text" placeholder="Sök person..."
+                                   value="@cast[idx].DisplayName"
+                                   @oninput="e => OnPersonSearchInput(e, idx, cast)"
+                                   style="flex:1;" />
+                            <input type="text" placeholder="Rollnamn (valfritt)"
+                                   @bind="cast[idx].CharacterName"
+                                   style="flex:1;" />
+                            <input type="number" placeholder="Ordning"
+                                   @bind="cast[idx].DisplayOrder"
+                                   style="width:80px;" min="0" />
+                            <button type="button" class="btn-remove-row" @onclick="() => cast.RemoveAt(idx)">✕</button>
+                        </div>
+                        @if (cast[idx].ShowDropdown && cast[idx].SearchResults.Count > 0)
+                        {
+                            <div class="person-search-result-dropdown">
+                                @foreach (var p in cast[idx].SearchResults)
+                                {
+                                    var person = p;
+                                    <div class="person-result-item" @onmousedown="() => SelectPerson(person, idx, cast)">@p.FullName</div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+                <button type="button" class="btn-add-row" @onclick="() => cast.Add(new PersonRow())">+ Lägg till skådespelare</button>
+            </div>
+
+        </div>
+
+        @if (!string.IsNullOrEmpty(submitError))
+        {
+            <p class="review-error" style="margin-top:1rem;">@submitError</p>
+        }
+
+        <div style="margin-top:1.5rem;display:flex;gap:1rem;">
+            <button class="btn-submit" @onclick="SubmitAsync" disabled="@submitting">
+                @(submitting ? "Sparar..." : (Id.HasValue ? "Spara ändringar" : "Lägg till film"))
+            </button>
+            <a href="/admin/movies" style="color:#a0a0b0;text-decoration:none;align-self:center;">Avbryt</a>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int? Id { get; set; }
+
+    private string title = "";
+    private int releaseYear = DateTime.Now.Year;
+    private int durationMinutes = 90;
+    private string synopsis = "";
+    private string? posterUrl;
+    private string? trailerUrl;
+    private string? language;
+    private string? country;
+    private decimal rentalPrice = 29.99m;
+    private int stockQuantity = 0;
+    private MovieAvailabilityStatus availabilityStatus = MovieAvailabilityStatus.Available;
+    private bool isFeatured = false;
+    private string productionCompanyIdStr = "";
+
+    private HashSet<int> selectedGenreIds = [];
+    private List<PersonRow> directors = [];
+    private List<PersonRow> cast = [];
+
+    private List<GenreDto> allGenres = [];
+    private List<ProductionCompanyDto> companies = [];
+
+    private bool isLoading = true;
+    private bool submitting;
+    private bool showErrors;
+    private string? submitError;
+
+    // Per-fält touched-flaggor — visas direkt när fältet lämnas
+    private bool _tTitle, _tYear, _tDuration, _tPrice, _tStock, _tSynopsis;
+    private bool ShowTitle => showErrors || _tTitle;
+    private bool ShowYear => showErrors || _tYear;
+    private bool ShowDuration => showErrors || _tDuration;
+    private bool ShowPrice => showErrors || _tPrice;
+    private bool ShowStock => showErrors || _tStock;
+    private bool ShowSynopsis => showErrors || _tSynopsis;
+
+    private CancellationTokenSource? _debounce;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var genresTask = AdminClient.GetGenresAsync();
+        var companiesTask = AdminClient.GetProductionCompaniesAsync();
+        allGenres = await genresTask;
+        companies = await companiesTask;
+
+        if (Id.HasValue)
+        {
+            var movie = await AdminClient.GetMovieByIdAsync(Id.Value);
+            if (movie is not null)
+            {
+                title = movie.Title;
+                releaseYear = movie.ReleaseYear;
+                durationMinutes = movie.DurationMinutes;
+                synopsis = movie.Synopsis ?? "";
+                posterUrl = movie.PosterUrl;
+                trailerUrl = movie.TrailerUrl;
+                rentalPrice = movie.RentalPrice;
+                availabilityStatus = Enum.TryParse<MovieAvailabilityStatus>(movie.AvailabilityStatus, out var s) ? s : MovieAvailabilityStatus.Available;
+                isFeatured = movie.IsFeatured;
+                language = movie.Language;
+                country = movie.Country;
+                productionCompanyIdStr = movie.ProductionCompanyId?.ToString() ?? "";
+                selectedGenreIds = allGenres
+                    .Where(g => movie.Genres.Contains(g.Name))
+                    .Select(g => g.Id)
+                    .ToHashSet();
+                directors = movie.Directors.Select(d => new PersonRow { PersonId = d.PersonId, DisplayName = d.FullName }).ToList();
+                cast = movie.Cast.Select(c => new PersonRow { PersonId = c.PersonId, DisplayName = c.FullName, CharacterName = c.CharacterName, DisplayOrder = c.DisplayOrder }).ToList();
+            }
+        }
+
+        isLoading = false;
+    }
+
+    private void ToggleGenre(int genreId)
+    {
+        if (!selectedGenreIds.Add(genreId))
+            selectedGenreIds.Remove(genreId);
+    }
+
+    private async Task OnPersonSearchInput(ChangeEventArgs e, int idx, List<PersonRow> rows)
+    {
+        var term = e.Value?.ToString() ?? "";
+        rows[idx].DisplayName = term;
+        rows[idx].PersonId = null;
+
+        _debounce?.Cancel();
+        _debounce = new CancellationTokenSource();
+        try
+        {
+            await Task.Delay(300, _debounce.Token);
+            if (!string.IsNullOrWhiteSpace(term))
+            {
+                rows[idx].SearchResults = await AdminClient.GetPersonsAsync(term);
+                rows[idx].ShowDropdown = true;
+            }
+            else
+            {
+                rows[idx].SearchResults = [];
+                rows[idx].ShowDropdown = false;
+            }
+        }
+        catch (TaskCanceledException) { }
+    }
+
+    private void SelectPerson(PersonDto person, int idx, List<PersonRow> rows)
+    {
+        rows[idx].PersonId = person.Id;
+        rows[idx].DisplayName = person.FullName;
+        rows[idx].ShowDropdown = false;
+        rows[idx].SearchResults = [];
+    }
+
+    private async Task SubmitAsync()
+    {
+        showErrors = true;
+        int currentYear = DateTime.Now.Year;
+        bool hasErrors =
+            string.IsNullOrWhiteSpace(title) ||
+            string.IsNullOrWhiteSpace(synopsis) ||
+            releaseYear < 1888 || releaseYear > currentYear ||
+            durationMinutes < 1 || durationMinutes > 600 ||
+            rentalPrice < 0.01m || rentalPrice > 999.99m ||
+            stockQuantity < 0 || stockQuantity > 10000;
+        if (hasErrors) return;
+
+        submitting = true;
+        submitError = null;
+
+        var credits = new List<CreateMovieCreditDto>();
+        foreach (var d in directors.Where(d => d.PersonId.HasValue))
+            credits.Add(new CreateMovieCreditDto { PersonId = d.PersonId!.Value, Role = CreditRole.Director });
+        foreach (var c in cast.Where(c => c.PersonId.HasValue))
+            credits.Add(new CreateMovieCreditDto { PersonId = c.PersonId!.Value, Role = CreditRole.Actor, CharacterName = c.CharacterName, DisplayOrder = c.DisplayOrder });
+
+        int? companyId = int.TryParse(productionCompanyIdStr, out var cid) && cid > 0 ? cid : null;
+
+        if (Id.HasValue)
+        {
+            var dto = new UpdateMovieDto
+            {
+                Id = Id.Value, Title = title, Synopsis = synopsis, ReleaseYear = releaseYear,
+                DurationMinutes = durationMinutes, RentalPrice = rentalPrice, PosterUrl = posterUrl,
+                TrailerUrl = trailerUrl, Language = language, Country = country,
+                ProductionCompanyId = companyId, AvailabilityStatus = availabilityStatus,
+                StockQuantity = stockQuantity, IsFeatured = isFeatured,
+                GenreIds = selectedGenreIds.ToList(), Credits = credits
+            };
+            var result = await AdminClient.UpdateMovieAsync(Id.Value, dto);
+            if (result is not null) Navigation.NavigateTo("/admin/movies");
+            else submitError = "Kunde inte uppdatera filmen. Kontrollera att alla ID:n är giltiga.";
+        }
+        else
+        {
+            var dto = new CreateMovieDto
+            {
+                Title = title, Synopsis = synopsis, ReleaseYear = releaseYear,
+                DurationMinutes = durationMinutes, RentalPrice = rentalPrice, PosterUrl = posterUrl,
+                TrailerUrl = trailerUrl, Language = language, Country = country,
+                ProductionCompanyId = companyId, AvailabilityStatus = availabilityStatus,
+                StockQuantity = stockQuantity, IsFeatured = isFeatured,
+                GenreIds = selectedGenreIds.ToList(), Credits = credits
+            };
+            var result = await AdminClient.CreateMovieAsync(dto);
+            if (result is not null) Navigation.NavigateTo("/admin/movies");
+            else submitError = "Kunde inte skapa filmen. Kontrollera att alla ID:n är giltiga.";
+        }
+
+        submitting = false;
+    }
+
+    private class PersonRow
+    {
+        public int? PersonId { get; set; }
+        public string DisplayName { get; set; } = "";
+        public string? CharacterName { get; set; }
+        public int DisplayOrder { get; set; } = 0;
+        public bool ShowDropdown { get; set; }
+        public List<PersonDto> SearchResults { get; set; } = [];
+    }
+}
