@@ -4,6 +4,7 @@
 @inject ICartClient CartClient
 @inject CartState CartState
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>Min önskelista</PageTitle>
 
@@ -67,7 +68,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        items = await WishlistClient.GetWishlistAsync();
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated == true)
+            items = await WishlistClient.GetWishlistAsync();
         isLoading = false;
     }
 

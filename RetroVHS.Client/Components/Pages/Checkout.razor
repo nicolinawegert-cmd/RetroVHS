@@ -4,6 +4,7 @@
 @inject ICartClient CartClient
 @inject NavigationManager Navigation
 @inject CartState CartState
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>Kassa</PageTitle>
 
@@ -101,7 +102,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        cart = await CartClient.GetCartAsync();
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated == true)
+            cart = await CartClient.GetCartAsync();
         isLoading = false;
     }
 

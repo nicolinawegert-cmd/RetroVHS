@@ -3,6 +3,7 @@
 @inject ICartClient CartClient
 @inject CartState CartState
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>Varukorg</PageTitle>
 
@@ -89,7 +90,11 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadCart();
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated == true)
+            await LoadCart();
+        else
+            isLoading = false;
     }
 
     private async Task LoadCart()

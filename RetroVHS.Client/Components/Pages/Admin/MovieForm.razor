@@ -9,6 +9,7 @@
 @using Microsoft.AspNetCore.Authorization
 @inject IAdminClient AdminClient
 @inject NavigationManager Navigation
+@implements IDisposable
 
 <PageTitle>@(Id.HasValue ? "Redigera film" : "Lägg till film")</PageTitle>
 
@@ -288,7 +289,6 @@
     private bool ShowStock => showErrors || _tStock;
     private bool ShowSynopsis => showErrors || _tSynopsis;
 
-    private CancellationTokenSource? _debounce;
 
     protected override async Task OnInitializedAsync()
     {
@@ -339,11 +339,13 @@
         rows[idx].DisplayName = term;
         rows[idx].PersonId = null;
 
-        _debounce?.Cancel();
-        _debounce = new CancellationTokenSource();
+        rows[idx].Debounce?.Cancel();
+        rows[idx].Debounce?.Dispose();
+        rows[idx].Debounce = new CancellationTokenSource();
+        var token = rows[idx].Debounce.Token;
         try
         {
-            await Task.Delay(300, _debounce.Token);
+            await Task.Delay(300, token);
             if (!string.IsNullOrWhiteSpace(term))
             {
                 rows[idx].SearchResults = await AdminClient.GetPersonsAsync(term);
@@ -486,6 +488,15 @@
         }
     }
 
+    public void Dispose()
+    {
+        foreach (var row in directors.Concat(cast))
+        {
+            row.Debounce?.Cancel();
+            row.Debounce?.Dispose();
+        }
+    }
+
     private class PersonRow
     {
         public int? PersonId { get; set; }
@@ -494,5 +505,6 @@
         public int DisplayOrder { get; set; } = 0;
         public bool ShowDropdown { get; set; }
         public List<PersonDto> SearchResults { get; set; } = [];
+        public CancellationTokenSource? Debounce { get; set; }
     }
 }
