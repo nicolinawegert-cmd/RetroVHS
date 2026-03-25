@@ -14,6 +14,7 @@ using RetroVHS.Shared.DTOs.Admin;
 using RetroVHS.Shared.DTOs.Auth;
 using RetroVHS.Shared.DTOs.Reviews;
 using RetroVHS.Shared.DTOs.Rentals;
+using System.Security.Claims;
 using Xunit;
 
 namespace RetroVHS.Tests.Controllers
