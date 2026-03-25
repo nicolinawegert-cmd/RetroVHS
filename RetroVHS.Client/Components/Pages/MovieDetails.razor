@@ -103,6 +103,8 @@ else
 
                     <AuthorizeView>
                         <Authorized>
+                            @if (!isAdmin)
+                            {
                             <div class="details-actions">
                                 <span class="details-price">@movie.RentalPrice.ToString("0.00") kr</span>
                                 <button class="btn-submit" @onclick="AddToCart" disabled="@addingToCart">
@@ -116,6 +118,7 @@ else
                                     <p class="cart-message">@cartMessage</p>
                                 }
                             </div>
+                            }
                         </Authorized>
                     </AuthorizeView>
                 </div>
