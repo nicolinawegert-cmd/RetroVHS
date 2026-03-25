@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using RetroVHS.Api.Data;
 using RetroVHS.Api.Models;
+using RetroVHS.Api.Services.Admin;
 using RetroVHS.Api.Services.Auth;
 using RetroVHS.Api.Services.Cart;
 using RetroVHS.Api.Services.Movies;
@@ -56,6 +57,7 @@ builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IRentalService, RentalService>();
 builder.Services.AddScoped<IWishlistService, WishlistService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 
 
 // =========================

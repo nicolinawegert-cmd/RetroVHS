@@ -12,9 +12,10 @@ public interface IRentalService
   Task<(bool Success, string Message)> CompleteRentalAsync(int rentalId, int userId, bool isAdmin);
 
   /// <summary>
-  /// Avbryter en beställning (Cancelled). Endast admin.
+  /// Avbryter en aktiv beställning (Cancelled).
+  /// Användaren kan avbryta sin egen, admin kan avbryta vilken som helst.
   /// </summary>
-  Task<(bool Success, string Message)> CancelRentalAsync(int rentalId);
+  Task<(bool Success, string Message)> CancelRentalAsync(int rentalId, int userId, bool isAdmin);
 
   /// <summary>
   /// Raderar en beställning.

@@ -1,7 +1,9 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RetroVHS.Api.Services.Admin;
 using RetroVHS.Api.Services.Users;
+using RetroVHS.Shared.DTOs.Admin;
 using RetroVHS.Shared.DTOs.Auth;
 using RetroVHS.Shared.DTOs.Rentals;
 using RetroVHS.Shared.DTOs.Reviews;
@@ -18,13 +20,15 @@ public class UsersController : ControllerBase
 {
   private readonly IUserService _userService;
   private readonly IReviewService _reviewService;
+  private readonly IAdminService _adminService;
   /// <summary>
-  /// Skapar en ny instans av controllern och injicerar user- och review-servicen.
+  /// Skapar en ny instans av controllern och injicerar user-, review- och admin-servicen.
   /// </summary>
-  public UsersController(IUserService userService, IReviewService reviewService)
+  public UsersController(IUserService userService, IReviewService reviewService, IAdminService adminService)
   {
     _userService = userService;
     _reviewService = reviewService;
+    _adminService = adminService;
   }
 
   /// <summary>
@@ -191,6 +195,43 @@ public class UsersController : ControllerBase
   {
     var rentals = await _userService.GetUserRentalsByIdAsync(id);
     return Ok(rentals);
+  }
+
+
+  /// <summary>
+  /// Raderar en användare och all relaterad data.
+  /// Endast administratörer har åtkomst.
+  /// </summary>
+  [Authorize(Roles = "Admin")]
+  [HttpDelete("{id:int}")]
+  public async Task<IActionResult> DeleteUser(int id)
+  {
+    var (success, message) = await _adminService.DeleteUserAsync(id);
+
+    if (!success)
+      return BadRequest(new { message });
+
+    return Ok(new { message });
+  }
+
+  /// <summary>
+  /// Sätter ett nytt nickname på en användare.
+  /// Används för moderation, t.ex. om någon valt ett olämpligt nickname.
+  /// Endast administratörer har åtkomst.
+  /// </summary>
+  [Authorize(Roles = "Admin")]
+  [HttpPut("{id:int}/nickname")]
+  public async Task<IActionResult> UpdateNickname(int id, [FromBody] AdminSetNicknameDto dto)
+  {
+    if (!ModelState.IsValid)
+      return BadRequest(ModelState);
+
+    var (success, message) = await _adminService.UpdateNicknameAsync(id, dto);
+
+    if (!success)
+      return BadRequest(new { message });
+
+    return Ok(new { message });
   }
 
 
