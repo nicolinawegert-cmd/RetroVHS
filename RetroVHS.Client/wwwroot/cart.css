@@ -204,9 +204,6 @@
 }
 
 .movie-card-wishlist {
-    position: absolute;
-    bottom: 6px;
-    right: 6px;
     background: none;
     border: none;
     font-size: 1.2rem;
@@ -216,6 +213,10 @@
     justify-content: center;
     transition: transform 0.2s;
     opacity: 0.7;
+    padding: 0;
+    line-height: 1;
+    outline: none;
+    flex-shrink: 0;
 }
 
 .movie-card-wishlist.wishlisted {
@@ -233,6 +234,14 @@
 .checkout-confirmation .btn-submit {
     max-width: 300px;
     margin: 1.5rem auto 0;
+}
+
+/* ===== Wishlist item actions ===== */
+.cart-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
 }
 
 /* ===== Köp-knapp på filmsidan ===== */

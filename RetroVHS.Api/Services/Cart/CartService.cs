@@ -34,19 +34,25 @@ namespace RetroVHS.Api.Services.Cart
             // Hämta eller skapa en aktiv varukorg.
             var cart = await GetOrCreateActiveCartAsync(userId);
 
-            // Kolla om filmen redan finns i varukorgen
-            var alreadyInCart = cart.Items.Any(i => i.MovieId == dto.MovieId);
-
-            if (alreadyInCart)
-                throw new InvalidOperationException("Filmen finns redan i varukorgen.");
-
-
             // Hämta filmen från databasen för att få aktuellt pris
             var movie = await _db.Movies.FindAsync(dto.MovieId)
                 ?? throw new ArgumentException("Filmen hittades inte.");  //Om filmen inte finns i databasen, kasta ett undantag
 
             if (movie.StockQuantity <= 0)
                 throw new InvalidOperationException("Filmen är slut i lager.");
+
+            // Om filmen redan finns i varukorgen, öka antalet istället
+            var existingItem = cart.Items.FirstOrDefault(i => i.MovieId == dto.MovieId);
+            if (existingItem != null)
+            {
+                if (existingItem.Quantity >= movie.StockQuantity)
+                    throw new InvalidOperationException("Du kan inte lägga till fler exemplar än vad som finns i lager.");
+
+                existingItem.Quantity++;
+                cart.UpdatedAt = DateTime.UtcNow;
+                await _db.SaveChangesAsync();
+                return MapToCartDto(cart);
+            }
 
             // Skapa en ny rad i varukorgen
             var cartItem = new CartItem
