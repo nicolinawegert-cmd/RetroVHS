@@ -261,7 +261,7 @@ else
                     {
                         <div class="review-item">
                             <div class="review-header">
-                                <span class="review-user">@review.UserDisplayName</span>
+                                <span class="review-user">@(string.IsNullOrWhiteSpace(review.UserDisplayName) ? "Anonym" : review.UserDisplayName)</span>
                                 <span class="review-stars">@(new string('★', review.Rating))@(new string('☆', 5 - review.Rating))</span>
                                 <span class="review-rating-label">@review.Rating / 5</span>
                                 <span class="review-date">@review.CreatedAt.ToString("d MMM yyyy")</span>

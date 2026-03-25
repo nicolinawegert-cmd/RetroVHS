@@ -8,6 +8,10 @@
 
 <PageTitle>RetroVHS</PageTitle>
 
+<div style="padding: 1rem 1.5rem 0;">
+    <a href="/movies" class="see-all-link">Se alla filmer →</a>
+</div>
+
 @if (isLoading)
 {
 	<div class="movie-section">
@@ -35,29 +39,10 @@ else
 							</div>
 						</div>
 					}
-
-					// TODO: Lägg till en sektion för alla filmer när vi har tillräckligt med data i databasen
-					@* @if (allMovies.Count > 0)
-					{
-						<div class="movie-section">
-							<h2 class="section-title">🎬 Alla filmer</h2>
-							<div class="movie-grid">
-								@foreach (var movie in allMovies)
-								{
-									<MovieCard Movie="movie"
-											   ShowWishlist="isAuthenticated"
-											   IsInWishlist="wishlistIds.Contains(movie.Id)"
-											   OnMovieSelected="GoToMovie"
-											   OnWishlistToggled="ToggleWishlist" />
-				}
-			</div>
-		</div>
-	} *@
 }
 
 @code {
 	private List<MovieListDto> featuredMovies = [];
-	private List<MovieListDto> allMovies = [];
 	private HashSet<int> wishlistIds = [];
 	private bool isLoading = true;
 	private bool isAuthenticated;
@@ -82,10 +67,8 @@ else
 		isAuthenticated = authState.User.Identity?.IsAuthenticated == true;
 
 		var featuredTask = MovieClient.GetFeaturedMoviesAsync();
-		var allTask = MovieClient.GetAllMoviesAsync();
 
 		featuredMovies = await featuredTask;
-		allMovies = await allTask;
 
 		if (isAuthenticated)
 		{
