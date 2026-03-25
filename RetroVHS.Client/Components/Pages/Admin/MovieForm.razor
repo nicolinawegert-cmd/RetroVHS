@@ -105,6 +105,31 @@
             </div>
 
             <div class="movie-form-field full-width">
+                <label>Genres</label>
+                <div class="genre-tag-list">
+                    @foreach (var g in allGenres)
+                    {
+                        var genre = g;
+                        <span class="genre-form-tag @(selectedGenreIds.Contains(genre.Id) ? "selected" : "")"
+                              @onclick="() => ToggleGenre(genre.Id)">
+                            @genre.Name
+                        </span>
+                    }
+                </div>
+                <div class="new-genre-row">
+                    <input type="text" @bind="newGenreName" @bind:event="oninput"
+                           placeholder="Ny genre..." style="flex:1;" />
+                    <button type="button" class="btn-add-row"
+                            @onclick="CreateGenreAsync"
+                            disabled="@(string.IsNullOrWhiteSpace(newGenreName))">
+                        + Lägg till genre
+                    </button>
+                </div>
+                @if (!string.IsNullOrEmpty(genreError))
+                { <span class="validation-message">@genreError</span> }
+            </div>
+
+            <div class="movie-form-field full-width">
                 <label>Produktionsbolag</label>
                 <div class="person-search-row">
                     <div class="person-row-inputs">
@@ -135,31 +160,6 @@
                 </div>
                 @if (!string.IsNullOrEmpty(companyError))
                 { <span class="validation-message">@companyError</span> }
-            </div>
-
-            <div class="movie-form-field full-width">
-                <label>Genres</label>
-                <div class="genre-tag-list">
-                    @foreach (var g in allGenres)
-                    {
-                        var genre = g;
-                        <span class="genre-form-tag @(selectedGenreIds.Contains(genre.Id) ? "selected" : "")"
-                              @onclick="() => ToggleGenre(genre.Id)">
-                            @genre.Name
-                        </span>
-                    }
-                </div>
-                <div class="new-genre-row">
-                    <input type="text" @bind="newGenreName" @bind:event="oninput"
-                           placeholder="Ny genre..." style="flex:1;" />
-                    <button type="button" class="btn-add-row"
-                            @onclick="CreateGenreAsync"
-                            disabled="@(string.IsNullOrWhiteSpace(newGenreName))">
-                        + Lägg till genre
-                    </button>
-                </div>
-                @if (!string.IsNullOrEmpty(genreError))
-                { <span class="validation-message">@genreError</span> }
             </div>
 
             <div class="movie-form-field full-width">
