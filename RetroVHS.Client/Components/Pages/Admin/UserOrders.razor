@@ -35,7 +35,7 @@
                         <p class="cart-item-price">@ren.PricePaid.ToString("0.00") kr</p>
                         <p style="color:#a0a0b0;font-size:0.82rem;">@ren.RentedAt.ToString("d MMM yyyy")</p>
                         <div style="margin-top:6px;">
-                            <span class="rental-status @GetStatusClass(ren.Status)">@GetStatusLabel(ren.Status)</span>
+                            <span class="rental-status @RentalStatusHelper.GetStatusClass(ren.Status)">@RentalStatusHelper.GetStatusLabel(ren.Status)</span>
                         </div>
 
                         @if (ren.Status == RentalStatus.Active)
@@ -83,6 +83,4 @@
         acting = false;
     }
 
-    private static string GetStatusClass(RentalStatus s) => RentalStatusHelper.GetStatusClass(s);
-    private static string GetStatusLabel(RentalStatus s) => RentalStatusHelper.GetStatusLabel(s);
 }

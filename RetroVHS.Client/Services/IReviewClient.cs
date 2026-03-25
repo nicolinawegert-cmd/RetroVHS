@@ -9,5 +9,4 @@ public interface IReviewClient
 {
     Task<ReviewDto?> CreateReviewAsync(CreateReviewDto dto);
     Task<ReviewDto?> UpdateReviewAsync(UpdateReviewDto dto);
-    Task<bool> DeleteReviewAsync(int reviewId);
 }

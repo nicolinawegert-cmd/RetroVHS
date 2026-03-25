@@ -4,6 +4,7 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @inject IMovieClient MovieClient
 @inject IReviewClient ReviewClient
+@inject IAdminClient AdminClient
 @inject ICartClient CartClient
 @inject IWishlistClient WishlistClient
 @inject CartState CartState
@@ -417,7 +418,7 @@ else
     private async Task ConfirmDeleteReview(int reviewId)
     {
         deletingReview = true;
-        var success = await ReviewClient.DeleteReviewAsync(reviewId);
+        var success = await AdminClient.DeleteReviewAsync(reviewId);
         if (success && movie is not null)
         {
             movie.Reviews.RemoveAll(r => r.Id == reviewId);

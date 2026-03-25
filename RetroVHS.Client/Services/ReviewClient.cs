@@ -35,9 +35,4 @@ public class ReviewClient : IReviewClient
         catch { return null; }
     }
 
-    public async Task<bool> DeleteReviewAsync(int reviewId)
-    {
-        try { return (await _httpClient.DeleteAsync($"api/admin/reviews/{reviewId}")).IsSuccessStatusCode; }
-        catch { return false; }
-    }
 }

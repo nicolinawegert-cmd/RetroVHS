@@ -58,7 +58,7 @@ public class JwtAuthStateProvider : AuthenticationStateProvider, IAppAuthStatePr
 
         identity.AddClaim(new Claim("firstName", user.FirstName));
         identity.AddClaim(new Claim("lastName", user.LastName));
-        if (!string.IsNullOrWhiteSpace(user.Nickname))
+        if (user.Nickname is not null)
             identity.AddClaim(new Claim("nickname", user.Nickname));
 
         NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());

@@ -4,6 +4,7 @@
 @using RetroVHS.Client.Helpers
 @inject IUserClient UserClient
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>Mina beställningar</PageTitle>
 
@@ -39,7 +40,7 @@
                                     Köpt @order.RentedAt.ToString("d MMM yyyy")
                                 </p>
                                 <div style="margin-top:6px;">
-                                    <span class="rental-status @GetStatusClass(order.Status)">@GetStatusLabel(order.Status)</span>
+                                    <span class="rental-status @RentalStatusHelper.GetStatusClass(order.Status)">@RentalStatusHelper.GetStatusLabel(order.Status)</span>
                                 </div>
 
                                 @if (order.Status == RentalStatus.Active)
@@ -111,7 +112,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        orders = await UserClient.GetMyOrdersAsync();
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity?.IsAuthenticated == true)
+            orders = await UserClient.GetMyOrdersAsync();
         isLoading = false;
     }
 
@@ -151,6 +154,4 @@
         acting = false;
     }
 
-    private static string GetStatusClass(RentalStatus s) => RentalStatusHelper.GetStatusClass(s);
-    private static string GetStatusLabel(RentalStatus s) => RentalStatusHelper.GetStatusLabel(s);
 }
