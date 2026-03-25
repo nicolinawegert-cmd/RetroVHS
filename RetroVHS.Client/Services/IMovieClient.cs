@@ -11,6 +11,8 @@ public interface IMovieClient
     Task<List<MovieListDto>> SearchMoviesAsync(string searchTerm);
     Task<List<MovieListDto>> GetFeaturedMoviesAsync();
     Task<List<MovieListDto>> GetAllMoviesAsync();
+    Task<List<MovieListDto>> GetTopRatedAsync();
+    Task<List<MovieListDto>> GetBestsellersAsync();
     Task<MovieDetailsDto?> GetMovieDetailsAsync(int id);
     Task<ReviewDto?> CreateReviewAsync(CreateReviewDto dto);
     Task<ReviewDto?> UpdateReviewAsync(UpdateReviewDto dto);

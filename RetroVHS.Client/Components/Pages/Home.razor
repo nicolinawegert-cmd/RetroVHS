@@ -10,10 +10,6 @@
 
 <PageTitle>RetroVHS</PageTitle>
 
-<div style="padding: 1rem 1.5rem 0;">
-    <a href="/movies" class="see-all-link">Se alla filmer →</a>
-</div>
-
 @if (isLoading)
 {
 	<div class="movie-section">
@@ -25,27 +21,50 @@
 }
 else
 {
-	@if (featuredMovies.Count > 0)
+	@if (topRated.Count > 0)
 	{
 		<div class="movie-section">
-			<h2 class="section-title">⭐ Utvalda filmer</h2>
+			<h2 class="section-title">⭐ Bästa Filmerna Topp 5</h2>
 			<div class="movie-grid">
-				@foreach (var movie in featuredMovies)
+				@foreach (var movie in topRated)
 				{
-								<MovieCard Movie="movie"
-										   ShowWishlist="isAuthenticated && !isAdmin"
-										   IsInWishlist="wishlistIds.Contains(movie.Id)"
-										   OnMovieSelected="GoToMovie"
-										   OnWishlistToggled="ToggleWishlist"
-										   OnAddToCart="AddToCart" />
-								}
-							</div>
-						</div>
-					}
+					<MovieCard Movie="movie"
+							   ShowWishlist="isAuthenticated && !isAdmin"
+							   IsInWishlist="wishlistIds.Contains(movie.Id)"
+							   OnMovieSelected="GoToMovie"
+							   OnWishlistToggled="ToggleWishlist"
+							   OnAddToCart="AddToCart" />
+				}
+			</div>
+		</div>
+	}
+
+	@if (bestsellers.Count > 0)
+	{
+		<div class="movie-section">
+			<h2 class="section-title">🏆 Bästsäljarna</h2>
+			<div class="movie-grid">
+				@foreach (var movie in bestsellers)
+				{
+					<MovieCard Movie="movie"
+							   ShowWishlist="isAuthenticated && !isAdmin"
+							   IsInWishlist="wishlistIds.Contains(movie.Id)"
+							   OnMovieSelected="GoToMovie"
+							   OnWishlistToggled="ToggleWishlist"
+							   OnAddToCart="AddToCart" />
+				}
+			</div>
+		</div>
+	}
+
+	<div style="padding: 0.5rem 1.5rem 1.5rem;">
+		<a href="/movies" class="see-all-link">Se alla filmer →</a>
+	</div>
 }
 
 @code {
-	private List<MovieListDto> featuredMovies = [];
+	private List<MovieListDto> topRated = [];
+	private List<MovieListDto> bestsellers = [];
 	private HashSet<int> wishlistIds = [];
 	private bool isLoading = true;
 	private bool isAuthenticated;
@@ -61,7 +80,6 @@ else
 	{
 		if (!firstRender || hasLoaded) return;
 		hasLoaded = true;
-
 		await LoadData();
 	}
 
@@ -71,9 +89,11 @@ else
 		isAuthenticated = authState.User.Identity?.IsAuthenticated == true;
 		isAdmin = authState.User.IsInRole("Admin");
 
-		var featuredTask = MovieClient.GetFeaturedMoviesAsync();
+		var topRatedTask = MovieClient.GetTopRatedAsync();
+		var bestsellersTask = MovieClient.GetBestsellersAsync();
 
-		featuredMovies = await featuredTask;
+		topRated = await topRatedTask;
+		bestsellers = await bestsellersTask;
 
 		if (isAuthenticated)
 		{

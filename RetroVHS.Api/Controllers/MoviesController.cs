@@ -21,6 +21,14 @@ public class MoviesController : ControllerBase
         _movieService = movieService;
     }
 
+    [HttpGet("top-rated")]
+    public async Task<ActionResult<List<MovieListDto>>> GetTopRated()
+        => Ok(await _movieService.GetTopRatedAsync());
+
+    [HttpGet("bestsellers")]
+    public async Task<ActionResult<List<MovieListDto>>> GetBestsellers()
+        => Ok(await _movieService.GetBestsellersAsync());
+
     /// <summary>
     /// Hämtar filmer från katalogen med stöd för sökning, filtrering och sortering.
     /// </summary>

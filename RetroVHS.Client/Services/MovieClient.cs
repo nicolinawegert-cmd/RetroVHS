@@ -57,6 +57,18 @@ public class MovieClient : IMovieClient
         }
     }
 
+    public async Task<List<MovieListDto>> GetTopRatedAsync()
+    {
+        try { return await _httpClient.GetFromJsonAsync<List<MovieListDto>>("api/movies/top-rated") ?? []; }
+        catch { return []; }
+    }
+
+    public async Task<List<MovieListDto>> GetBestsellersAsync()
+    {
+        try { return await _httpClient.GetFromJsonAsync<List<MovieListDto>>("api/movies/bestsellers") ?? []; }
+        catch { return []; }
+    }
+
     public async Task<MovieDetailsDto?> GetMovieDetailsAsync(int id)
     {
         try

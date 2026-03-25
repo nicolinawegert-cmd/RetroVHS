@@ -32,4 +32,14 @@ public interface IMovieService
   /// Tar bort en film från katalogen.
   /// </summary>
   Task<bool> DeleteMovieAsync(int id);
+
+  /// <summary>
+  /// Hämtar de fem filmer med högst genomsnittsbetyg.
+  /// </summary>
+  Task<List<MovieListDto>> GetTopRatedAsync();
+
+  /// <summary>
+  /// Hämtar de fem filmer som hyrts flest gånger.
+  /// </summary>
+  Task<List<MovieListDto>> GetBestsellersAsync();
 }
