@@ -546,6 +546,49 @@ a, .btn-link {
     text-overflow: ellipsis;
 }
 
+.movie-card-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.4rem;
+}
+
+.movie-card-price-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.movie-card-price {
+    font-size: 0.82rem;
+    color: #e0e0f0;
+    font-weight: 600;
+}
+
+.movie-card-cart-btn {
+    background: rgba(233, 69, 96, 0.15);
+    border: 1px solid rgba(233, 69, 96, 0.4);
+    border-radius: 4px;
+    color: #e94560;
+    font-size: 0.95rem;
+    cursor: pointer;
+    padding: 2px 6px;
+    line-height: 1;
+    transition: background 0.2s, color 0.2s;
+}
+
+.movie-card-cart-btn:hover:not(:disabled) {
+    background: #e94560;
+    color: #fff;
+}
+
+.movie-card-cart-btn.cart-added {
+    background: rgba(80, 200, 120, 0.15);
+    border-color: #50c878;
+    color: #50c878;
+    cursor: default;
+}
+
 .section-title {
     color: #fff;
     font-size: 1.5rem;
@@ -1468,13 +1511,15 @@ h1:focus {
 .movie-list-actions a:hover { color: #e94560; }
 .see-all-link {
     display: inline-block;
-    color: #e94560;
-    font-size: 0.9rem;
+    color: #ffffff;
+    font-size: 1.1rem;
     text-decoration: none;
     margin-bottom: 1rem;
-    font-weight: 500;
+    font-weight: 700;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 2px 6px rgba(0,0,0,0.8);
+    letter-spacing: 0.02em;
 }
-.see-all-link:hover { text-decoration: underline; }
+.see-all-link:hover { color: #e94560; text-decoration: underline; }
 
 /* ── Movie form (admin) ───────────────────────────────── */
 .movie-form-page {

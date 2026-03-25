@@ -2359,5 +2359,76 @@ public static class DbSeeder
 
             await context.SaveChangesAsync();
         }
+
+        // =========================
+        // Seed: Rentals (beställningar)
+        // =========================
+        if (!await context.Rentals.AnyAsync())
+        {
+            var anna    = createdUserIds.GetValueOrDefault("anna.lindstrom@retrovhs.se");
+            var erik    = createdUserIds.GetValueOrDefault("erik.johansson@retrovhs.se");
+            var maria   = createdUserIds.GetValueOrDefault("maria.karlsson@retrovhs.se");
+            var oscar   = createdUserIds.GetValueOrDefault("oscar.nilsson@retrovhs.se");
+            var lisa    = createdUserIds.GetValueOrDefault("lisa.andersson@retrovhs.se");
+            var fredrik = createdUserIds.GetValueOrDefault("fredrik.berg@retrovhs.se");
+            var sofia   = createdUserIds.GetValueOrDefault("sofia.ekstrom@retrovhs.se");
+            var viktor  = createdUserIds.GetValueOrDefault("viktor.larsson@retrovhs.se");
+            var emma    = createdUserIds.GetValueOrDefault("emma.svensson@retrovhs.se");
+            var jakob   = createdUserIds.GetValueOrDefault("jakob.pettersson@retrovhs.se");
+            var adam    = createdUserIds.GetValueOrDefault("adam.gustafsson@retrovhs.se");
+            var nils    = createdUserIds.GetValueOrDefault("nils.lundberg@retrovhs.se");
+            var simon   = createdUserIds.GetValueOrDefault("simon.fransson@retrovhs.se");
+            var david   = createdUserIds.GetValueOrDefault("david.sjoberg@retrovhs.se");
+            var lukas   = createdUserIds.GetValueOrDefault("lukas.blom@retrovhs.se");
+
+            var seedRentals = new List<Rental>
+            {
+                // === Beställningar under leverans (Active) ===
+                new Rental { UserId = anna,   MovieId = avatar.Id,       PricePaid = 49, Status = RentalStatus.Active,    RentedAt = DateTime.UtcNow.AddDays(-2),  ExpiresAt = DateTime.UtcNow.AddDays(5)  },
+                new Rental { UserId = erik,   MovieId = darkknight.Id,   PricePaid = 49, Status = RentalStatus.Active,    RentedAt = DateTime.UtcNow.AddDays(-1),  ExpiresAt = DateTime.UtcNow.AddDays(6)  },
+                new Rental { UserId = maria,  MovieId = inception.Id,    PricePaid = 49, Status = RentalStatus.Active,    RentedAt = DateTime.UtcNow.AddDays(-3),  ExpiresAt = DateTime.UtcNow.AddDays(4)  },
+                new Rental { UserId = oscar,  MovieId = pulp.Id,         PricePaid = 45, Status = RentalStatus.Active,    RentedAt = DateTime.UtcNow.AddDays(-1),  ExpiresAt = DateTime.UtcNow.AddDays(6)  },
+                new Rental { UserId = sofia,  MovieId = godfather.Id,    PricePaid = 49, Status = RentalStatus.Active,    RentedAt = DateTime.UtcNow.AddDays(-2),  ExpiresAt = DateTime.UtcNow.AddDays(5)  },
+                new Rental { UserId = viktor, MovieId = interstellar.Id, PricePaid = 49, Status = RentalStatus.Active,    RentedAt = DateTime.UtcNow.AddDays(-4),  ExpiresAt = DateTime.UtcNow.AddDays(3)  },
+                new Rental { UserId = emma,   MovieId = matrix.Id,       PricePaid = 45, Status = RentalStatus.Active,    RentedAt = DateTime.UtcNow.AddDays(-1),  ExpiresAt = DateTime.UtcNow.AddDays(6)  },
+                new Rental { UserId = jakob,  MovieId = goodfellas.Id,   PricePaid = 42, Status = RentalStatus.Active,    RentedAt = DateTime.UtcNow.AddDays(-3),  ExpiresAt = DateTime.UtcNow.AddDays(4)  },
+
+                // === Levererade beställningar (Completed) ===
+                new Rental { UserId = anna,    MovieId = shawshank.Id,       PricePaid = 45, Status = RentalStatus.Completed, RentedAt = DateTime.UtcNow.AddDays(-30), ExpiresAt = DateTime.UtcNow.AddDays(-23) },
+                new Rental { UserId = anna,    MovieId = fightclub.Id,       PricePaid = 42, Status = RentalStatus.Completed, RentedAt = DateTime.UtcNow.AddDays(-60), ExpiresAt = DateTime.UtcNow.AddDays(-53) },
+                new Rental { UserId = erik,    MovieId = terminator2.Id,     PricePaid = 45, Status = RentalStatus.Completed, RentedAt = DateTime.UtcNow.AddDays(-25), ExpiresAt = DateTime.UtcNow.AddDays(-18) },
+                new Rental { UserId = erik,    MovieId = alien.Id,           PricePaid = 39, Status = RentalStatus.Completed, RentedAt = DateTime.UtcNow.AddDays(-50), ExpiresAt = DateTime.UtcNow.AddDays(-43) },
+                new Rental { UserId = maria,   MovieId = forrestgump.Id,     PricePaid = 42, Status = RentalStatus.Completed, RentedAt = DateTime.UtcNow.AddDays(-20), ExpiresAt = DateTime.UtcNow.AddDays(-13) },
+                new Rental { UserId = maria,   MovieId = titanic.Id,         PricePaid = 45, Status = RentalStatus.Completed, RentedAt = DateTime.UtcNow.AddDays(-45), ExpiresAt = DateTime.UtcNow.AddDays(-38) },
+                new Rental { UserId = oscar,   MovieId = scarface.Id,        PricePaid = 39, Status = RentalStatus.Completed, RentedAt = DateTime.UtcNow.AddDays(-35), ExpiresAt = DateTime.UtcNow.AddDays(-28) },
+                new Rental { UserId = oscar,   MovieId = blood.Id,           PricePaid = 39, Status = RentalStatus.Completed, RentedAt = DateTime.UtcNow.AddDays(-55), ExpiresAt = DateTime.UtcNow.AddDays(-48) },
+                new Rental { UserId = lisa,    MovieId = schindlerslist.Id,  PricePaid = 45, Status = RentalStatus.Completed, RentedAt = DateTime.UtcNow.AddDays(-15), ExpiresAt = DateTime.UtcNow.AddDays(-8)  },
+                new Rental { UserId = lisa,    MovieId = braveheart.Id,      PricePaid = 45, Status = RentalStatus.Completed, RentedAt = DateTime.UtcNow.AddDays(-40), ExpiresAt = DateTime.UtcNow.AddDays(-33) },
+                new Rental { UserId = fredrik, MovieId = gladiator.Id,       PricePaid = 45, Status = RentalStatus.Completed, RentedAt = DateTime.UtcNow.AddDays(-22), ExpiresAt = DateTime.UtcNow.AddDays(-15) },
+                new Rental { UserId = fredrik, MovieId = diehard.Id,         PricePaid = 39, Status = RentalStatus.Completed, RentedAt = DateTime.UtcNow.AddDays(-48), ExpiresAt = DateTime.UtcNow.AddDays(-41) },
+                new Rental { UserId = sofia,   MovieId = jurassicpark.Id,    PricePaid = 45, Status = RentalStatus.Completed, RentedAt = DateTime.UtcNow.AddDays(-18), ExpiresAt = DateTime.UtcNow.AddDays(-11) },
+                new Rental { UserId = viktor,  MovieId = se7en.Id,           PricePaid = 42, Status = RentalStatus.Completed, RentedAt = DateTime.UtcNow.AddDays(-28), ExpiresAt = DateTime.UtcNow.AddDays(-21) },
+                new Rental { UserId = emma,    MovieId = savingprivateryan.Id, PricePaid = 45, Status = RentalStatus.Completed, RentedAt = DateTime.UtcNow.AddDays(-33), ExpiresAt = DateTime.UtcNow.AddDays(-26) },
+                new Rental { UserId = jakob,   MovieId = indianajones.Id,    PricePaid = 42, Status = RentalStatus.Completed, RentedAt = DateTime.UtcNow.AddDays(-42), ExpiresAt = DateTime.UtcNow.AddDays(-35) },
+                new Rental { UserId = adam,    MovieId = nocountry.Id,       PricePaid = 42, Status = RentalStatus.Completed, RentedAt = DateTime.UtcNow.AddDays(-27), ExpiresAt = DateTime.UtcNow.AddDays(-20) },
+                new Rental { UserId = nils,    MovieId = taxidriver.Id,      PricePaid = 39, Status = RentalStatus.Completed, RentedAt = DateTime.UtcNow.AddDays(-38), ExpiresAt = DateTime.UtcNow.AddDays(-31) },
+                new Rental { UserId = simon,   MovieId = shining.Id,         PricePaid = 42, Status = RentalStatus.Completed, RentedAt = DateTime.UtcNow.AddDays(-52), ExpiresAt = DateTime.UtcNow.AddDays(-45) },
+                new Rental { UserId = david,   MovieId = heat.Id,            PricePaid = 42, Status = RentalStatus.Completed, RentedAt = DateTime.UtcNow.AddDays(-19), ExpiresAt = DateTime.UtcNow.AddDays(-12) },
+                new Rental { UserId = lukas,   MovieId = rocky.Id,           PricePaid = 42, Status = RentalStatus.Completed, RentedAt = DateTime.UtcNow.AddDays(-44), ExpiresAt = DateTime.UtcNow.AddDays(-37) },
+
+                // === Avbrutna beställningar (Cancelled) ===
+                new Rental { UserId = anna,    MovieId = predator.Id,    PricePaid = 39, Status = RentalStatus.Cancelled, RentedAt = DateTime.UtcNow.AddDays(-10), ExpiresAt = DateTime.UtcNow.AddDays(-3)  },
+                new Rental { UserId = erik,    MovieId = expendables.Id, PricePaid = 39, Status = RentalStatus.Cancelled, RentedAt = DateTime.UtcNow.AddDays(-14), ExpiresAt = DateTime.UtcNow.AddDays(-7)  },
+                new Rental { UserId = maria,   MovieId = cliffhanger.Id, PricePaid = 39, Status = RentalStatus.Cancelled, RentedAt = DateTime.UtcNow.AddDays(-8),  ExpiresAt = DateTime.UtcNow.AddDays(-1)  },
+                new Rental { UserId = oscar,   MovieId = themask.Id,     PricePaid = 35, Status = RentalStatus.Cancelled, RentedAt = DateTime.UtcNow.AddDays(-12), ExpiresAt = DateTime.UtcNow.AddDays(-5)  },
+                new Rental { UserId = lisa,    MovieId = bloodsport.Id,  PricePaid = 35, Status = RentalStatus.Cancelled, RentedAt = DateTime.UtcNow.AddDays(-7),  ExpiresAt = DateTime.UtcNow.AddDays(0)   },
+                new Rental { UserId = fredrik, MovieId = robocop.Id,     PricePaid = 39, Status = RentalStatus.Cancelled, RentedAt = DateTime.UtcNow.AddDays(-9),  ExpiresAt = DateTime.UtcNow.AddDays(-2)  },
+                new Rental { UserId = sofia,   MovieId = halloween.Id,   PricePaid = 35, Status = RentalStatus.Cancelled, RentedAt = DateTime.UtcNow.AddDays(-16), ExpiresAt = DateTime.UtcNow.AddDays(-9)  },
+                new Rental { UserId = adam,    MovieId = casino.Id,      PricePaid = 42, Status = RentalStatus.Cancelled, RentedAt = DateTime.UtcNow.AddDays(-11), ExpiresAt = DateTime.UtcNow.AddDays(-4)  },
+            };
+
+            context.Rentals.AddRange(seedRentals);
+            await context.SaveChangesAsync();
+        }
     }
 }

@@ -1,7 +1,9 @@
-﻿@page "/"
+@page "/"
 @using RetroVHS.Shared.DTOs.Movies
 @inject IMovieClient MovieClient
 @inject IWishlistClient WishlistClient
+@inject ICartClient CartClient
+@inject CartState CartState
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthStateProvider
 @implements IDisposable
@@ -31,10 +33,11 @@ else
 				@foreach (var movie in featuredMovies)
 				{
 								<MovieCard Movie="movie"
-											   ShowWishlist="isAuthenticated"
-											   IsInWishlist="wishlistIds.Contains(movie.Id)"
-											   OnMovieSelected="GoToMovie"
-											   OnWishlistToggled="ToggleWishlist" />
+										   ShowWishlist="isAuthenticated"
+										   IsInWishlist="wishlistIds.Contains(movie.Id)"
+										   OnMovieSelected="GoToMovie"
+										   OnWishlistToggled="ToggleWishlist"
+										   OnAddToCart="AddToCart" />
 								}
 							</div>
 						</div>
@@ -100,6 +103,15 @@ else
 		{
 			var success = await WishlistClient.AddToWishlistAsync(movieId);
 			if (success) wishlistIds.Add(movieId);
+		}
+	}
+
+	private async Task AddToCart(int movieId)
+	{
+		var result = await CartClient.AddToCartAsync(movieId);
+		if (result is not null)
+		{
+			CartState.SetCount(result.Items.Count);
 		}
 	}
 

@@ -23,20 +23,26 @@
                 </div>
             }
         </div>
-        @if (Movie.Genres.Count > 0)
-        {
-            <div class="movie-card-genres">
-                @string.Join(" · ", Movie.Genres)
-            </div>
-        }
         @if (ShowWishlist)
         {
-            <button class="movie-card-wishlist @(IsInWishlist ? "wishlisted" : "")"
-                    @onclick="ToggleWishlist"
-                    @onclick:stopPropagation="true"
-                    title="@(IsInWishlist ? "Ta bort från önskelista" : "Lägg till i önskelista")">
-                @(IsInWishlist ? "❤️" : "🤍")
-            </button>
+            <div class="movie-card-bottom">
+                <div class="movie-card-price-row">
+                    <button class="movie-card-cart-btn @(cartAdded ? "cart-added" : "")"
+                            @onclick="AddToCartClick"
+                            @onclick:stopPropagation="true"
+                            title="Lägg i varukorg"
+                            disabled="@cartAdded">
+                        @(cartAdded ? "✓" : "🛒")
+                    </button>
+                    <span class="movie-card-price">@Movie.RentalPrice.ToString("0") kr</span>
+                </div>
+                <button class="movie-card-wishlist @(IsInWishlist ? "wishlisted" : "")"
+                        @onclick="ToggleWishlist"
+                        @onclick:stopPropagation="true"
+                        title="@(IsInWishlist ? "Ta bort från önskelista" : "Lägg till i önskelista")">
+                    @(IsInWishlist ? "❤️" : "🤍")
+                </button>
+            </div>
         }
     </div>
 </div>
@@ -57,6 +63,11 @@
     [Parameter]
     public EventCallback<int> OnWishlistToggled { get; set; }
 
+    [Parameter]
+    public EventCallback<int> OnAddToCart { get; set; }
+
+    private bool cartAdded;
+
     private async Task OnClick()
     {
         if (OnMovieSelected.HasDelegate)
@@ -70,6 +81,15 @@
         if (OnWishlistToggled.HasDelegate)
         {
             await OnWishlistToggled.InvokeAsync(Movie.Id);
+        }
+    }
+
+    private async Task AddToCartClick()
+    {
+        if (OnAddToCart.HasDelegate)
+        {
+            await OnAddToCart.InvokeAsync(Movie.Id);
+            cartAdded = true;
         }
     }
 }
