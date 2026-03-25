@@ -1306,3 +1306,239 @@ h1:focus {
     right: 0.75rem;
     top: 0.5rem;
 }
+
+/* ── Rental status badges ─────────────────────────────── */
+.rental-status {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+.status-active    { background: rgba(233,69,96,0.15); color: #e94560; border: 1px solid #e94560; }
+.status-completed { background: rgba(80,200,120,0.12); color: #50c878; border: 1px solid #50c878; }
+.status-cancelled { background: rgba(160,160,176,0.12); color: #a0a0b0; border: 1px solid #a0a0b0; }
+.status-expired   { background: rgba(160,160,176,0.12); color: #a0a0b0; border: 1px solid #a0a0b0; }
+
+/* ── Inline confirmation ──────────────────────────────── */
+.confirm-inline {
+    margin-top: 0.5rem;
+    padding: 0.6rem 0.8rem;
+    background: rgba(233,69,96,0.08);
+    border: 1px solid rgba(233,69,96,0.3);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+.confirm-inline p {
+    margin: 0;
+    color: #c0c0d0;
+    font-size: 0.9rem;
+    flex: 1 1 100%;
+}
+.confirm-inline .btn-confirm-yes {
+    background: #e94560;
+    color: #fff;
+    border: none;
+    padding: 5px 14px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+.confirm-inline .btn-confirm-yes:hover { background: #c73652; }
+.confirm-inline .btn-confirm-cancel {
+    background: transparent;
+    color: #a0a0b0;
+    border: 1px solid #a0a0b0;
+    padding: 5px 14px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+.confirm-inline .btn-confirm-cancel:hover { color: #e0e0f0; border-color: #e0e0f0; }
+
+/* ── Admin pages ──────────────────────────────────────── */
+.admin-page { padding: 2rem 1.5rem; max-width: 1100px; margin: 0 auto; }
+.admin-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0 2rem;
+}
+.admin-stat-card {
+    background: #16213e;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 8px;
+    padding: 1.2rem 1rem;
+    text-align: center;
+}
+.admin-stat-value { font-size: 2rem; font-weight: 700; color: #e94560; }
+.admin-stat-label { font-size: 0.8rem; color: #a0a0b0; margin-top: 0.25rem; }
+.admin-nav-links { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; }
+.admin-nav-links a {
+    background: #16213e;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #e0e0f0;
+    padding: 0.5rem 1.2rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+}
+.admin-nav-links a:hover { border-color: #e94560; color: #e94560; }
+
+.admin-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.admin-table th {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    color: #a0a0b0;
+    font-weight: 600;
+}
+.admin-table td {
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    vertical-align: middle;
+}
+.admin-table tr:hover td { background: rgba(255,255,255,0.02); }
+.admin-table .action-links { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+.admin-table .action-links a { color: #a0c4ff; font-size: 0.82rem; text-decoration: none; }
+.admin-table .action-links a:hover { color: #e94560; }
+
+.admin-back-link { display: inline-block; color: #a0a0b0; font-size: 0.85rem; margin-bottom: 1.2rem; text-decoration: none; }
+.admin-back-link:hover { color: #e94560; }
+.admin-user-info { background: #16213e; border-radius: 8px; padding: 1.2rem 1.5rem; margin-bottom: 1.5rem; }
+.admin-user-info p { margin: 0.3rem 0; color: #c0c0d0; font-size: 0.9rem; }
+.admin-user-info strong { color: #e0e0f0; }
+.admin-actions { display: flex; flex-direction: column; gap: 0.5rem; max-width: 400px; }
+
+/* ── Movie list page ──────────────────────────────────── */
+.movies-page { padding: 2rem 1.5rem; max-width: 900px; margin: 0 auto; }
+.movies-controls {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+.movies-controls select {
+    background: #16213e;
+    color: #e0e0f0;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 6px;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+}
+.movies-list { display: flex; flex-direction: column; gap: 0; }
+.movie-list-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    text-decoration: none;
+    color: inherit;
+}
+.movie-list-row:hover .movie-list-title { color: #e94560; }
+.movie-list-title { font-size: 1rem; font-weight: 600; color: #e0e0f0; flex: 1; }
+.movie-list-year { color: #a0a0b0; font-size: 0.85rem; min-width: 3.5rem; }
+.movie-list-rating { color: #f5c518; font-size: 0.85rem; min-width: 6rem; }
+.movie-list-rating.no-rating { color: #606070; }
+.movie-list-actions { display: flex; gap: 0.5rem; margin-left: auto; }
+.movie-list-actions a { font-size: 0.82rem; color: #a0c4ff; text-decoration: none; }
+.movie-list-actions a:hover { color: #e94560; }
+.see-all-link {
+    display: inline-block;
+    color: #e94560;
+    font-size: 0.9rem;
+    text-decoration: none;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+.see-all-link:hover { text-decoration: underline; }
+
+/* ── Movie form (admin) ───────────────────────────────── */
+.movie-form-page { padding: 2rem 1.5rem; max-width: 800px; margin: 0 auto; }
+.movie-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.movie-form-grid .full-width { grid-column: 1 / -1; }
+.movie-form-field { display: flex; flex-direction: column; gap: 0.3rem; }
+.movie-form-field label { font-size: 0.85rem; color: #a0a0b0; font-weight: 500; }
+.movie-form-field input,
+.movie-form-field select,
+.movie-form-field textarea {
+    background: #16213e;
+    color: #e0e0f0;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 6px;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.9rem;
+}
+.movie-form-field input:focus,
+.movie-form-field select:focus,
+.movie-form-field textarea:focus {
+    outline: none;
+    border-color: #e94560;
+}
+.movie-form-field .validation-message { color: #e94560; font-size: 0.8rem; }
+
+.genre-tag-list { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.3rem; }
+.genre-tag {
+    background: rgba(233,69,96,0.15);
+    border: 1px solid rgba(233,69,96,0.4);
+    color: #e94560;
+    border-radius: 12px;
+    padding: 2px 10px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.genre-tag.selected { background: #e94560; color: #fff; }
+.genre-tag:hover { background: rgba(233,69,96,0.3); }
+.genre-tag.selected:hover { background: #c73652; }
+
+.person-search-row { display: flex; flex-direction: column; gap: 0.3rem; position: relative; margin-bottom: 0.5rem; }
+.person-search-row .person-row-inputs { display: flex; gap: 0.5rem; align-items: flex-start; }
+.person-search-result-dropdown {
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 0;
+    right: 0;
+    background: #16213e;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 6px;
+    z-index: 100;
+    max-height: 160px;
+    overflow-y: auto;
+}
+.person-result-item {
+    padding: 0.4rem 0.75rem;
+    cursor: pointer;
+    font-size: 0.88rem;
+    color: #e0e0f0;
+}
+.person-result-item:hover { background: rgba(233,69,96,0.1); color: #e94560; }
+.btn-add-row {
+    background: transparent;
+    border: 1px dashed rgba(255,255,255,0.2);
+    color: #a0a0b0;
+    border-radius: 6px;
+    padding: 0.35rem 1rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+    margin-top: 0.25rem;
+}
+.btn-add-row:hover { border-color: #e94560; color: #e94560; }
+.btn-remove-row {
+    background: transparent;
+    border: none;
+    color: #606070;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0 0.4rem;
+    line-height: 1;
+}
+.btn-remove-row:hover { color: #e94560; }
