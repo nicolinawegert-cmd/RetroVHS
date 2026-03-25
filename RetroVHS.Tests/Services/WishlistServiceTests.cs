@@ -21,7 +21,7 @@ namespace RetroVHS.Tests.Services
         {
 
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                    .UseInMemoryDatabase(databaseName: "TestDb")
+                    .UseInMemoryDatabase(databaseName: "WishlistTestDb")
                     .Options;
             _context = new ApplicationDbContext(options);
             _wishlistService = new WishlistService(_context);
