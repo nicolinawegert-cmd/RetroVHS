@@ -549,45 +549,40 @@ a, .btn-link {
 .movie-card-bottom {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 0.3rem;
     margin-top: 0.4rem;
-}
-
-.movie-card-price-row {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
 }
 
 .movie-card-price {
     font-size: 0.82rem;
     color: #e0e0f0;
     font-weight: 600;
+    margin-left: auto;
 }
 
 .movie-card-cart-btn {
-    background: rgba(233, 69, 96, 0.15);
-    border: 1px solid rgba(233, 69, 96, 0.4);
-    border-radius: 4px;
-    color: #e94560;
-    font-size: 0.95rem;
+    background: none;
+    border: none;
+    color: #e0e0f0;
+    font-size: 1.2rem;
     cursor: pointer;
-    padding: 2px 6px;
+    padding: 0 2px;
     line-height: 1;
-    transition: background 0.2s, color 0.2s;
+    transition: transform 0.15s, color 0.15s;
+    outline: none;
 }
 
 .movie-card-cart-btn:hover:not(:disabled) {
-    background: #e94560;
-    color: #fff;
+    transform: scale(1.2);
+    color: #e94560;
 }
 
 .movie-card-cart-btn.cart-added {
-    background: rgba(80, 200, 120, 0.15);
-    border-color: #50c878;
     color: #50c878;
     cursor: default;
 }
+
+.movie-card-cart-btn:focus { outline: none; }
 
 .section-title {
     color: #fff;

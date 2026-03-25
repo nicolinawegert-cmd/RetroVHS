@@ -5,6 +5,7 @@
 @inject IMovieClient MovieClient
 @inject ICartClient CartClient
 @inject IWishlistClient WishlistClient
+@inject IAdminClient AdminClient
 @inject CartState CartState
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthStateProvider
@@ -277,6 +278,25 @@ else
                                 <span class="review-stars">@(new string('★', review.Rating))@(new string('☆', 5 - review.Rating))</span>
                                 <span class="review-rating-label">@review.Rating / 5</span>
                                 <span class="review-date">@review.CreatedAt.ToString("d MMM yyyy")</span>
+                                @if (isAdmin)
+                                {
+                                    var rid = review.Id;
+                                    @if (deletingReviewId == rid)
+                                    {
+                                        <span style="margin-left:auto; display:flex; align-items:center; gap:0.4rem;">
+                                            <button class="btn-confirm-yes" style="font-size:0.75rem;padding:3px 10px;" @onclick="() => ConfirmDeleteReview(rid)" disabled="@deletingReview">
+                                                @(deletingReview ? "..." : "Ja, ta bort")
+                                            </button>
+                                            <button class="btn-confirm-cancel" style="font-size:0.75rem;padding:3px 8px;" @onclick="CancelDeleteReview" disabled="@deletingReview">Avbryt</button>
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <button class="admin-back-link" style="margin-left:auto;font-size:0.75rem;padding:2px 8px;border:1px solid rgba(233,69,96,0.4);border-radius:4px;cursor:pointer;background:none;" @onclick="() => deletingReviewId = rid">
+                                            Ta bort
+                                        </button>
+                                    }
+                                }
                             </div>
                             <p class="review-comment">@review.Comment</p>
                         </div>
@@ -314,6 +334,10 @@ else
 
     private bool isInWishlist;
     private bool togglingWishlist;
+
+    private bool isAdmin;
+    private int? deletingReviewId;
+    private bool deletingReview;
 
     private async Task AddToCart()
     {
@@ -361,6 +385,7 @@ else
         if (movie is not null)
         {
             var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            isAdmin = authState.User.IsInRole("Admin");
             var idClaim = authState.User.FindFirst("nameid")?.Value
                 ?? authState.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
                 ?? authState.User.FindFirst("sub")?.Value;
@@ -377,6 +402,23 @@ else
                 isInWishlist = wishlist.Any(w => w.MovieId == movie.Id);
             }
         }
+    }
+
+    private void CancelDeleteReview()
+    {
+        deletingReviewId = null;
+    }
+
+    private async Task ConfirmDeleteReview(int reviewId)
+    {
+        deletingReview = true;
+        var success = await AdminClient.DeleteReviewAsync(reviewId);
+        if (success && movie is not null)
+        {
+            movie.Reviews.RemoveAll(r => r.Id == reviewId);
+        }
+        deletingReviewId = null;
+        deletingReview = false;
     }
 
     private void StartEditing()

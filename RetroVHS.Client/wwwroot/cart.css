@@ -166,6 +166,7 @@
 .btn-wishlist {
     background: none;
     border: none;
+    outline: none;
     font-size: 1.4rem;
     cursor: pointer;
     display: flex;
@@ -175,10 +176,10 @@
     padding: 0;
 }
 
-.btn-wishlist:hover {
-    transform: scale(1.15);
-    background-color: rgba(233, 69, 96, 0.15);
-}
+.btn-wishlist:hover { transform: scale(1.15); }
+.btn-wishlist:focus,
+.btn-wishlist:focus-visible,
+.btn-wishlist:active { outline: none; box-shadow: none; }
 
 .wishlist-poster {
     width: 60px;

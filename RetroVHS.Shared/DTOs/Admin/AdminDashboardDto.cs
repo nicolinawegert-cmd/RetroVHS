@@ -26,9 +26,14 @@ public class AdminDashboardDto
     public int ActiveRentals { get; set; }
 
     /// <summary>
-    /// Totalt antal uthyrningar
+    /// Antal levererade beställningar (Completed)
     /// </summary>
     public int TotalRentals { get; set; }
+
+    /// <summary>
+    /// Antal avbrutna beställningar (Cancelled)
+    /// </summary>
+    public int CancelledRentals { get; set; }
 
     /// <summary>
     /// Totalt antal recensioner

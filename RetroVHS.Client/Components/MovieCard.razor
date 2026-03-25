@@ -26,22 +26,20 @@
         @if (ShowWishlist)
         {
             <div class="movie-card-bottom">
-                <div class="movie-card-price-row">
-                    <button class="movie-card-cart-btn @(cartAdded ? "cart-added" : "")"
-                            @onclick="AddToCartClick"
-                            @onclick:stopPropagation="true"
-                            title="Lägg i varukorg"
-                            disabled="@cartAdded">
-                        @(cartAdded ? "✓" : "🛒")
-                    </button>
-                    <span class="movie-card-price">@Movie.RentalPrice.ToString("0") kr</span>
-                </div>
                 <button class="movie-card-wishlist @(IsInWishlist ? "wishlisted" : "")"
                         @onclick="ToggleWishlist"
                         @onclick:stopPropagation="true"
                         title="@(IsInWishlist ? "Ta bort från önskelista" : "Lägg till i önskelista")">
                     @(IsInWishlist ? "❤️" : "🤍")
                 </button>
+                <button class="movie-card-cart-btn @(cartAdded ? "cart-added" : "")"
+                        @onclick="AddToCartClick"
+                        @onclick:stopPropagation="true"
+                        title="Lägg i varukorg"
+                        disabled="@cartAdded">
+                    @(cartAdded ? "✓" : "🛒")
+                </button>
+                <span class="movie-card-price">@Movie.RentalPrice.ToString("0") kr</span>
             </div>
         }
     </div>
