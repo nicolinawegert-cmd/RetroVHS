@@ -1,0 +1,102 @@
+@page "/admin/users/{UserId:int}/orders"
+@attribute [Authorize(Roles = "Admin")]
+@using RetroVHS.Shared.DTOs.Rentals
+@using RetroVHS.Shared.Enums
+@using Microsoft.AspNetCore.Authorization
+@inject IAdminClient AdminClient
+
+<PageTitle>Admin — Beställningar</PageTitle>
+
+<div class="admin-page">
+    <a href="/admin/users/@UserId" class="admin-back-link">← Användarprofil</a>
+    <h1 class="section-title">Beställningar</h1>
+
+    @if (isLoading)
+    {
+        <div class="loading-spinner">
+            <div class="spinner-border" role="status" style="color:#e94560;width:2.5rem;height:2.5rem;"></div>
+            <p>Laddar beställningar...</p>
+        </div>
+    }
+    else if (rentals.Count == 0)
+    {
+        <p style="color:#a0a0b0;">Inga beställningar hittades.</p>
+    }
+    else
+    {
+        <div class="cart-items">
+            @foreach (var rental in rentals)
+            {
+                var ren = rental;
+                <div class="cart-item">
+                    <div class="cart-item-info">
+                        <h3>@ren.Title</h3>
+                        <p class="cart-item-price">@ren.PricePaid.ToString("0.00") kr</p>
+                        <p style="color:#a0a0b0;font-size:0.82rem;">@ren.RentedAt.ToString("d MMM yyyy")</p>
+                        <div style="margin-top:6px;">
+                            <span class="rental-status @GetStatusClass(ren.Status)">@GetStatusLabel(ren.Status)</span>
+                        </div>
+
+                        @if (ren.Status == RentalStatus.Active)
+                        {
+                            @if (confirmCancelId == ren.Id)
+                            {
+                                <div class="confirm-inline">
+                                    <p>Avbryt denna beställning?</p>
+                                    <button class="btn-confirm-yes" @onclick="() => CancelRentalAsync(ren)" disabled="@acting">@(acting ? "..." : "Ja, avbryt")</button>
+                                    <button class="btn-confirm-cancel" @onclick="() => confirmCancelId = null" disabled="@acting">Nej</button>
+                                </div>
+                            }
+                            else
+                            {
+                                <button class="btn-remove" style="font-size:0.82rem;padding:5px 12px;margin-top:0.5rem;"
+                                        @onclick="() => confirmCancelId = ren.Id">Avbryt beställning</button>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int UserId { get; set; }
+    private List<RentalDto> rentals = [];
+    private bool isLoading = true;
+    private int? confirmCancelId;
+    private bool acting;
+
+    protected override async Task OnInitializedAsync()
+    {
+        rentals = await AdminClient.GetUserRentalsAsync(UserId);
+        isLoading = false;
+    }
+
+    private async Task CancelRentalAsync(RentalDto rental)
+    {
+        acting = true;
+        var ok = await AdminClient.CancelRentalAsync(rental.Id);
+        if (ok) rental.Status = RentalStatus.Cancelled;
+        confirmCancelId = null;
+        acting = false;
+    }
+
+    private static string GetStatusClass(RentalStatus s) => s switch
+    {
+        RentalStatus.Active    => "status-active",
+        RentalStatus.Completed => "status-completed",
+        RentalStatus.Cancelled => "status-cancelled",
+        RentalStatus.Expired   => "status-expired",
+        _ => ""
+    };
+
+    private static string GetStatusLabel(RentalStatus s) => s switch
+    {
+        RentalStatus.Active    => "Aktiv",
+        RentalStatus.Completed => "Levererad",
+        RentalStatus.Cancelled => "Avbruten",
+        RentalStatus.Expired   => "Utgången",
+        _ => s.ToString()
+    };
+}
