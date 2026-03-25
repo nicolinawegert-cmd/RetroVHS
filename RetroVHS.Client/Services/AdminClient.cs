@@ -156,4 +156,24 @@ public class AdminClient : IAdminClient
         try { return await _http.GetFromJsonAsync<List<ProductionCompanyDto>>("api/production-companies") ?? []; }
         catch { return []; }
     }
+
+    public async Task<GenreDto?> CreateGenreAsync(string name)
+    {
+        try
+        {
+            var r = await _http.PostAsJsonAsync("api/genres", new CreateGenreDto { Name = name });
+            return r.IsSuccessStatusCode ? await r.Content.ReadFromJsonAsync<GenreDto>() : null;
+        }
+        catch { return null; }
+    }
+
+    public async Task<ProductionCompanyDto?> CreateProductionCompanyAsync(string name)
+    {
+        try
+        {
+            var r = await _http.PostAsJsonAsync("api/production-companies", new CreateProductionCompanyDto { Name = name });
+            return r.IsSuccessStatusCode ? await r.Content.ReadFromJsonAsync<ProductionCompanyDto>() : null;
+        }
+        catch { return null; }
+    }
 }

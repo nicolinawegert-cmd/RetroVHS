@@ -1762,3 +1762,6 @@ h1:focus {
     line-height: 1;
 }
 .btn-remove-row:hover { color: #e94560; }
+.new-genre-row { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.5rem; }
+.new-genre-row input { flex: 1; }
+.create-new-item { font-style: italic; color: #e94560; }
