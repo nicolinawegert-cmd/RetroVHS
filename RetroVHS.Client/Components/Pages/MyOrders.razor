@@ -29,9 +29,10 @@
                     {
                         var orderId = order.Id;
                         var movieId = order.MovieId;
+                        var movieUrl = "/movie/" + movieId;
                         <div class="cart-item">
                             <div class="cart-item-info">
-                                <h3 style="cursor:pointer" @onclick="() => Navigation.NavigateTo($"/movie/{movieId}")">@order.Title</h3>
+                                <h3 style="cursor:pointer" @onclick="() => Navigation.NavigateTo(movieUrl)">@order.Title</h3>
                                 <p class="cart-item-price">@order.PricePaid.ToString("0.00") kr</p>
                                 <p style="color: #a0a0b0; font-size: 0.85rem; margin-top: 4px;">
                                     Köpt @order.RentedAt.ToString("d MMM yyyy")
