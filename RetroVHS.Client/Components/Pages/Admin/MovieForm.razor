@@ -36,24 +36,30 @@
 
             <div class="movie-form-field">
                 <label>Utgivningsår *</label>
-                <input type="number" @bind="releaseYear" min="1910" max="2100" />
-                @if (showErrors && (releaseYear < 1910 || releaseYear > 2100))
-                { <span class="validation-message">Ange ett giltigt år (1910–2100).</span> }
+                <input type="number" @bind="releaseYear" min="1888" max="@DateTime.Now.Year" />
+                @if (showErrors && (releaseYear < 1888 || releaseYear > DateTime.Now.Year))
+                { <span class="validation-message">Ange ett giltigt år (1888–@DateTime.Now.Year).</span> }
             </div>
 
             <div class="movie-form-field">
                 <label>Längd (minuter) *</label>
                 <input type="number" @bind="durationMinutes" min="1" max="600" />
+                @if (showErrors && (durationMinutes < 1 || durationMinutes > 600))
+                { <span class="validation-message">Filmlängden måste vara mellan 1 och 600 minuter.</span> }
             </div>
 
             <div class="movie-form-field">
                 <label>Hyrespris (kr) *</label>
                 <input type="number" @bind="rentalPrice" min="0.01" max="999.99" step="0.01" />
+                @if (showErrors && (rentalPrice < 0.01m || rentalPrice > 999.99m))
+                { <span class="validation-message">Priset måste vara mellan 0,01 och 999,99 kr.</span> }
             </div>
 
             <div class="movie-form-field">
                 <label>Lagersaldo</label>
                 <input type="number" @bind="stockQuantity" min="0" max="10000" />
+                @if (showErrors && (stockQuantity < 0 || stockQuantity > 10000))
+                { <span class="validation-message">Lagersaldo måste vara mellan 0 och 10 000.</span> }
             </div>
 
             <div class="movie-form-field">
@@ -310,7 +316,15 @@
     private async Task SubmitAsync()
     {
         showErrors = true;
-        if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(synopsis)) return;
+        int currentYear = DateTime.Now.Year;
+        bool hasErrors =
+            string.IsNullOrWhiteSpace(title) ||
+            string.IsNullOrWhiteSpace(synopsis) ||
+            releaseYear < 1888 || releaseYear > currentYear ||
+            durationMinutes < 1 || durationMinutes > 600 ||
+            rentalPrice < 0.01m || rentalPrice > 999.99m ||
+            stockQuantity < 0 || stockQuantity > 10000;
+        if (hasErrors) return;
 
         submitting = true;
         submitError = null;
