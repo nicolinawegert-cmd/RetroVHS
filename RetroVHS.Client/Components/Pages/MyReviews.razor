@@ -1,14 +1,13 @@
 @page "/my-reviews"
 @using RetroVHS.Shared.DTOs.Reviews
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
 @inject IUserClient UserClient
-@inject IMovieClient MovieClient
-@inject NavigationManager Navigation
+@inject IReviewClient ReviewClient
 
 <PageTitle>Mina recensioner</PageTitle>
 
-<AuthorizeView>
-    <Authorized>
-        <div class="my-reviews-page">
+<div class="my-reviews-page">
             <h1 class="section-title">Mina recensioner</h1>
 
             @if (isLoading)
@@ -99,11 +98,6 @@
                 </div>
             }
         </div>
-    </Authorized>
-    <NotAuthorized>
-        @{ Navigation.NavigateTo("/"); }
-    </NotAuthorized>
-</AuthorizeView>
 
 @code {
     private List<ReviewDto> reviews = [];
@@ -150,7 +144,7 @@
             Comment = editComment
         };
 
-        var result = await MovieClient.UpdateReviewAsync(dto);
+        var result = await ReviewClient.UpdateReviewAsync(dto);
         if (result is not null)
         {
             var idx = reviews.FindIndex(r => r.Id == review.Id);

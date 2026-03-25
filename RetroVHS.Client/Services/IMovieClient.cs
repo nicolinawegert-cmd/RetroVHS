@@ -1,10 +1,9 @@
 using RetroVHS.Shared.DTOs.Movies;
-using RetroVHS.Shared.DTOs.Reviews;
 
 namespace RetroVHS.Client.Services;
 
 /// <summary>
-/// Klient-sidan av filmsökning — anropar API:t via HTTP.
+/// Klient för filmkatalogen — sökning, filtrering och hämtning av filmdata.
 /// </summary>
 public interface IMovieClient
 {
@@ -15,6 +14,4 @@ public interface IMovieClient
     Task<List<MovieListDto>> GetBestsellersAsync();
     Task<List<GenreSectionDto>> GetTopGenreSectionsAsync();
     Task<MovieDetailsDto?> GetMovieDetailsAsync(int id);
-    Task<ReviewDto?> CreateReviewAsync(CreateReviewDto dto);
-    Task<ReviewDto?> UpdateReviewAsync(UpdateReviewDto dto);
 }

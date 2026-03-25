@@ -3,9 +3,9 @@
 @using RetroVHS.Shared.DTOs.Reviews
 @using Microsoft.AspNetCore.Components.Authorization
 @inject IMovieClient MovieClient
+@inject IReviewClient ReviewClient
 @inject ICartClient CartClient
 @inject IWishlistClient WishlistClient
-@inject IAdminClient AdminClient
 @inject CartState CartState
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthStateProvider
@@ -123,15 +123,15 @@ else
                     </AuthorizeView>
                 </div>
 
-                @if (!string.IsNullOrEmpty(GetEmbedUrl()) || movie.RatingCount > 0)
+                @if (!string.IsNullOrEmpty(embedUrl) || movie.RatingCount > 0)
                 {
                     <div class="details-side-col">
-                        @if (!string.IsNullOrEmpty(GetEmbedUrl()))
+                        @if (!string.IsNullOrEmpty(embedUrl))
                         {
                             <div class="details-trailer">
                                 <p class="cast-label">Trailer</p>
                                 <div class="trailer-wrapper">
-                                    <iframe src="@GetEmbedUrl()"
+                                    <iframe src="@embedUrl"
                                             title="@movie.Title trailer"
                                             frameborder="0"
                                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -319,6 +319,7 @@ else
     [Parameter] public int Id { get; set; }
 
     private MovieDetailsDto? movie;
+    private string? embedUrl;
     private bool isLoading = true;
 
     private int newRating;
@@ -383,6 +384,7 @@ else
     {
         await Task.Yield();
         movie = await MovieClient.GetMovieDetailsAsync(Id);
+        embedUrl = ComputeEmbedUrl(movie?.TrailerUrl);
         isLoading = false;
 
         if (movie is not null)
@@ -415,7 +417,7 @@ else
     private async Task ConfirmDeleteReview(int reviewId)
     {
         deletingReview = true;
-        var success = await AdminClient.DeleteReviewAsync(reviewId);
+        var success = await ReviewClient.DeleteReviewAsync(reviewId);
         if (success && movie is not null)
         {
             movie.Reviews.RemoveAll(r => r.Id == reviewId);
@@ -473,7 +475,7 @@ else
                 Comment = newComment
             };
 
-            var result = await MovieClient.UpdateReviewAsync(updateDto);
+            var result = await ReviewClient.UpdateReviewAsync(updateDto);
             if (result is not null)
             {
                 // Räkna om genomsnittsbetyget client-side
@@ -505,7 +507,7 @@ else
                 Comment = newComment
             };
 
-            var result = await MovieClient.CreateReviewAsync(createDto);
+            var result = await ReviewClient.CreateReviewAsync(createDto);
             if (result is not null)
             {
                 // Räkna om genomsnittsbetyget client-side
@@ -527,26 +529,16 @@ else
         submitting = false;
     }
 
-    private string? GetEmbedUrl()
+    private static string? ComputeEmbedUrl(string? trailerUrl)
     {
-        if (string.IsNullOrEmpty(movie?.TrailerUrl)) return null;
+        if (string.IsNullOrEmpty(trailerUrl)) return null;
 
-        var url = movie.TrailerUrl;
-
-        // https://www.youtube.com/watch?v=VIDEO_ID
-        var watchIndex = url.IndexOf("v=");
+        var watchIndex = trailerUrl.IndexOf("v=");
         if (watchIndex >= 0)
-        {
-            var videoId = url[(watchIndex + 2)..].Split('&')[0];
-            return $"https://www.youtube.com/embed/{videoId}";
-        }
+            return $"https://www.youtube.com/embed/{trailerUrl[(watchIndex + 2)..].Split('&')[0]}";
 
-        // https://youtu.be/VIDEO_ID
-        if (url.Contains("youtu.be/"))
-        {
-            var videoId = url.Split("youtu.be/")[1].Split('?')[0];
-            return $"https://www.youtube.com/embed/{videoId}";
-        }
+        if (trailerUrl.Contains("youtu.be/"))
+            return $"https://www.youtube.com/embed/{trailerUrl.Split("youtu.be/")[1].Split('?')[0]}";
 
         return null;
     }

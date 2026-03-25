@@ -13,13 +13,16 @@ builder.Services.AddScoped(sp => new HttpClient
     BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"] ?? "http://localhost:5275")
 });
 
-// Auth: JWT-state hanteras av JwtAuthStateProvider som läser claims från API:ts token
-builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthStateProvider>();
+// Auth: JwtAuthStateProvider registreras som både AuthenticationStateProvider och IAppAuthStateProvider
+builder.Services.AddScoped<JwtAuthStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<JwtAuthStateProvider>());
+builder.Services.AddScoped<IAppAuthStateProvider>(sp => sp.GetRequiredService<JwtAuthStateProvider>());
 builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();
 
 builder.Services.AddScoped<IAuthClient, AuthClient>();
 builder.Services.AddScoped<IMovieClient, MovieClient>();
+builder.Services.AddScoped<IReviewClient, ReviewClient>();
 builder.Services.AddScoped<ICartClient, CartClient>();
 builder.Services.AddScoped<CartState>();
 builder.Services.AddScoped<IWishlistClient, WishlistClient>();

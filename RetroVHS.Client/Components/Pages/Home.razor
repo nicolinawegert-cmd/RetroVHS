@@ -113,9 +113,11 @@ else
 		var bestsellersTask = MovieClient.GetBestsellersAsync();
 		var genreSectionsTask = MovieClient.GetTopGenreSectionsAsync();
 
-		topRated = await topRatedTask;
-		bestsellers = await bestsellersTask;
-		genreSections = await genreSectionsTask;
+		await Task.WhenAll(topRatedTask, bestsellersTask, genreSectionsTask);
+
+		topRated = topRatedTask.Result;
+		bestsellers = bestsellersTask.Result;
+		genreSections = genreSectionsTask.Result;
 
 		if (isAuthenticated)
 		{
@@ -131,9 +133,9 @@ else
 		StateHasChanged();
 	}
 
-	private async void OnAuthStateChanged(Task<AuthenticationState> task)
+	private void OnAuthStateChanged(Task<AuthenticationState> task)
 	{
-		await InvokeAsync(LoadData);
+		_ = InvokeAsync(LoadData);
 	}
 
 	private async Task ToggleWishlist(int movieId)

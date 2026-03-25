@@ -1,6 +1,7 @@
 @page "/my-orders"
 @using RetroVHS.Shared.DTOs.Rentals
 @using RetroVHS.Shared.Enums
+@using RetroVHS.Client.Helpers
 @inject IUserClient UserClient
 @inject NavigationManager Navigation
 
@@ -150,21 +151,6 @@
         acting = false;
     }
 
-    private static string GetStatusClass(RentalStatus s) => s switch
-    {
-        RentalStatus.Active    => "status-active",
-        RentalStatus.Completed => "status-completed",
-        RentalStatus.Cancelled => "status-cancelled",
-        RentalStatus.Expired   => "status-expired",
-        _ => ""
-    };
-
-    private static string GetStatusLabel(RentalStatus s) => s switch
-    {
-        RentalStatus.Active    => "Aktiv",
-        RentalStatus.Completed => "Levererad",
-        RentalStatus.Cancelled => "Avbruten",
-        RentalStatus.Expired   => "Utgången",
-        _ => s.ToString()
-    };
+    private static string GetStatusClass(RentalStatus s) => RentalStatusHelper.GetStatusClass(s);
+    private static string GetStatusLabel(RentalStatus s) => RentalStatusHelper.GetStatusLabel(s);
 }
