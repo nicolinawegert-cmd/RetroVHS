@@ -45,7 +45,16 @@
                             </div>
                             <div class="cart-item-info">
                                 <h3>@item.Title</h3>
-                                <p class="cart-item-price">@item.UnitPrice.ToString("0.00") kr</p>
+                                <p class="cart-item-price">
+                                    @if (item.Quantity > 1)
+                                    {
+                                        <span>@item.Quantity × @item.UnitPrice.ToString("0.00") kr = @((item.Quantity * item.UnitPrice).ToString("0.00")) kr</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@item.UnitPrice.ToString("0.00") kr</span>
+                                    }
+                                </p>
                             </div>
                             <button class="btn-remove" @onclick="() => RemoveItem(item.Id)" disabled="@removing">
                                 ✕ Ta bort
@@ -56,7 +65,7 @@
 
                 <div class="cart-summary">
                     <div class="cart-total">
-                        <span>Totalt (@cart.TotalItems filmer):</span>
+                        <span>Totalt (@cart.Items.Sum(i => i.Quantity) filmer):</span>
                         <span class="cart-total-price">@cart.TotalPrice.ToString("0.00") kr</span>
                     </div>
                     <button class="btn-submit" @onclick="GoToCheckout">
