@@ -8,11 +8,12 @@
 @implements IDisposable
 
 <header class="site-header">
+<div class="header-inner">
     <div class="header-brand">
         <a href="/"><img src="design/logo.png" alt="RetroVHS" class="header-logo" /></a>
     </div>
 
-    <div class="header-search">
+    <div class="header-search @(showSearch ? "search-open" : "")" @onclick:stopPropagation="true">
         <div class="search-container">
             <input type="text"
                    class="search-input"
@@ -39,6 +40,20 @@
     </div>
 
     <div class="header-auth">
+        <button class="search-toggle-btn" @onclick="ToggleSearch" title="@(showSearch ? "Stäng sök" : "Sök")">
+            @if (showSearch)
+            {
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            }
+            else
+            {
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+            }
+        </button>
         <AuthorizeView Context="authContext">
             <Authorized>
                 <AuthorizeView Roles="Admin" Context="adminCartCtx">
@@ -261,6 +276,7 @@
             </NotAuthorized>
         </AuthorizeView>
     </div>
+</div>
 </header>
 
 @code {
@@ -270,9 +286,11 @@
     private CancellationTokenSource? _debounceTokenSource;
 
     private bool showUserMenu;
+    private bool showSearch;
 
     private void ToggleUserMenu() => showUserMenu = !showUserMenu;
     private void CloseUserMenu() => showUserMenu = false;
+    private void ToggleSearch() => showSearch = !showSearch;
 
     protected override async Task OnInitializedAsync()
     {
@@ -352,6 +370,7 @@
         searchText = string.Empty;
         searchResults = [];
         showResults = false;
+        showSearch = false;
         Navigation.NavigateTo($"/movie/{movie.Id}");
     }
 
