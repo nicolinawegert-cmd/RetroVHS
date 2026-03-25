@@ -1348,7 +1348,7 @@ h1:focus {
     font-size: 0.85rem;
     cursor: pointer;
 }
-.confirm-inline .btn-confirm-yes:hover { background: #c73652; }
+.confirm-inline .btn-confirm-yes:hover:not(:disabled) { background: #c73a52; }
 .confirm-inline .btn-confirm-cancel {
     background: transparent;
     color: #a0a0b0;
@@ -1432,7 +1432,7 @@ h1:focus {
     padding: 0.4rem 0.8rem;
     font-size: 0.9rem;
 }
-.movies-list { display: flex; flex-direction: column; gap: 0; }
+.movies-list { display: flex; flex-direction: column; gap: 0; /* row borders provide visual separation */ }
 .movie-list-row {
     display: flex;
     align-items: center;
@@ -1485,7 +1485,8 @@ h1:focus {
 .movie-form-field .validation-message { color: #e94560; font-size: 0.8rem; }
 
 .genre-tag-list { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.3rem; }
-.genre-tag {
+/* .genre-form-tag: interactive pill for admin movie form — distinct from read-only .genre-tag on movie details */
+.genre-form-tag {
     background: rgba(233,69,96,0.15);
     border: 1px solid rgba(233,69,96,0.4);
     color: #e94560;
@@ -1495,9 +1496,9 @@ h1:focus {
     cursor: pointer;
     transition: background 0.15s;
 }
-.genre-tag.selected { background: #e94560; color: #fff; }
-.genre-tag:hover { background: rgba(233,69,96,0.3); }
-.genre-tag.selected:hover { background: #c73652; }
+.genre-form-tag.selected { background: #e94560; color: #fff; }
+.genre-form-tag:hover { background: rgba(233,69,96,0.3); }
+.genre-form-tag.selected:hover { background: #c73652; }
 
 .person-search-row { display: flex; flex-direction: column; gap: 0.3rem; position: relative; margin-bottom: 0.5rem; }
 .person-search-row .person-row-inputs { display: flex; gap: 0.5rem; align-items: flex-start; }
