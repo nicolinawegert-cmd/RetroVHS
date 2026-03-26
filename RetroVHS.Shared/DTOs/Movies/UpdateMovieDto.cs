@@ -45,7 +45,7 @@ public class UpdateMovieDto
     /// <summary>
     /// Pris för att hyra filmen
     /// </summary>
-    [Range(typeof(decimal), "0.01", "999.99")]
+    [Range(0.01, 999.99)]
     public decimal RentalPrice { get; set; }
 
     /// <summary>

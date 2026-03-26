@@ -125,18 +125,24 @@ public class AdminClient : IAdminClient
 
     public async Task<MovieDetailsDto?> UpdateMovieAsync(int id, UpdateMovieDto dto)
     {
-        try
+        var r = await _httpClient.PutAsJsonAsync($"api/admin/movies/{id}", dto);
+        if (!r.IsSuccessStatusCode)
         {
-            var r = await _httpClient.PutAsJsonAsync($"api/admin/movies/{id}", dto);
-            return r.IsSuccessStatusCode ? await r.Content.ReadFromJsonAsync<MovieDetailsDto>() : null;
+            var body = await r.Content.ReadAsStringAsync();
+            throw new HttpRequestException(body);
         }
-        catch { return null; }
+        return await r.Content.ReadFromJsonAsync<MovieDetailsDto>();
     }
 
     public async Task<bool> DeleteMovieAsync(int id)
     {
-        try { return (await _httpClient.DeleteAsync($"api/admin/movies/{id}")).IsSuccessStatusCode; }
-        catch { return false; }
+        var r = await _httpClient.DeleteAsync($"api/admin/movies/{id}");
+        if (!r.IsSuccessStatusCode)
+        {
+            var body = await r.Content.ReadAsStringAsync();
+            throw new HttpRequestException(body);
+        }
+        return true;
     }
 
     // ── Reference data ─────────────────────────────────────────────

@@ -42,7 +42,7 @@ public class Rental
     /// Vi sparar detta separat så att historiken inte påverkas
     /// om filmens pris ändras senare.
     /// </summary>
-    [Range(typeof(decimal), "0.01", "999.99")]
+    [Range(0.01, 999.99)]
     public decimal PricePaid { get; set; }
 
     /// <summary>
