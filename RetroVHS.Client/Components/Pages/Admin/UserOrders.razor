@@ -14,14 +14,11 @@
 
     @if (isLoading)
     {
-        <div class="loading-spinner">
-            <div class="spinner-border" role="status" style="color:#e94560;width:2.5rem;height:2.5rem;"></div>
-            <p>Laddar beställningar...</p>
-        </div>
+        <LoadingSpinner Text="Laddar beställningar..." />
     }
     else if (rentals.Count == 0)
     {
-        <p style="color:#a0a0b0;">Inga beställningar hittades.</p>
+        <p class="empty-state-text">Inga beställningar hittades.</p>
     }
     else
     {
@@ -33,8 +30,8 @@
                     <div class="cart-item-info">
                         <h3>@ren.Title</h3>
                         <p class="cart-item-price">@ren.PricePaid.ToString("0.00") kr</p>
-                        <p style="color:#a0a0b0;font-size:0.82rem;">@ren.RentedAt.ToString("d MMM yyyy")</p>
-                        <div style="margin-top:6px;">
+                        <p class="item-meta-sm">@ren.RentedAt.ToString("d MMM yyyy")</p>
+                        <div class="rental-status-wrapper">
                             <span class="rental-status @RentalStatusHelper.GetStatusClass(ren.Status)">@RentalStatusHelper.GetStatusLabel(ren.Status)</span>
                         </div>
 
@@ -50,8 +47,7 @@
                             }
                             else
                             {
-                                <button class="btn-remove" style="font-size:0.82rem;padding:5px 12px;margin-top:0.5rem;"
-                                        @onclick="() => confirmCancelId = ren.Id">Avbryt beställning</button>
+                                <button class="btn-remove btn-compact" @onclick="() => confirmCancelId = ren.Id">Avbryt beställning</button>
                             }
                         }
                     </div>
@@ -79,10 +75,16 @@
     private async Task CancelRentalAsync(RentalDto rental)
     {
         acting = true;
-        var ok = await AdminClient.CancelRentalAsync(rental.Id);
-        if (ok) rental.Status = RentalStatus.Cancelled;
-        confirmCancelId = null;
-        acting = false;
+        try
+        {
+            var ok = await AdminClient.CancelRentalAsync(rental.Id);
+            if (ok) rental.Status = RentalStatus.Cancelled;
+            confirmCancelId = null;
+        }
+        finally
+        {
+            acting = false;
+        }
     }
 
 }

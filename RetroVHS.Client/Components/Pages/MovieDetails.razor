@@ -16,10 +16,7 @@
 @if (isLoading)
 {
     <div class="movie-section">
-        <div class="loading-spinner">
-            <div class="spinner-border" role="status" style="color: #e94560; width: 2.5rem; height: 2.5rem;"></div>
-            <p>Laddar film...</p>
-        </div>
+        <LoadingSpinner Text="Laddar film..." />
     </div>
 }
 else if (movie is null)
@@ -30,7 +27,7 @@ else if (movie is null)
 }
 else
 {
-    <a href="javascript:history.back()" class="admin-back-link" style="display:inline-block;margin:0.5rem 0 0 1rem;">← Tillbaka</a>
+    <a href="javascript:history.back()" class="admin-back-link admin-back-link-detail">← Tillbaka</a>
     <div class="details-page">
 
         <div class="details-header">
@@ -90,15 +87,15 @@ else
                         <span class="credit-label">Tillgänglighet</span>
                         @if (movie.StockQuantity >= 5)
                         {
-                            <span style="color: #50c878; font-weight: 600;">Tillgänglig</span>
+                            <span class="stock-available">Tillgänglig</span>
                         }
                         else if (movie.StockQuantity >= 1)
                         {
-                            <span style="color: #f0a050; font-weight: 600;">Få kvar</span>
+                            <span class="stock-low">Få kvar</span>
                         }
                         else
                         {
-                            <span style="color: #e94560; font-weight: 600;">Tillfälligt slut i lager</span>
+                            <span class="stock-out">Tillfälligt slut i lager</span>
                         }
                     </div>
 
@@ -196,7 +193,7 @@ else
                         </div>
                         @if (!string.IsNullOrEmpty(submitSuccessMessage))
                         {
-                            <p class="review-success" style="margin-top:0.5rem">@submitSuccessMessage</p>
+                            <p class="review-success">@submitSuccessMessage</p>
                         }
                     }
                     else
@@ -287,18 +284,16 @@ else
                                     var rid = review.Id;
                                     @if (deletingReviewId == rid)
                                     {
-                                        <span style="margin-left:auto; display:flex; align-items:center; gap:0.4rem;">
-                                            <button class="btn-confirm-yes" style="font-size:0.75rem;padding:3px 10px;" @onclick="() => ConfirmDeleteReview(rid)" disabled="@deletingReview">
+                                        <span class="confirm-actions-row">
+                                            <button class="btn-confirm-yes btn-tight" @onclick="() => ConfirmDeleteReview(rid)" disabled="@deletingReview">
                                                 @(deletingReview ? "..." : "Ja, ta bort")
                                             </button>
-                                            <button class="btn-confirm-cancel" style="font-size:0.75rem;padding:3px 8px;" @onclick="CancelDeleteReview" disabled="@deletingReview">Avbryt</button>
+                                            <button class="btn-confirm-cancel btn-tight" @onclick="CancelDeleteReview" disabled="@deletingReview">Avbryt</button>
                                         </span>
                                     }
                                     else
                                     {
-                                        <button class="admin-back-link" style="margin-left:auto;font-size:0.75rem;padding:2px 8px;border:1px solid rgba(233,69,96,0.4);border-radius:4px;cursor:pointer;background:none;" @onclick="() => deletingReviewId = rid">
-                                            Ta bort
-                                        </button>
+                                        <button class="btn-delete-ghost" style="margin-left:auto;" @onclick="() => deletingReviewId = rid">Ta bort</button>
                                     }
                                 }
                             </div>
@@ -354,17 +349,21 @@ else
         if (movie == null) return;
         addingToCart = true;
         cartMessage = null;
-
-        var result = await CartClient.AddToCartAsync(movie.Id);
-        if (result != null)
+        try
         {
-            cartMessage = "✅ Filmen har lagts i varukorgen!";
-            CartState.SetCount(result.TotalItems);
+            var result = await CartClient.AddToCartAsync(movie.Id);
+            if (result != null)
+            {
+                cartMessage = "✅ Filmen har lagts i varukorgen!";
+                CartState.SetCount(result.TotalItems);
+            }
+            else
+                cartMessage = "⚠️ Kunde inte lägga till filmen. Den kanske redan finns i varukorgen.";
         }
-        else
-            cartMessage = "⚠️ Kunde inte lägga till filmen. Den kanske redan finns i varukorgen.";
-
-        addingToCart = false;
+        finally
+        {
+            addingToCart = false;
+        }
     }
 
     // Togglar önskelista — POST api/wishlist eller DELETE api/wishlist/{movieId}
@@ -372,19 +371,23 @@ else
     {
         if (movie == null) return;
         togglingWishlist = true;
-
-        if (isInWishlist)
+        try
         {
-            var success = await WishlistClient.RemoveFromWishlistAsync(movie.Id);
-            if (success) isInWishlist = false;
+            if (isInWishlist)
+            {
+                var success = await WishlistClient.RemoveFromWishlistAsync(movie.Id);
+                if (success) isInWishlist = false;
+            }
+            else
+            {
+                var success = await WishlistClient.AddToWishlistAsync(movie.Id);
+                if (success) isInWishlist = true;
+            }
         }
-        else
+        finally
         {
-            var success = await WishlistClient.AddToWishlistAsync(movie.Id);
-            if (success) isInWishlist = true;
+            togglingWishlist = false;
         }
-
-        togglingWishlist = false;
     }
 
     protected override async Task OnInitializedAsync()
@@ -431,14 +434,20 @@ else
     private async Task ConfirmDeleteReview(int reviewId)
     {
         deletingReview = true;
-        var success = await AdminClient.DeleteReviewAsync(reviewId);
-        if (success && movie is not null)
+        try
         {
-            // Ta bort recensionen från den lokala listan utan att ladda om hela sidan
-            movie.Reviews.RemoveAll(r => r.Id == reviewId);
+            var success = await AdminClient.DeleteReviewAsync(reviewId);
+            if (success && movie is not null)
+            {
+                // Ta bort recensionen från den lokala listan utan att ladda om hela sidan
+                movie.Reviews.RemoveAll(r => r.Id == reviewId);
+            }
+            deletingReviewId = null;
         }
-        deletingReviewId = null;
-        deletingReview = false;
+        finally
+        {
+            deletingReview = false;
+        }
     }
 
     private void StartEditing()
@@ -482,68 +491,72 @@ else
         submitError = null;
         submitSuccessMessage = null;
         showUpdateConfirm = false;
-
-        if (existingReview is not null)
+        try
         {
-            var updateDto = new UpdateReviewDto
+            if (existingReview is not null)
             {
-                Id = existingReview.Id,
-                Rating = newRating,
-                Comment = newComment
-            };
+                var updateDto = new UpdateReviewDto
+                {
+                    Id = existingReview.Id,
+                    Rating = newRating,
+                    Comment = newComment
+                };
 
-            var result = await ReviewClient.UpdateReviewAsync(updateDto); // PUT api/reviews/{id}
-            if (result is not null)
-            {
-                // Räkna om genomsnittsbetyget client-side för att undvika ett extra API-anrop
-                var oldRating = existingReview.Rating;
-                if (movie!.RatingCount > 0)
-                    movie.RatingAverage = (movie.RatingAverage * movie.RatingCount - oldRating + newRating) / movie.RatingCount;
+                var result = await ReviewClient.UpdateReviewAsync(updateDto); // PUT api/reviews/{id}
+                if (result is not null)
+                {
+                    // Räkna om genomsnittsbetyget client-side för att undvika ett extra API-anrop
+                    var oldRating = existingReview.Rating;
+                    if (movie!.RatingCount > 0)
+                        movie.RatingAverage = (movie.RatingAverage * movie.RatingCount - oldRating + newRating) / movie.RatingCount;
 
-                // Ersätt recensionen in-place i den lokala listan
-                var idx = movie.Reviews.FindIndex(r => r.Id == existingReview.Id);
-                if (idx >= 0)
-                    movie.Reviews[idx] = result;
+                    // Ersätt recensionen in-place i den lokala listan
+                    var idx = movie.Reviews.FindIndex(r => r.Id == existingReview.Id);
+                    if (idx >= 0)
+                        movie.Reviews[idx] = result;
 
-                existingReview = result;
-                newComment = string.Empty;
-                isEditingReview = false;
-                submitSuccessMessage = "Recension uppdaterad!";
+                    existingReview = result;
+                    newComment = string.Empty;
+                    isEditingReview = false;
+                    submitSuccessMessage = "Recension uppdaterad!";
+                }
+                else
+                {
+                    submitError = "Kunde inte uppdatera recensionen. Försök igen.";
+                }
             }
             else
             {
-                submitError = "Kunde inte uppdatera recensionen. Försök igen.";
+                var createDto = new CreateReviewDto
+                {
+                    MovieId = Id,
+                    Rating = newRating,
+                    Comment = newComment
+                };
+
+                var result = await ReviewClient.CreateReviewAsync(createDto); // POST api/reviews
+                if (result is not null)
+                {
+                    // Uppdatera snittbetyget och räknaren client-side
+                    var newCount = movie!.RatingCount + 1;
+                    movie.RatingAverage = (movie.RatingAverage * movie.RatingCount + newRating) / newCount;
+                    movie.RatingCount = newCount;
+
+                    movie.Reviews.Add(result);
+                    existingReview = result;
+                    newComment = string.Empty;
+                    submitSuccessMessage = "Recension sparad!";
+                }
+                else
+                {
+                    submitError = "Kunde inte spara recensionen. Försök igen.";
+                }
             }
         }
-        else
+        finally
         {
-            var createDto = new CreateReviewDto
-            {
-                MovieId = Id,
-                Rating = newRating,
-                Comment = newComment
-            };
-
-            var result = await ReviewClient.CreateReviewAsync(createDto); // POST api/reviews
-            if (result is not null)
-            {
-                // Uppdatera snittbetyget och räknaren client-side
-                var newCount = movie!.RatingCount + 1;
-                movie.RatingAverage = (movie.RatingAverage * movie.RatingCount + newRating) / newCount;
-                movie.RatingCount = newCount;
-
-                movie.Reviews.Add(result);
-                existingReview = result;
-                newComment = string.Empty;
-                submitSuccessMessage = "Recension sparad!";
-            }
-            else
-            {
-                submitError = "Kunde inte spara recensionen. Försök igen.";
-            }
+            submitting = false;
         }
-
-        submitting = false;
     }
 
     // Konverterar YouTube-URL till embed-format (körs en gång, resultatet cachas i embedUrl).

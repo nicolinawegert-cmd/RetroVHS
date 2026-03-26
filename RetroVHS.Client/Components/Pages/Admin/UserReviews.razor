@@ -12,14 +12,11 @@
 
     @if (isLoading)
     {
-        <div class="loading-spinner">
-            <div class="spinner-border" role="status" style="color:#e94560;width:2.5rem;height:2.5rem;"></div>
-            <p>Laddar recensioner...</p>
-        </div>
+        <LoadingSpinner Text="Laddar recensioner..." />
     }
     else if (reviews.Count == 0)
     {
-        <p style="color:#a0a0b0;">Inga recensioner hittades.</p>
+        <p class="empty-state-text">Inga recensioner hittades.</p>
     }
     else
     {
@@ -29,19 +26,19 @@
                 var r = review;
                 <div class="cart-item">
                     <div class="cart-item-info">
-                        <h3><a href="/movie/@r.MovieId" style="color:#e0e0f0;text-decoration:none;">@r.MovieTitle</a></h3>
-                        <p style="color:#f5c518;">@(new string('★', r.Rating))@(new string('☆', 5 - r.Rating)) @r.Rating/5</p>
-                        <p style="color:#a0a0b0;font-size:0.82rem;">@r.CreatedAt.ToString("d MMM yyyy")</p>
+                        <h3><a href="/movie/@r.MovieId" class="review-movie-link">@r.MovieTitle</a></h3>
+                        <p class="review-stars">@(new string('★', r.Rating))@(new string('☆', 5 - r.Rating)) @r.Rating/5</p>
+                        <p class="item-meta-sm">@r.CreatedAt.ToString("d MMM yyyy")</p>
                         @if (!string.IsNullOrWhiteSpace(r.Comment))
                         {
-                            <p style="color:#c0c0d0;font-size:0.9rem;">@r.Comment</p>
+                            <p class="review-comment-text">@r.Comment</p>
                         }
                         else
                         {
-                            <p style="color:#606070;font-size:0.85rem;font-style:italic;">Ingen kommentar</p>
+                            <p class="review-no-comment">Ingen kommentar</p>
                         }
 
-                        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
+                        <div class="review-actions">
                             @if (confirmRemoveCommentId == r.Id)
                             {
                                 <div class="confirm-inline">
@@ -52,8 +49,7 @@
                             }
                             else if (!string.IsNullOrWhiteSpace(r.Comment))
                             {
-                                <button class="btn-submit" style="font-size:0.82rem;padding:5px 12px;"
-                                        @onclick="() => confirmRemoveCommentId = r.Id">Ta bort kommentar</button>
+                                <button class="btn-submit btn-compact" @onclick="() => confirmRemoveCommentId = r.Id">Ta bort kommentar</button>
                             }
 
                             @if (confirmDeleteId == r.Id)
@@ -66,8 +62,7 @@
                             }
                             else
                             {
-                                <button class="btn-remove" style="font-size:0.82rem;padding:5px 12px;"
-                                        @onclick="() => confirmDeleteId = r.Id">Radera recension</button>
+                                <button class="btn-remove btn-compact" @onclick="() => confirmDeleteId = r.Id">Radera recension</button>
                             }
                         </div>
                     </div>
@@ -98,19 +93,31 @@
     private async Task RemoveCommentAsync(ReviewDto review)
     {
         acting = true;
-        var ok = await AdminClient.RemoveReviewCommentAsync(review.Id);
-        if (ok) review.Comment = string.Empty; // Uppdatera lokalt
-        confirmRemoveCommentId = null;
-        acting = false;
+        try
+        {
+            var ok = await AdminClient.RemoveReviewCommentAsync(review.Id);
+            if (ok) review.Comment = string.Empty; // Uppdatera lokalt
+            confirmRemoveCommentId = null;
+        }
+        finally
+        {
+            acting = false;
+        }
     }
 
     // DELETE api/admin/reviews/{reviewId} — raderar hela recensionen inkl. betyg
     private async Task DeleteReviewAsync(int reviewId)
     {
         acting = true;
-        var ok = await AdminClient.DeleteReviewAsync(reviewId);
-        if (ok) reviews.RemoveAll(r => r.Id == reviewId); // Ta bort ur listan lokalt
-        confirmDeleteId = null;
-        acting = false;
+        try
+        {
+            var ok = await AdminClient.DeleteReviewAsync(reviewId);
+            if (ok) reviews.RemoveAll(r => r.Id == reviewId); // Ta bort ur listan lokalt
+            confirmDeleteId = null;
+        }
+        finally
+        {
+            acting = false;
+        }
     }
 }

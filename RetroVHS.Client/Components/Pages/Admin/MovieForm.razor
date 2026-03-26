@@ -19,10 +19,7 @@
 
     @if (isLoading)
     {
-        <div class="loading-spinner">
-            <div class="spinner-border" role="status" style="color:#e94560;width:2.5rem;height:2.5rem;"></div>
-            <p>Laddar...</p>
-        </div>
+        <LoadingSpinner />
     }
     else
     {
@@ -93,9 +90,9 @@
                 <input type="text" @bind="country" placeholder="t.ex. USA" />
             </div>
 
-            <div class="movie-form-field full-width" style="flex-direction:row;align-items:center;gap:0.75rem;">
+            <div class="movie-form-field full-width row-inline">
                 <input type="checkbox" id="featured" @bind="isFeatured" />
-                <label for="featured" style="margin:0;font-size:0.9rem;color:#e0e0f0;">Utvald (visas på startsidan)</label>
+                <label for="featured" class="form-label-inline">Utvald (visas på startsidan)</label>
             </div>
 
             <div class="movie-form-field full-width">
@@ -119,7 +116,7 @@
                 </div>
                 <div class="new-genre-row">
                     <input type="text" @bind="newGenreName" @bind:event="oninput"
-                           placeholder="Ny genre..." style="flex:1;" />
+                           placeholder="Ny genre..." class="input-flex" />
                     <button type="button" class="btn-add-row"
                             @onclick="CreateGenreAsync"
                             disabled="@(string.IsNullOrWhiteSpace(newGenreName))">
@@ -138,7 +135,7 @@
                                value="@companySearchText"
                                @oninput="OnCompanyInput"
                                @onfocus="() => showCompanyDropdown = true"
-                               style="flex:1;" />
+                               class="input-flex" />
                         @if (selectedCompanyId.HasValue || !string.IsNullOrWhiteSpace(companySearchText))
                         {
                             <button type="button" class="btn-remove-row" @onclick="ClearCompany">✕</button>
@@ -173,7 +170,7 @@
                             <input type="text" placeholder="Sök person..."
                                    value="@directors[idx].DisplayName"
                                    @oninput="e => OnPersonSearchInput(e, idx, directors)"
-                                   style="flex:1;" />
+                                   class="input-flex" />
                             <button type="button" class="btn-remove-row" @onclick="() => directors.RemoveAt(idx)">✕</button>
                         </div>
                         @if (directors[idx].ShowDropdown && directors[idx].SearchResults.Count > 0)
@@ -201,13 +198,13 @@
                             <input type="text" placeholder="Sök person..."
                                    value="@cast[idx].DisplayName"
                                    @oninput="e => OnPersonSearchInput(e, idx, cast)"
-                                   style="flex:1;" />
+                                   class="input-flex" />
                             <input type="text" placeholder="Rollnamn (valfritt)"
                                    @bind="cast[idx].CharacterName"
-                                   style="flex:1;" />
+                                   class="input-flex" />
                             <input type="number" placeholder="Ordning"
                                    @bind="cast[idx].DisplayOrder"
-                                   style="width:80px;" min="0" />
+                                   class="input-order-num" min="0" />
                             <button type="button" class="btn-remove-row" @onclick="() => cast.RemoveAt(idx)">✕</button>
                         </div>
                         @if (cast[idx].ShowDropdown && cast[idx].SearchResults.Count > 0)
@@ -229,14 +226,14 @@
 
         @if (!string.IsNullOrEmpty(submitError))
         {
-            <p class="review-error" style="margin-top:1rem;">@submitError</p>
+            <p class="review-error">@submitError</p>
         }
 
-        <div style="margin-top:1.5rem;display:flex;gap:1rem;">
+        <div class="form-actions">
             <button class="btn-submit" @onclick="SubmitAsync" disabled="@submitting">
                 @(submitting ? "Sparar..." : (Id.HasValue ? "Spara ändringar" : "Lägg till film"))
             </button>
-            <a href="/admin/movies" style="color:#a0a0b0;text-decoration:none;align-self:center;">Avbryt</a>
+            <a href="/admin/movies" class="form-cancel-link">Avbryt</a>
         </div>
     }
 </div>
@@ -395,51 +392,55 @@
 
         submitting = true;
         submitError = null;
-
-        // Bygg credits-listan från regissörer och skådespelare som har ett valt PersonId
-        // (rader utan valt person ignoreras — de är tomma söktextfält)
-        var credits = new List<CreateMovieCreditDto>();
-        foreach (var d in directors.Where(d => d.PersonId.HasValue))
-            credits.Add(new CreateMovieCreditDto { PersonId = d.PersonId!.Value, Role = CreditRole.Director });
-        foreach (var c in cast.Where(c => c.PersonId.HasValue))
-            credits.Add(new CreateMovieCreditDto { PersonId = c.PersonId!.Value, Role = CreditRole.Actor, CharacterName = c.CharacterName, DisplayOrder = c.DisplayOrder });
-
-        int? companyId = selectedCompanyId;
-
-        if (Id.HasValue)
+        try
         {
-            // PUT api/admin/movies/{id} — uppdatera befintlig film
-            var dto = new UpdateMovieDto
-            {
-                Id = Id.Value, Title = title, Synopsis = synopsis, ReleaseYear = releaseYear,
-                DurationMinutes = durationMinutes, RentalPrice = rentalPrice, PosterUrl = posterUrl,
-                TrailerUrl = trailerUrl, Language = language, Country = country,
-                ProductionCompanyId = companyId, AvailabilityStatus = availabilityStatus,
-                StockQuantity = stockQuantity, IsFeatured = isFeatured,
-                GenreIds = selectedGenreIds.ToList(), Credits = credits
-            };
-            var result = await AdminClient.UpdateMovieAsync(Id.Value, dto);
-            if (result is not null) Navigation.NavigateTo("/admin/movies");
-            else submitError = "Kunde inte uppdatera filmen. Kontrollera att alla ID:n är giltiga.";
-        }
-        else
-        {
-            // POST api/admin/movies — skapa ny film
-            var dto = new CreateMovieDto
-            {
-                Title = title, Synopsis = synopsis, ReleaseYear = releaseYear,
-                DurationMinutes = durationMinutes, RentalPrice = rentalPrice, PosterUrl = posterUrl,
-                TrailerUrl = trailerUrl, Language = language, Country = country,
-                ProductionCompanyId = companyId, AvailabilityStatus = availabilityStatus,
-                StockQuantity = stockQuantity, IsFeatured = isFeatured,
-                GenreIds = selectedGenreIds.ToList(), Credits = credits
-            };
-            var result = await AdminClient.CreateMovieAsync(dto);
-            if (result is not null) Navigation.NavigateTo("/admin/movies");
-            else submitError = "Kunde inte skapa filmen. Kontrollera att alla ID:n är giltiga.";
-        }
+            // Bygg credits-listan från regissörer och skådespelare som har ett valt PersonId
+            // (rader utan valt person ignoreras — de är tomma söktextfält)
+            var credits = new List<CreateMovieCreditDto>();
+            foreach (var d in directors.Where(d => d.PersonId.HasValue))
+                credits.Add(new CreateMovieCreditDto { PersonId = d.PersonId!.Value, Role = CreditRole.Director });
+            foreach (var c in cast.Where(c => c.PersonId.HasValue))
+                credits.Add(new CreateMovieCreditDto { PersonId = c.PersonId!.Value, Role = CreditRole.Actor, CharacterName = c.CharacterName, DisplayOrder = c.DisplayOrder });
 
-        submitting = false;
+            int? companyId = selectedCompanyId;
+
+            if (Id.HasValue)
+            {
+                // PUT api/admin/movies/{id} — uppdatera befintlig film
+                var dto = new UpdateMovieDto
+                {
+                    Id = Id.Value, Title = title, Synopsis = synopsis, ReleaseYear = releaseYear,
+                    DurationMinutes = durationMinutes, RentalPrice = rentalPrice, PosterUrl = posterUrl,
+                    TrailerUrl = trailerUrl, Language = language, Country = country,
+                    ProductionCompanyId = companyId, AvailabilityStatus = availabilityStatus,
+                    StockQuantity = stockQuantity, IsFeatured = isFeatured,
+                    GenreIds = selectedGenreIds.ToList(), Credits = credits
+                };
+                var result = await AdminClient.UpdateMovieAsync(Id.Value, dto);
+                if (result is not null) Navigation.NavigateTo("/admin/movies");
+                else submitError = "Kunde inte uppdatera filmen. Kontrollera att alla ID:n är giltiga.";
+            }
+            else
+            {
+                // POST api/admin/movies — skapa ny film
+                var dto = new CreateMovieDto
+                {
+                    Title = title, Synopsis = synopsis, ReleaseYear = releaseYear,
+                    DurationMinutes = durationMinutes, RentalPrice = rentalPrice, PosterUrl = posterUrl,
+                    TrailerUrl = trailerUrl, Language = language, Country = country,
+                    ProductionCompanyId = companyId, AvailabilityStatus = availabilityStatus,
+                    StockQuantity = stockQuantity, IsFeatured = isFeatured,
+                    GenreIds = selectedGenreIds.ToList(), Credits = credits
+                };
+                var result = await AdminClient.CreateMovieAsync(dto);
+                if (result is not null) Navigation.NavigateTo("/admin/movies");
+                else submitError = "Kunde inte skapa filmen. Kontrollera att alla ID:n är giltiga.";
+            }
+        }
+        finally
+        {
+            submitting = false;
+        }
     }
 
     // Filtrerar produktionsbolag client-side baserat på inmatat söktext

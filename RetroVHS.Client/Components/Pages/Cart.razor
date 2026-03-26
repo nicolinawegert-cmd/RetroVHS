@@ -1,87 +1,76 @@
-﻿@page "/cart"
+@page "/cart"
 @using RetroVHS.Shared.DTOs.Cart
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
 @inject ICartClient CartClient
 @inject CartState CartState
 @inject NavigationManager Navigation
-@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>Varukorg</PageTitle>
 
-<AuthorizeView>
-    <Authorized>
-        <div class="cart-page">
-            <h1 class="section-title">🛒 Din varukorg</h1>
+<div class="cart-page">
+    <h1 class="section-title">🛒 Din varukorg</h1>
 
-            @if (isLoading)
+    @if (isLoading)
+    {
+        <LoadingSpinner Text="Laddar varukorg..." />
+    }
+    else if (cart == null || cart.Items.Count == 0)
+    {
+        <div class="cart-empty">
+            <p>Din varukorg är tom.</p>
+            <button class="btn-submit" @onclick='() => Navigation.NavigateTo("/")'>
+                Bläddra bland filmer
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="cart-items">
+            @foreach (var item in cart.Items)
             {
-                <div class="loading-spinner">
-                    <div class="spinner-border" role="status" style="color: #e94560; width: 2.5rem; height: 2.5rem;"></div>
-                    <p>Laddar varukorg...</p>
-                </div>
-            }
-            else if (cart == null || cart.Items.Count == 0)
-            {
-                <div class="cart-empty">
-                    <p>Din varukorg är tom.</p>
-                    <button class="btn-submit" @onclick='() => Navigation.NavigateTo("/")'>
-                        Bläddra bland filmer
-                    </button>
-                </div>
-            }
-            else
-            {
-                <div class="cart-items">
-                    @foreach (var item in cart.Items)
-                    {
-                        <div class="cart-item">
-                            <div class="cart-item-poster">
-                                @if (!string.IsNullOrEmpty(item.PosterUrl))
-                                {
-                                    <img src="@item.PosterUrl" alt="@item.Title" />
-                                }
-                                else
-                                {
-                                    <div class="cart-item-no-poster">🎬</div>
-                                }
-                            </div>
-                            <div class="cart-item-info">
-                                <h3>@item.Title</h3>
-                                <p class="cart-item-price">
-                                    @if (item.Quantity > 1)
-                                    {
-                                        <span>@item.Quantity × @item.UnitPrice.ToString("0.00") kr = @((item.Quantity * item.UnitPrice).ToString("0.00")) kr</span>
-                                    }
-                                    else
-                                    {
-                                        <span>@item.UnitPrice.ToString("0.00") kr</span>
-                                    }
-                                </p>
-                            </div>
-                            <button class="btn-remove" @onclick="() => RemoveItem(item.Id)" disabled="@removing">
-                                ✕ Ta bort
-                            </button>
-                        </div>
-                    }
-                </div>
-
-                <div class="cart-summary">
-                    <div class="cart-total">
-                        <span>Totalt (@cart.Items.Sum(i => i.Quantity) filmer):</span>
-                        <span class="cart-total-price">@cart.TotalPrice.ToString("0.00") kr</span>
+                <div class="cart-item">
+                    <div class="cart-item-poster">
+                        @if (!string.IsNullOrEmpty(item.PosterUrl))
+                        {
+                            <img src="@item.PosterUrl" alt="@item.Title" />
+                        }
+                        else
+                        {
+                            <div class="cart-item-no-poster">🎬</div>
+                        }
                     </div>
-                    <button class="btn-submit" @onclick="GoToCheckout">
-                        Gå till kassan
+                    <div class="cart-item-info">
+                        <h3>@item.Title</h3>
+                        <p class="cart-item-price">
+                            @if (item.Quantity > 1)
+                            {
+                                <span>@item.Quantity × @item.UnitPrice.ToString("0.00") kr = @((item.Quantity * item.UnitPrice).ToString("0.00")) kr</span>
+                            }
+                            else
+                            {
+                                <span>@item.UnitPrice.ToString("0.00") kr</span>
+                            }
+                        </p>
+                    </div>
+                    <button class="btn-remove" @onclick="() => RemoveItem(item.Id)" disabled="@removing">
+                        ✕ Ta bort
                     </button>
                 </div>
             }
         </div>
-    </Authorized>
-    <NotAuthorized>
-        <div class="cart-page">
-            <p>Du måste logga in för att se din varukorg.</p>
+
+        <div class="cart-summary">
+            <div class="cart-total">
+                <span>Totalt (@cart.Items.Sum(i => i.Quantity) filmer):</span>
+                <span class="cart-total-price">@cart.TotalPrice.ToString("0.00") kr</span>
+            </div>
+            <button class="btn-submit" @onclick="GoToCheckout">
+                Gå till kassan
+            </button>
         </div>
-    </NotAuthorized>
-</AuthorizeView>
+    }
+</div>
 
 @code {
     private CartDto? cart;
@@ -90,12 +79,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Auth-guard: kolla inloggning innan API-anrop — undviker onödiga requests för gäster
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        if (authState.User.Identity?.IsAuthenticated == true)
-            await LoadCart();
-        else
-            isLoading = false;
+        await LoadCart();
     }
 
     // GET api/cart — hämtar varukorgen och synkroniserar räknaren i headern
@@ -111,10 +95,16 @@
     private async Task RemoveItem(int cartItemId)
     {
         removing = true;
-        var success = await CartClient.RemoveFromCartAsync(cartItemId);
-        if (success)
-            await LoadCart();
-        removing = false;
+        try
+        {
+            var success = await CartClient.RemoveFromCartAsync(cartItemId);
+            if (success)
+                await LoadCart();
+        }
+        finally
+        {
+            removing = false;
+        }
     }
 
     // Navigerar till /checkout/{cart.Id} — cart.Id skickas med som URL-parameter

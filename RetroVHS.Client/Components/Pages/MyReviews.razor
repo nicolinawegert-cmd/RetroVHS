@@ -7,20 +7,17 @@
 
 <PageTitle>Mina recensioner</PageTitle>
 
-<div class="my-reviews-page">
-            <h1 class="section-title">Mina recensioner</h1>
+<div class="cart-page">
+    <h1 class="section-title">Mina recensioner</h1>
 
-            @if (isLoading)
-            {
-                <div class="loading-spinner">
-                    <div class="spinner-border" role="status" style="color: #e94560; width: 2.5rem; height: 2.5rem;"></div>
-                    <p>Laddar recensioner...</p>
-                </div>
-            }
-            else if (reviews.Count == 0)
-            {
-                <p class="review-empty">Du har inte recenserat några filmer ännu.</p>
-            }
+    @if (isLoading)
+    {
+        <LoadingSpinner Text="Laddar recensioner..." />
+    }
+    else if (reviews.Count == 0)
+    {
+        <p class="empty-state-text">Du har inte recenserat några filmer ännu. Betygsätt en film på dess sida!</p>
+    }
             else
             {
                 <div class="my-reviews-list">
@@ -139,31 +136,35 @@
         if (editRating == 0) return;
         saving = true;
         editError = null;
-
-        var dto = new UpdateReviewDto
+        try
         {
-            Id = review.Id,
-            Rating = editRating,
-            Comment = editComment
-        };
-
-        var result = await ReviewClient.UpdateReviewAsync(dto);
-        if (result is not null)
-        {
-            var idx = reviews.FindIndex(r => r.Id == review.Id);
-            if (idx >= 0)
+            var dto = new UpdateReviewDto
             {
-                // MovieTitle finns inte i API-svaret, kopiera det från befintlig post
-                result.MovieTitle = review.MovieTitle;
-                reviews[idx] = result;
-            }
-            editingId = null;
-        }
-        else
-        {
-            editError = "Kunde inte spara ändringarna. Försök igen.";
-        }
+                Id = review.Id,
+                Rating = editRating,
+                Comment = editComment
+            };
 
-        saving = false;
+            var result = await ReviewClient.UpdateReviewAsync(dto);
+            if (result is not null)
+            {
+                var idx = reviews.FindIndex(r => r.Id == review.Id);
+                if (idx >= 0)
+                {
+                    // MovieTitle finns inte i API-svaret, kopiera det från befintlig post
+                    result.MovieTitle = review.MovieTitle;
+                    reviews[idx] = result;
+                }
+                editingId = null;
+            }
+            else
+            {
+                editError = "Kunde inte spara ändringarna. Försök igen.";
+            }
+        }
+        finally
+        {
+            saving = false;
+        }
     }
 }

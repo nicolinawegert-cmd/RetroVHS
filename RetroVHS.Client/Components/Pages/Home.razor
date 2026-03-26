@@ -10,17 +10,14 @@
 
 <PageTitle>RetroVHS</PageTitle>
 
-<div style="padding: 1rem 1.5rem 0;">
+<div class="home-top-nav">
 	<a href="/movies" class="see-all-link">Se alla filmer →</a>
 </div>
 
 @if (isLoading)
 {
 	<div class="movie-section">
-		<div class="loading-spinner">
-			<div class="spinner-border" role="status" style="color: #e94560; width: 2.5rem; height: 2.5rem;"></div>
-			<p>Laddar filmer...</p>
-		</div>
+		<LoadingSpinner Text="Laddar filmer..." />
 	</div>
 }
 else
