@@ -134,3 +134,6 @@ publish/
 *.db
 *.db-shm
 *.db-wal
+
+# Claude config
+.claude/
