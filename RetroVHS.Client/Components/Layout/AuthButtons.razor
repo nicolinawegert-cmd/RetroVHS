@@ -51,25 +51,29 @@
         @if (showRegisterForm)
         {
             <div class="login-dropdown register-dropdown">
-                <EditForm Model="registerRequest" OnValidSubmit="HandleRegisterAsync">
+                <EditForm Model="registerRequest" OnValidSubmit="HandleRegisterAsync" autocomplete="off">
                     <DataAnnotationsValidator />
                     <div class="login-field">
                         <InputText placeholder="Förnamn"
+                                   autocomplete="off"
                                    @bind-Value="registerRequest.FirstName" />
                         <ValidationMessage For="() => registerRequest.FirstName" />
                     </div>
                     <div class="login-field">
                         <InputText placeholder="Efternamn"
+                                   autocomplete="off"
                                    @bind-Value="registerRequest.LastName" />
                         <ValidationMessage For="() => registerRequest.LastName" />
                     </div>
                     <div class="login-field">
                         <InputText placeholder="Nickname (valfritt)"
+                                   autocomplete="off"
                                    @bind-Value="registerRequest.Nickname" />
                     </div>
                     <div class="login-field">
                         <InputText type="email"
                                    placeholder="E-post"
+                                   autocomplete="off"
                                    @bind-Value="registerRequest.Email" />
                         <ValidationMessage For="() => registerRequest.Email" />
                     </div>
@@ -77,6 +81,7 @@
                         <div class="password-input-wrapper">
                             <InputText type="@(showRegPassword ? "text" : "password")"
                                        placeholder="Lösenord"
+                                       autocomplete="new-password"
                                        @bind-Value="registerRequest.Password" />
                             <button type="button" class="btn-eye" @onclick="() => showRegPassword = !showRegPassword"
                                     tabindex="-1">
@@ -96,6 +101,7 @@
                         <div class="password-input-wrapper">
                             <InputText type="@(showRegConfirmPassword ? "text" : "password")"
                                        placeholder="Bekräfta lösenord"
+                                       autocomplete="new-password"
                                        @bind-Value="registerRequest.ConfirmPassword" />
                             <button type="button" class="btn-eye" @onclick="() => showRegConfirmPassword = !showRegConfirmPassword"
                                     tabindex="-1">
