@@ -5,6 +5,7 @@ namespace RetroVHS.Client.Services;
 
 /// <summary>
 /// HTTP-klient som anropar API:ts önskeliste-endpoints.
+/// Alla anrop kräver inloggning — JWT skickas automatiskt via Authorization-headern.
 /// </summary>
 public class WishlistClient : IWishlistClient
 {
@@ -15,6 +16,7 @@ public class WishlistClient : IWishlistClient
         _httpClient = httpClient;
     }
 
+    // GET api/wishlist — hämtar alla önskelisteobjekt för inloggad användare
     public async Task<List<WishlistItemDto>> GetWishlistAsync()
     {
         try
@@ -28,6 +30,7 @@ public class WishlistClient : IWishlistClient
         }
     }
 
+    // POST api/wishlist — lägger till film i önskelistan
     public async Task<bool> AddToWishlistAsync(int movieId)
     {
         try
@@ -41,6 +44,7 @@ public class WishlistClient : IWishlistClient
         }
     }
 
+    // DELETE api/wishlist/{movieId} — tar bort film från önskelistan (notera: movieId, inte wishlistItemId)
     public async Task<bool> RemoveFromWishlistAsync(int movieId)
     {
         try

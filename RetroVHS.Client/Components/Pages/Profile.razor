@@ -130,15 +130,18 @@
     private string? passwordError;
     private string? passwordSuccess;
 
+    // Synlighetstillstånd för lösenordsfälten (visa/dölj-knapp)
     private bool showCurrentPwd;
     private bool showNewPwd;
     private bool showConfirmPwd;
 
+    // Sidan skyddas av @attribute [Authorize] — hämtar profildata direkt för inloggad användare
     protected override async Task OnInitializedAsync()
     {
-        var user = await UserClient.GetCurrentUserAsync();
+        var user = await UserClient.GetCurrentUserAsync(); // GET api/users/me
         if (user is not null)
         {
+            // Fyll formuläret med nuvarande värden
             profileDto = new UpdateUserProfileDto
             {
                 FirstName = user.FirstName,
@@ -150,6 +153,7 @@
         isLoading = false;
     }
 
+    // PUT api/users/me — uppdaterar profil och synkroniserar visningsnamnet i headern
     private async Task HandleUpdateProfileAsync()
     {
         savingProfile = true;
@@ -160,6 +164,8 @@
 
         if (user is not null)
         {
+            // UpdateDisplayClaims uppdaterar firstName/lastName/nickname i JWT-claims i minnet
+            // så att headern visar det nya förnamnet utan att användaren behöver logga in igen
             AppAuthState.UpdateDisplayClaims(user);
             profileSuccess = "Profilen har uppdaterats.";
         }
@@ -171,6 +177,7 @@
         savingProfile = false;
     }
 
+    // PUT api/users/me/password — null = framgång, sträng = felmeddelande
     private async Task HandleChangePasswordAsync()
     {
         savingPassword = true;
@@ -182,7 +189,7 @@
         if (error is null)
         {
             passwordSuccess = "Lösenordet har bytts.";
-            passwordDto = new ChangePasswordDto();
+            passwordDto = new ChangePasswordDto(); // Rensa formuläret
         }
         else
         {
@@ -192,6 +199,7 @@
         savingPassword = false;
     }
 
+    // Returnerar rätt SVG-ikon beroende på om lösenordet visas eller är dolt
     private RenderFragment EyeIcon(bool visible) => visible
         ? @<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
         : @<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;

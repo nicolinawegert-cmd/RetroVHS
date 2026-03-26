@@ -101,43 +101,49 @@
     [Parameter] public int Id { get; set; }
     private UserDto? user;
     private bool isLoading = true;
-    private bool acting;
+    private bool acting; // true medan ett API-anrop pågår — inaktiverar knappar
+
+    // Bekräftelsedialoger — bara en visas åt gången
     private bool showNicknameConfirm;
     private bool showBlockConfirm;
     private bool showDeleteConfirm;
     private string? actionMessage;
     private bool actionSuccess;
 
+    // GET api/admin/users/{id}
     protected override async Task OnInitializedAsync()
     {
         user = await AdminClient.GetUserByIdAsync(Id);
         isLoading = false;
     }
 
+    // PUT api/admin/users/{id}/nickname (med Nickname = null)
     private async Task SetNicknameNullAsync()
     {
         acting = true;
         var ok = await AdminClient.SetNicknameNullAsync(Id);
-        if (ok && user is not null) user.Nickname = null;
+        if (ok && user is not null) user.Nickname = null; // Uppdatera lokalt
         showNicknameConfirm = false;
         actionMessage = ok ? "Nickname borttaget." : "Åtgärden misslyckades.";
         actionSuccess = ok;
         acting = false;
     }
 
+    // PUT api/admin/users/{id}/block eller /unblock beroende på nuvarande status
     private async Task ToggleBlockAsync()
     {
         acting = true;
         var ok = user!.IsBlocked
             ? await AdminClient.UnblockUserAsync(Id)
             : await AdminClient.BlockUserAsync(Id);
-        if (ok) user.IsBlocked = !user.IsBlocked;
+        if (ok) user.IsBlocked = !user.IsBlocked; // Toggla lokalt
         showBlockConfirm = false;
         actionMessage = ok ? (user.IsBlocked ? "Användaren blockerad." : "Användaren avblockerad.") : "Åtgärden misslyckades.";
         actionSuccess = ok;
         acting = false;
     }
 
+    // DELETE api/admin/users/{id} — navigerar tillbaka till listan vid framgång
     private async Task DeleteUserAsync()
     {
         acting = true;

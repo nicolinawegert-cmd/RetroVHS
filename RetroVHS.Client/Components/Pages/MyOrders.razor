@@ -98,12 +98,14 @@
 </AuthorizeView>
 
 @code {
+    // Konstanter för åtgärdstyper — undviker magic strings i templates
     private const string ActionComplete = "complete";
     private const string ActionCancel = "cancel";
 
     private List<RentalDto> orders = [];
     private bool isLoading = true;
 
+    // Bekräftelsedialog-state: vilken order och vilken åtgärd väntar på bekräftelse
     private int? confirmingId;
     private string? confirmAction;
     private bool acting;
@@ -112,9 +114,10 @@
 
     protected override async Task OnInitializedAsync()
     {
+        // Auth-guard: undviker GET api/users/me/rentals för oinloggade användare
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         if (authState.User.Identity?.IsAuthenticated == true)
-            orders = await UserClient.GetMyOrdersAsync();
+            orders = await UserClient.GetMyOrdersAsync(); // GET api/users/me/rentals
         isLoading = false;
     }
 
@@ -132,6 +135,8 @@
         confirmAction = null;
     }
 
+    // Skickar rätt API-anrop beroende på åtgärd och uppdaterar status lokalt vid framgång
+    // PUT api/rentals/{id}/complete eller PUT api/rentals/{id}/cancel
     private async Task ExecuteActionAsync(RentalDto order, string action)
     {
         acting = true;
@@ -142,6 +147,7 @@
 
         if (success)
         {
+            // Uppdatera status lokalt — undviker ett extra API-anrop för att ladda om listan
             order.Status = action == ActionComplete ? RentalStatus.Completed : RentalStatus.Cancelled;
             confirmingId = null;
             confirmAction = null;

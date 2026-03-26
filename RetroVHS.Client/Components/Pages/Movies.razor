@@ -69,19 +69,23 @@
 </div>
 
 @code {
+	// Alla filmer från API:t — filtrering sker client-side för snabb respons
     private List<MovieListDto> allMovies = [];
     private List<MovieListDto> filtered = [];
     private List<string> allGenres = [];
     private string selectedGenre = "";
     private string sortOption = "title-asc";
     private bool isLoading = true;
-    private bool isAdmin;
+    private bool isAdmin; // Admin-användare ser "Redigera"-länk bredvid varje film
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         isAdmin = authState.User.IsInRole("Admin");
-        allMovies = await MovieClient.GetAllMoviesAsync();
+
+        allMovies = await MovieClient.GetAllMoviesAsync(); // GET api/movies
+
+        // Bygg genre-listan från de filmer som faktiskt finns — inga separata API-anrop
         allGenres = allMovies
             .SelectMany(m => m.Genres)
             .Distinct()
@@ -91,6 +95,7 @@
         ApplyFilter();
     }
 
+    // Filtrering och sortering sker helt client-side — inga ytterligare API-anrop
     private void ApplyFilter()
     {
         var result = allMovies.AsEnumerable();

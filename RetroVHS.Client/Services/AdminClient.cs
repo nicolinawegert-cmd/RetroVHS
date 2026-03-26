@@ -10,6 +10,11 @@ using RetroVHS.Shared.DTOs.Reviews;
 
 namespace RetroVHS.Client.Services;
 
+/// <summary>
+/// HTTP-klient för admin-operationer.
+/// Alla anrop kräver Admin-roll — JWT-tokenen med rätt roll skickas automatiskt
+/// via Authorization-headern som satts av AuthClient vid inloggning.
+/// </summary>
 public class AdminClient : IAdminClient
 {
     private readonly HttpClient _httpClient;

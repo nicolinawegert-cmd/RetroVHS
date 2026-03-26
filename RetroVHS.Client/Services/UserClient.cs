@@ -8,6 +8,7 @@ namespace RetroVHS.Client.Services;
 
 /// <summary>
 /// HTTP-klient som anropar API:ts användarendpoints.
+/// Alla anrop kräver inloggning — JWT skickas automatiskt via Authorization-headern.
 /// </summary>
 public class UserClient : IUserClient
 {
@@ -18,6 +19,7 @@ public class UserClient : IUserClient
         _httpClient = httpClient;
     }
 
+    // GET api/users/me — hämtar profildata för den inloggade användaren
     public async Task<UserDto?> GetCurrentUserAsync()
     {
         try
@@ -30,6 +32,8 @@ public class UserClient : IUserClient
         }
     }
 
+    // PUT api/users/me — uppdaterar profil. Vid fel läses felmeddelandet ur JSON-svaret
+    // och returneras som en tuple (null, felmeddelande) istället för att kasta exception.
     public async Task<(UserDto? User, string? Error)> UpdateProfileAsync(UpdateUserProfileDto dto)
     {
         try
@@ -41,6 +45,7 @@ public class UserClient : IUserClient
                 return (user, null);
             }
 
+            // Plocka ut felmeddelandet från API-svaret om det finns
             var body = await response.Content.ReadFromJsonAsync<JsonElement>();
             var message = body.TryGetProperty("message", out var msg) ? msg.GetString() : null;
             return (null, message ?? "Kunde inte uppdatera profilen.");
@@ -51,6 +56,8 @@ public class UserClient : IUserClient
         }
     }
 
+    // PUT api/users/me/password — returnerar null vid framgång, felmeddelande vid misslyckande.
+    // API:t kan returnera en lista av fel (t.ex. lösenordskrav) som sammanfogas till en sträng.
     public async Task<string?> ChangePasswordAsync(ChangePasswordDto dto)
     {
         try
@@ -59,6 +66,7 @@ public class UserClient : IUserClient
             if (response.IsSuccessStatusCode)
                 return null;
 
+            // API kan returnera en "errors"-array med flera valideringsfel
             var body = await response.Content.ReadFromJsonAsync<JsonElement>();
             if (body.TryGetProperty("errors", out var errorsEl))
             {
@@ -78,6 +86,7 @@ public class UserClient : IUserClient
         }
     }
 
+    // GET api/users/me/reviews
     public async Task<List<ReviewDto>> GetMyReviewsAsync()
     {
         try
@@ -91,6 +100,7 @@ public class UserClient : IUserClient
         }
     }
 
+    // GET api/users/me/rentals
     public async Task<List<RentalDto>> GetMyOrdersAsync()
     {
         try
@@ -104,6 +114,7 @@ public class UserClient : IUserClient
         }
     }
 
+    // PUT api/rentals/{rentalId}/complete — null body (ingen request body behövs)
     public async Task<bool> CompleteRentalAsync(int rentalId)
     {
         try
@@ -114,6 +125,7 @@ public class UserClient : IUserClient
         catch { return false; }
     }
 
+    // PUT api/rentals/{rentalId}/cancel — null body
     public async Task<bool> CancelRentalAsync(int rentalId)
     {
         try

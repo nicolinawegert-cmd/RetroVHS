@@ -68,12 +68,14 @@
 
     protected override async Task OnInitializedAsync()
     {
+        // Auth-guard: undviker GET api/wishlist för oinloggade användare
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         if (authState.User.Identity?.IsAuthenticated == true)
-            items = await WishlistClient.GetWishlistAsync();
+            items = await WishlistClient.GetWishlistAsync(); // GET api/wishlist
         isLoading = false;
     }
 
+    // DELETE api/wishlist/{movieId} — uppdaterar listan lokalt utan ny GET
     private async Task RemoveItem(int movieId)
     {
         var success = await WishlistClient.RemoveFromWishlistAsync(movieId);
@@ -83,13 +85,15 @@
         }
     }
 
+    // Lägger till i varukorgen och tar bort från önskelistan i ett flöde
+    // POST api/cart → uppdatera CartState → DELETE api/wishlist/{movieId}
     private async Task AddToCartFromWishlist(WishlistItemDto item)
     {
         var result = await CartClient.AddToCartAsync(item.MovieId);
         if (result != null)
         {
-            CartState.SetCount(result.TotalItems);
-            await RemoveItem(item.MovieId);
+            CartState.SetCount(result.TotalItems); // Uppdatera varukorgsräknaren i headern
+            await RemoveItem(item.MovieId);        // Ta bort från önskelistan
         }
     }
 

@@ -81,30 +81,35 @@
     [Parameter] public int UserId { get; set; }
     private List<ReviewDto> reviews = [];
     private bool isLoading = true;
+
+    // Separata bekräftelsedialoger för de två åtgärderna (ta bort kommentar vs. radera hela recensionen)
     private int? confirmRemoveCommentId;
     private int? confirmDeleteId;
     private bool acting;
 
+    // GET api/admin/users/{UserId}/reviews
     protected override async Task OnInitializedAsync()
     {
         reviews = await AdminClient.GetUserReviewsAsync(UserId);
         isLoading = false;
     }
 
+    // DELETE api/admin/reviews/{reviewId}/comment — betyget behålls, bara texten tas bort
     private async Task RemoveCommentAsync(ReviewDto review)
     {
         acting = true;
         var ok = await AdminClient.RemoveReviewCommentAsync(review.Id);
-        if (ok) review.Comment = string.Empty;
+        if (ok) review.Comment = string.Empty; // Uppdatera lokalt
         confirmRemoveCommentId = null;
         acting = false;
     }
 
+    // DELETE api/admin/reviews/{reviewId} — raderar hela recensionen inkl. betyg
     private async Task DeleteReviewAsync(int reviewId)
     {
         acting = true;
         var ok = await AdminClient.DeleteReviewAsync(reviewId);
-        if (ok) reviews.RemoveAll(r => r.Id == reviewId);
+        if (ok) reviews.RemoveAll(r => r.Id == reviewId); // Ta bort ur listan lokalt
         confirmDeleteId = null;
         acting = false;
     }

@@ -65,15 +65,17 @@
     [Parameter] public int UserId { get; set; }
     private List<RentalDto> rentals = [];
     private bool isLoading = true;
-    private int? confirmCancelId;
+    private int? confirmCancelId; // ID för beställning som väntar på bekräftad avbokning
     private bool acting;
 
+    // GET api/admin/users/{UserId}/rentals
     protected override async Task OnInitializedAsync()
     {
         rentals = await AdminClient.GetUserRentalsAsync(UserId);
         isLoading = false;
     }
 
+    // PUT api/admin/rentals/{rentalId}/cancel — uppdaterar status lokalt vid framgång
     private async Task CancelRentalAsync(RentalDto rental)
     {
         acting = true;

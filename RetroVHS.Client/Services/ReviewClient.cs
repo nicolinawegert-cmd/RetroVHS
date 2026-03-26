@@ -4,13 +4,15 @@ using RetroVHS.Shared.DTOs.Reviews;
 namespace RetroVHS.Client.Services;
 
 /// <summary>
-/// HTTP-klient för recensionsoperationer.
+/// HTTP-klient för recensionsoperationer tillgängliga för inloggade användare.
+/// JWT-token skickas automatiskt via Authorization-headern.
 /// </summary>
 public class ReviewClient : IReviewClient
 {
     private readonly HttpClient _httpClient;
     public ReviewClient(HttpClient httpClient) => _httpClient = httpClient;
 
+    // POST api/reviews — skapar recension, returnerar den sparade recensionen med server-genererade fält
     public async Task<ReviewDto?> CreateReviewAsync(CreateReviewDto dto)
     {
         try
@@ -23,6 +25,7 @@ public class ReviewClient : IReviewClient
         catch { return null; }
     }
 
+    // PUT api/reviews/{id} — uppdaterar en befintlig recension, returnerar uppdaterad version
     public async Task<ReviewDto?> UpdateReviewAsync(UpdateReviewDto dto)
     {
         try

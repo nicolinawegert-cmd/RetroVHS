@@ -103,16 +103,18 @@
     private List<ReviewDto> reviews = [];
     private bool isLoading = true;
 
-    private int? editingId;
+    // Redigeringsstate — bara en recension kan redigeras åt gången
+    private int? editingId;       // ID för recensionen som redigeras just nu (null = ingen)
     private int editRating;
-    private int editHoverRating;
+    private int editHoverRating;  // Temporärt betyg vid hover över stjärnorna
     private string editComment = string.Empty;
     private bool saving;
     private string? editError;
 
+    // Sidan skyddas av @attribute [Authorize] — OnInitializedAsync nås alltså bara av inloggade
     protected override async Task OnInitializedAsync()
     {
-        reviews = await UserClient.GetMyReviewsAsync();
+        reviews = await UserClient.GetMyReviewsAsync(); // GET api/users/me/reviews
         isLoading = false;
     }
 
@@ -131,6 +133,7 @@
         editError = null;
     }
 
+    // PUT api/reviews/{id} — ersätter recensionen in-place i den lokala listan vid framgång
     private async Task SaveEditAsync(ReviewDto review)
     {
         if (editRating == 0) return;
@@ -150,6 +153,7 @@
             var idx = reviews.FindIndex(r => r.Id == review.Id);
             if (idx >= 0)
             {
+                // MovieTitle finns inte i API-svaret, kopiera det från befintlig post
                 result.MovieTitle = review.MovieTitle;
                 reviews[idx] = result;
             }

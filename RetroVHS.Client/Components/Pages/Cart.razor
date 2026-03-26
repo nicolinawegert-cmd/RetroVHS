@@ -90,6 +90,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        // Auth-guard: kolla inloggning innan API-anrop — undviker onödiga requests för gäster
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         if (authState.User.Identity?.IsAuthenticated == true)
             await LoadCart();
@@ -97,6 +98,7 @@
             isLoading = false;
     }
 
+    // GET api/cart — hämtar varukorgen och synkroniserar räknaren i headern
     private async Task LoadCart()
     {
         isLoading = true;
@@ -105,6 +107,7 @@
         isLoading = false;
     }
 
+    // DELETE api/cart/{cartItemId} — laddar om hela varukorgen efter borttagning
     private async Task RemoveItem(int cartItemId)
     {
         removing = true;
@@ -114,6 +117,7 @@
         removing = false;
     }
 
+    // Navigerar till /checkout/{cart.Id} — cart.Id skickas med som URL-parameter
     private void GoToCheckout()
     {
         if (cart != null)

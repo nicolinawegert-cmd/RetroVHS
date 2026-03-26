@@ -65,6 +65,7 @@
     private AdminDashboardDto? stats;
     private bool isLoading = true;
 
+    // GET api/admin/stats — hämtar aggregerad statistik (användare, filmer, beställningar, recensioner)
     protected override async Task OnInitializedAsync()
     {
         stats = await AdminClient.GetDashboardStatsAsync();

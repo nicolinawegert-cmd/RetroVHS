@@ -242,8 +242,10 @@
 </div>
 
 @code {
+    // null = skapa ny film, int = redigera befintlig (från URL-parametern)
     [Parameter] public int? Id { get; set; }
 
+    // Formulärfält
     private string title = "";
     private int releaseYear = DateTime.Now.Year;
     private int durationMinutes = 90;
@@ -257,30 +259,32 @@
     private MovieAvailabilityStatus availabilityStatus = MovieAvailabilityStatus.Available;
     private bool isFeatured = false;
 
-    // Production company — searchable + create
+    // Produktionsbolag — sökbart fält med inline-skapande
+    // (En film har max ett produktionsbolag, därav enstaka fält istället för lista)
     private string companySearchText = "";
     private int? selectedCompanyId;
     private bool showCompanyDropdown;
     private List<ProductionCompanyDto> filteredCompanies = [];
     private string? companyError;
 
-    private HashSet<int> selectedGenreIds = [];
+    private HashSet<int> selectedGenreIds = []; // HashSet för O(1) toggle-koll
     private List<PersonRow> directors = [];
     private List<PersonRow> cast = [];
 
     private List<GenreDto> allGenres = [];
     private List<ProductionCompanyDto> companies = [];
 
-    // Genre creation
+    // Inline genre-skapande
     private string newGenreName = "";
     private string? genreError;
 
     private bool isLoading = true;
     private bool submitting;
-    private bool showErrors;
+    private bool showErrors; // true = visa valideringsfel för alla fält vid submit-försök
     private string? submitError;
 
-    // Per-fält touched-flaggor — visas direkt när fältet lämnas
+    // "Touched"-flaggor per fält — valideringsfel visas direkt när fältet lämnas (onblur),
+    // eller för alla fält på en gång om man försöker submitta med fel
     private bool _tTitle, _tYear, _tDuration, _tPrice, _tStock, _tSynopsis;
     private bool ShowTitle => showErrors || _tTitle;
     private bool ShowYear => showErrors || _tYear;
@@ -289,17 +293,18 @@
     private bool ShowStock => showErrors || _tStock;
     private bool ShowSynopsis => showErrors || _tSynopsis;
 
-
     protected override async Task OnInitializedAsync()
     {
-        var genresTask = AdminClient.GetGenresAsync();
-        var companiesTask = AdminClient.GetProductionCompaniesAsync();
+        // Genres och produktionsbolag laddas alltid (behövs för dropdown-listorna)
+        var genresTask = AdminClient.GetGenresAsync();           // GET api/genres
+        var companiesTask = AdminClient.GetProductionCompaniesAsync(); // GET api/production-companies
         allGenres = await genresTask;
         companies = await companiesTask;
 
         if (Id.HasValue)
         {
-            var movie = await AdminClient.GetMovieByIdAsync(Id.Value);
+            // Redigera-läge: ladda befintlig film och fyll formuläret
+            var movie = await AdminClient.GetMovieByIdAsync(Id.Value); // GET api/admin/movies/{id}
             if (movie is not null)
             {
                 title = movie.Title;
@@ -314,7 +319,9 @@
                 language = movie.Language;
                 country = movie.Country;
                 selectedCompanyId = movie.ProductionCompanyId;
+                // Slå upp bolagsnamnet från den redan laddade companies-listan
                 companySearchText = companies.FirstOrDefault(c => c.Id == movie.ProductionCompanyId)?.Name ?? "";
+                // Matcha genres på namn (API returnerar namn, inte ID:n)
                 selectedGenreIds = allGenres
                     .Where(g => movie.Genres.Contains(g.Name))
                     .Select(g => g.Id)
@@ -327,28 +334,33 @@
         isLoading = false;
     }
 
+    // Togglar en genre — HashSet.Add returnerar false om den redan finns
     private void ToggleGenre(int genreId)
     {
         if (!selectedGenreIds.Add(genreId))
             selectedGenreIds.Remove(genreId);
     }
 
+    // Hanterar personssökning med debounce (300ms) per rad.
+    // Varje PersonRow har sin egen CancellationTokenSource — föregående sökning
+    // avbryts innan en ny startar för att undvika race conditions.
     private async Task OnPersonSearchInput(ChangeEventArgs e, int idx, List<PersonRow> rows)
     {
         var term = e.Value?.ToString() ?? "";
         rows[idx].DisplayName = term;
-        rows[idx].PersonId = null;
+        rows[idx].PersonId = null; // Rensa valt person-ID när texten ändras
 
+        // Avbryt och kassera eventuell pågående debounce för denna rad
         rows[idx].Debounce?.Cancel();
         rows[idx].Debounce?.Dispose();
         rows[idx].Debounce = new CancellationTokenSource();
         var token = rows[idx].Debounce.Token;
         try
         {
-            await Task.Delay(300, token);
+            await Task.Delay(300, token); // Vänta 300ms — avbryts om ny knapptryckning sker
             if (!string.IsNullOrWhiteSpace(term))
             {
-                rows[idx].SearchResults = await AdminClient.GetPersonsAsync(term);
+                rows[idx].SearchResults = await AdminClient.GetPersonsAsync(term); // GET api/persons?search=...
                 rows[idx].ShowDropdown = true;
             }
             else
@@ -357,7 +369,7 @@
                 rows[idx].ShowDropdown = false;
             }
         }
-        catch (TaskCanceledException) { }
+        catch (TaskCanceledException) { } // Debounce avbröts — ignorera
     }
 
     private void SelectPerson(PersonDto person, int idx, List<PersonRow> rows)
@@ -384,6 +396,8 @@
         submitting = true;
         submitError = null;
 
+        // Bygg credits-listan från regissörer och skådespelare som har ett valt PersonId
+        // (rader utan valt person ignoreras — de är tomma söktextfält)
         var credits = new List<CreateMovieCreditDto>();
         foreach (var d in directors.Where(d => d.PersonId.HasValue))
             credits.Add(new CreateMovieCreditDto { PersonId = d.PersonId!.Value, Role = CreditRole.Director });
@@ -394,6 +408,7 @@
 
         if (Id.HasValue)
         {
+            // PUT api/admin/movies/{id} — uppdatera befintlig film
             var dto = new UpdateMovieDto
             {
                 Id = Id.Value, Title = title, Synopsis = synopsis, ReleaseYear = releaseYear,
@@ -409,6 +424,7 @@
         }
         else
         {
+            // POST api/admin/movies — skapa ny film
             var dto = new CreateMovieDto
             {
                 Title = title, Synopsis = synopsis, ReleaseYear = releaseYear,
@@ -426,10 +442,11 @@
         submitting = false;
     }
 
+    // Filtrerar produktionsbolag client-side baserat på inmatat söktext
     private void OnCompanyInput(ChangeEventArgs e)
     {
         companySearchText = e.Value?.ToString() ?? "";
-        selectedCompanyId = null;
+        selectedCompanyId = null; // Rensa valt bolag när texten ändras
         showCompanyDropdown = true;
         filteredCompanies = string.IsNullOrWhiteSpace(companySearchText)
             ? []
@@ -452,6 +469,7 @@
         filteredCompanies = [];
     }
 
+    // POST api/production-companies — skapar bolag och väljer det direkt
     private async Task CreateCompanyAsync()
     {
         companyError = null;
@@ -460,7 +478,7 @@
         if (created is not null)
         {
             companies.Add(created);
-            companies = [.. companies.OrderBy(c => c.Name)];
+            companies = [.. companies.OrderBy(c => c.Name)]; // Håll listan sorterad
             SelectCompany(created);
         }
         else
@@ -469,6 +487,7 @@
         }
     }
 
+    // POST api/genres — skapar genre och markerar den som vald direkt
     private async Task CreateGenreAsync()
     {
         genreError = null;
@@ -478,7 +497,7 @@
         if (created is not null)
         {
             allGenres.Add(created);
-            allGenres = [.. allGenres.OrderBy(g => g.Name)];
+            allGenres = [.. allGenres.OrderBy(g => g.Name)]; // Håll listan sorterad
             selectedGenreIds.Add(created.Id);
             newGenreName = "";
         }
@@ -488,6 +507,8 @@
         }
     }
 
+    // IDisposable: rensar alla CancellationTokenSource när komponenten tas bort
+    // för att förhindra att pågående debounce-Tasks försöker uppdatera UI efter nedmontering
     public void Dispose()
     {
         foreach (var row in directors.Concat(cast))
@@ -497,14 +518,15 @@
         }
     }
 
+    // Intern klass som representerar en rad i regissör/skådespelare-listan
     private class PersonRow
     {
-        public int? PersonId { get; set; }
+        public int? PersonId { get; set; }       // null = ingen matchad person (bara text inmatat)
         public string DisplayName { get; set; } = "";
-        public string? CharacterName { get; set; }
-        public int DisplayOrder { get; set; } = 0;
+        public string? CharacterName { get; set; } // Skådespelarens rollnamn (valfritt)
+        public int DisplayOrder { get; set; } = 0; // Sorteringsordning i credits
         public bool ShowDropdown { get; set; }
         public List<PersonDto> SearchResults { get; set; } = [];
-        public CancellationTokenSource? Debounce { get; set; }
+        public CancellationTokenSource? Debounce { get; set; } // Per-rad debounce för sökning
     }
 }

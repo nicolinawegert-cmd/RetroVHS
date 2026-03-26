@@ -6,7 +6,7 @@ namespace RetroVHS.Client.Services;
 
 /// <summary>
 /// HTTP-klient som kommunicerar med varukorgs-API:t.
-/// Varje metod gör ett HTTP-anrop mot CartController.
+/// Alla anrop kräver inloggning — JWT skickas automatiskt via Authorization-headern.
 /// </summary>
 public class CartClient : ICartClient
 {
@@ -17,12 +17,11 @@ public class CartClient : ICartClient
         _httpClient = httpClient;
     }
 
-
+    // GET api/cart — hämtar den aktiva varukorgen för inloggad användare
     public async Task<CartDto?> GetCartAsync()
     {
         try
         {
-            // Försök hämta varukorgen från API:t. Om det inte går (t.ex. ingen varukorg eller nätverksfel), returnera null.
             return await _httpClient.GetFromJsonAsync<CartDto>("api/cart");
         }
         catch
@@ -31,7 +30,7 @@ public class CartClient : ICartClient
         }
     }
 
-
+    // POST api/cart — lägger till en film, returnerar uppdaterad varukorg (inkl. nytt TotalItems)
     public async Task<CartDto?> AddToCartAsync(int movieId)
     {
         try
@@ -50,6 +49,7 @@ public class CartClient : ICartClient
         }
     }
 
+    // DELETE api/cart/{cartItemId} — tar bort ett specifikt cart-item (inte movieId, utan cart-radens ID)
     public async Task<bool> RemoveFromCartAsync(int cartItemId)
     {
         try
@@ -63,6 +63,7 @@ public class CartClient : ICartClient
         }
     }
 
+    // POST api/cart/checkout — genomför köpet och skapar uthyrningsposter i databasen
     public async Task<CheckoutResponseDto?> CheckoutAsync(int cartId)
     {
         try

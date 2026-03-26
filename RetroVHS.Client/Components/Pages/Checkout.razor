@@ -91,23 +91,26 @@
 </AuthorizeView>
 
 @code {
+    // CartId tas emot via URL-parametern /checkout/{CartId}
     [Parameter] public int CartId { get; set; }
 
     private CartDto? cart;
-    private CheckoutResponseDto? result;
+    private CheckoutResponseDto? result; // Svar från API efter genomfört köp
     private bool isLoading = true;
     private bool processing;
-    private bool isCompleted;
+    private bool isCompleted; // true = bekräftelsevyn visas
     private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
+        // Auth-guard: undviker API-anrop för oinloggade användare
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         if (authState.User.Identity?.IsAuthenticated == true)
-            cart = await CartClient.GetCartAsync();
+            cart = await CartClient.GetCartAsync(); // GET api/cart
         isLoading = false;
     }
 
+    // POST api/cart/checkout — genomför köpet och skapar uthyrningsposter i databasen
     private async Task HandleCheckout()
     {
         processing = true;
@@ -118,7 +121,7 @@
         if (result != null && result.Success)
         {
             isCompleted = true;
-            CartState.SetCount(0);
+            CartState.SetCount(0); // Töm varukorgsräknaren i headern
         }
         else
         {

@@ -67,15 +67,17 @@
 @code {
     private List<MovieListDto> movies = [];
     private bool isLoading = true;
-    private int? confirmDeleteId;
+    private int? confirmDeleteId; // ID för film som väntar på bekräftad borttagning
     private bool deleting;
 
+    // GET api/admin/movies
     protected override async Task OnInitializedAsync()
     {
         movies = await AdminClient.GetAllMoviesAsync();
         isLoading = false;
     }
 
+    // DELETE api/admin/movies/{id} — tar bort filmen lokalt i listan vid framgång
     private async Task DeleteMovieAsync(int id)
     {
         deleting = true;
