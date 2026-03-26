@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using RetroVHS.Api.Data;
 using RetroVHS.Api.Models;
+using RetroVHS.Api.Services.Reviews;
 using RetroVHS.Shared.DTOs.Admin;
 using RetroVHS.Shared.DTOs.Auth;
 using RetroVHS.Shared.DTOs.Rentals;
@@ -17,10 +18,12 @@ namespace RetroVHS.Api.Services.Admin;
 public class AdminService : IAdminService
 {
     private readonly ApplicationDbContext _context;
+    private readonly IReviewService _reviewService;
 
-    public AdminService(ApplicationDbContext context)
+    public AdminService(ApplicationDbContext context, IReviewService reviewService)
     {
         _context = context;
+        _reviewService = reviewService;
     }
 
     // ========== Dashboard ==========
@@ -97,7 +100,7 @@ public class AdminService : IAdminService
         // Uppdatera betyg för filmer som påverkades
         var affectedMovieIds = user.Reviews.Select(r => r.MovieId).Distinct().ToList();
         foreach (var movieId in affectedMovieIds)
-            await UpdateMovieRatingAsync(movieId);
+            await _reviewService.UpdateMovieRatingAsync(movieId);
 
         return (true, "Användaren och all relaterad data har raderats.");
     }
@@ -177,7 +180,7 @@ public class AdminService : IAdminService
         review.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
-        await UpdateMovieRatingAsync(review.MovieId);
+        await _reviewService.UpdateMovieRatingAsync(review.MovieId);
 
         return (true, "Recensionen har raderats.");
     }
@@ -251,20 +254,4 @@ public class AdminService : IAdminService
         };
     }
 
-    private async Task UpdateMovieRatingAsync(int movieId)
-    {
-        var movie = await _context.Movies.FirstOrDefaultAsync(m => m.Id == movieId);
-        if (movie == null) return;
-
-        var activeReviews = await _context.Reviews
-            .Where(r => r.MovieId == movieId && !r.IsDeleted)
-            .ToListAsync();
-
-        movie.RatingCount = activeReviews.Count;
-        movie.RatingAverage = activeReviews.Count == 0
-            ? 0
-            : activeReviews.Average(r => r.Rating);
-
-        await _context.SaveChangesAsync();
     }
-}

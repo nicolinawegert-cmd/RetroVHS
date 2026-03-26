@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RetroVHS.Api.Data;
 using RetroVHS.Api.Services.Admin;
+using RetroVHS.Api.Services.Reviews;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,8 @@ namespace RetroVHS.Tests.Services
                 .UseInMemoryDatabase(databaseName: "AdminTestDb")
                 .Options;
             _context = new ApplicationDbContext(options);
-            _adminService = new AdminService(_context);
+            var reviewService = new ReviewService(_context);
+            _adminService = new AdminService(_context, reviewService);
         }
         [Fact]
         public async Task GetUserById_UserNotFound_ReturnsNull()

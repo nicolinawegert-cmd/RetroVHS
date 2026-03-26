@@ -46,10 +46,9 @@ public class CartItem
 
     /// <summary>
     /// Antal exemplar av filmen i varukorgen.
-    /// För en digital hyrtjänst kommer detta normalt vara 1,
-    /// men vi har med fältet för att modellen ska vara tydlig och flexibel.
+    /// Vi tillåter upp till 10 för att stödja flera exemplar av samma film.
     /// </summary>
-    [Range(1, 1)]
+    [Range(1, 10)]
     public int Quantity { get; set; } = 1;
 
     /// <summary>

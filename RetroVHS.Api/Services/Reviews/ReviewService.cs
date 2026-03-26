@@ -132,7 +132,7 @@ public class ReviewService : IReviewService
   /// <summary>
   /// Räknar om en films genomsnittsbetyg och antal betyg baserat på aktiva recensioner.
   /// </summary>
-  private async Task UpdateMovieRatingAsync(int movieId)
+  public async Task UpdateMovieRatingAsync(int movieId)
   {
     var movie = await _context.Movies
         .FirstOrDefaultAsync(m => m.Id == movieId);

@@ -14,8 +14,8 @@ public class AddToCartDto
     public int MovieId { get; set; }
 
     /// <summary>
-    /// Antal (normalt 1 i en hyrtjänst)
+    /// Antal (normalt 1, max 10)
     /// </summary>
-    [Range(1, 1)]
+    [Range(1, 10)]
     public int Quantity { get; set; } = 1;
 }
