@@ -117,6 +117,54 @@ public class AdminControllerTests
   }
 
   [Fact]
+  public async Task BlockUser_ReturnsOk_WhenSuccessful()
+  {
+    var adminService = new Mock<IAdminService>();
+    adminService.Setup(s => s.BlockUserAsync(2)).ReturnsAsync((true, "Blocked"));
+
+    var controller = CreateController(adminService);
+    var result = await controller.BlockUser(2);
+
+    Assert.IsType<OkObjectResult>(result);
+  }
+
+  [Fact]
+  public async Task BlockUser_ReturnsBadRequest_WhenFailed()
+  {
+    var adminService = new Mock<IAdminService>();
+    adminService.Setup(s => s.BlockUserAsync(2)).ReturnsAsync((false, "Already blocked"));
+
+    var controller = CreateController(adminService);
+    var result = await controller.BlockUser(2);
+
+    Assert.IsType<BadRequestObjectResult>(result);
+  }
+
+  [Fact]
+  public async Task UnblockUser_ReturnsOk_WhenSuccessful()
+  {
+    var adminService = new Mock<IAdminService>();
+    adminService.Setup(s => s.UnblockUserAsync(2)).ReturnsAsync((true, "Unblocked"));
+
+    var controller = CreateController(adminService);
+    var result = await controller.UnblockUser(2);
+
+    Assert.IsType<OkObjectResult>(result);
+  }
+
+  [Fact]
+  public async Task UnblockUser_ReturnsBadRequest_WhenFailed()
+  {
+    var adminService = new Mock<IAdminService>();
+    adminService.Setup(s => s.UnblockUserAsync(2)).ReturnsAsync((false, "Not blocked"));
+
+    var controller = CreateController(adminService);
+    var result = await controller.UnblockUser(2);
+
+    Assert.IsType<BadRequestObjectResult>(result);
+  }
+
+  [Fact]
   public async Task UpdateNickname_ReturnsOk_WhenSuccessful()
   {
     var adminService = new Mock<IAdminService>();
@@ -164,6 +212,30 @@ public class AdminControllerTests
 
     var controller = CreateController(adminService);
     var result = await controller.RemoveReviewComment(10);
+
+    Assert.IsType<BadRequestObjectResult>(result);
+  }
+
+  [Fact]
+  public async Task CancelRental_ReturnsOk_WhenSuccessful()
+  {
+    var adminService = new Mock<IAdminService>();
+    adminService.Setup(s => s.CancelRentalAsync(12)).ReturnsAsync((true, "Cancelled"));
+
+    var controller = CreateController(adminService);
+    var result = await controller.CancelRental(12);
+
+    Assert.IsType<OkObjectResult>(result);
+  }
+
+  [Fact]
+  public async Task CancelRental_ReturnsBadRequest_WhenFailed()
+  {
+    var adminService = new Mock<IAdminService>();
+    adminService.Setup(s => s.CancelRentalAsync(12)).ReturnsAsync((false, "Invalid"));
+
+    var controller = CreateController(adminService);
+    var result = await controller.CancelRental(12);
 
     Assert.IsType<BadRequestObjectResult>(result);
   }
