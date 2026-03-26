@@ -33,8 +33,7 @@ public class ReviewsController : ControllerBase
     if (!ModelState.IsValid)
       return BadRequest(ModelState);
 
-    if (!TryGetCurrentUserId(out var userId))
-      return Unauthorized();
+    var userId = GetUserId();
 
     try
     {
@@ -64,8 +63,7 @@ public class ReviewsController : ControllerBase
     if (id != dto.Id)
       return BadRequest(new { message = "Route id och dto.Id matchar inte." });
 
-    if (!TryGetCurrentUserId(out var userId))
-      return Unauthorized();
+    var userId = GetUserId();
 
     var review = await _reviewService.UpdateReviewAsync(userId, id, dto);
 
@@ -82,8 +80,7 @@ public class ReviewsController : ControllerBase
   [HttpDelete("{id:int}")]
   public async Task<IActionResult> RemoveReviewComment(int id)
   {
-    if (!TryGetCurrentUserId(out var userId))
-      return Unauthorized();
+    var userId = GetUserId();
 
     var deleted = await _reviewService.RemoveReviewCommentAsync(userId, id);
 
@@ -94,17 +91,13 @@ public class ReviewsController : ControllerBase
   }
 
   /// <summary>
-  /// Hämtar id för den aktuella inloggade användaren från JWT-tokenen.
+  /// Hämtar användar-id från JWT-token.
   /// </summary>
-  private bool TryGetCurrentUserId(out int userId)
+  private int GetUserId()
   {
-    userId = 0;
+    var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier)
+        ?? throw new UnauthorizedAccessException("Användaren saknar id i token.");
 
-    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-    if (string.IsNullOrWhiteSpace(userIdClaim))
-      return false;
-
-    return int.TryParse(userIdClaim, out userId);
+    return int.Parse(userIdClaim);
   }
 }

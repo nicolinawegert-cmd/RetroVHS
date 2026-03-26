@@ -28,4 +28,9 @@ public interface IReviewService
   /// </summary>
   Task<bool> RemoveReviewCommentAsync(int reviewId);
 
+  /// <summary>
+  /// Räknar om en films genomsnittsbetyg och antal betyg.
+  /// Kan anropas från andra services efter ändringar i recensioner.
+  /// </summary>
+  Task UpdateMovieRatingAsync(int movieId);
 }
