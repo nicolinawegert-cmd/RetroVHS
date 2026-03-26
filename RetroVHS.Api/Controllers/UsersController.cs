@@ -1,13 +1,10 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RetroVHS.Api.Services.Admin;
 using RetroVHS.Api.Services.Users;
-using RetroVHS.Shared.DTOs.Admin;
 using RetroVHS.Shared.DTOs.Auth;
 using RetroVHS.Shared.DTOs.Rentals;
 using RetroVHS.Shared.DTOs.Reviews;
-using RetroVHS.Api.Services.Reviews;
 
 namespace RetroVHS.Api.Controllers;
 
@@ -19,16 +16,13 @@ namespace RetroVHS.Api.Controllers;
 public class UsersController : ControllerBase
 {
   private readonly IUserService _userService;
-  private readonly IReviewService _reviewService;
-  private readonly IAdminService _adminService;
+
   /// <summary>
-  /// Skapar en ny instans av controllern och injicerar user-, review- och admin-servicen.
+  /// Skapar en ny instans av controllern och injicerar user-servicen.
   /// </summary>
-  public UsersController(IUserService userService, IReviewService reviewService, IAdminService adminService)
+  public UsersController(IUserService userService)
   {
     _userService = userService;
-    _reviewService = reviewService;
-    _adminService = adminService;
   }
 
   /// <summary>
@@ -116,18 +110,6 @@ public class UsersController : ControllerBase
   }
 
   /// <summary>
-  /// Hämtar alla användare i systemet.
-  /// Endast administratörer har åtkomst.
-  /// </summary>
-  [Authorize(Roles = "Admin")]
-  [HttpGet]
-  public async Task<ActionResult<List<UserDto>>> GetAllUsers()
-  {
-    var users = await _userService.GetAllUsersAsync();
-    return Ok(users);
-  }
-
-  /// <summary>
   /// Hämtar alla beställningar (köp) som den inloggade användaren har gjort.
   /// </summary>
   [Authorize]
@@ -141,99 +123,6 @@ public class UsersController : ControllerBase
 
     return Ok(rentals);
   }
-
-  /// <summary>
-  /// Hämtar profilinformationen för en specifik användare. Endast administratörer har åtkomst.
-  /// </summary>
-  [Authorize(Roles = "Admin")]
-  [HttpGet("{id:int}")]
-  public async Task<ActionResult<UserDto>> GetUserById(int id)
-  {
-    var user = await _userService.GetUserByIdAsync(id);
-
-    if (user == null)
-      return NotFound();
-
-    return Ok(user);
-  }
-
-  /// <summary>
-  /// Tar bort kommentartexten från en recension men behåller betyget.
-  /// Endast administratörer har åtkomst.
-  /// </summary>
-  [Authorize(Roles = "Admin")]
-  [HttpPut("reviews/{reviewId:int}/remove-comment")]
-  public async Task<IActionResult> RemoveReviewComment(int reviewId)
-  {
-    var result = await _reviewService.RemoveReviewCommentAsync(reviewId);
-
-    if (!result)
-      return NotFound();
-
-    return Ok(new { message = "Kommentartexten har tagits bort, men betyget är kvar." });
-  }
-
-  /// <summary>
-  /// Hämtar alla recensioner som en specifik användare har skrivit.
-  /// Endast administratörer har åtkomst.
-  /// </summary>
-  [Authorize(Roles = "Admin")]
-  [HttpGet("{id:int}/reviews")]
-  public async Task<ActionResult<List<ReviewDto>>> GetUserReviewsById(int id)
-  {
-    var reviews = await _userService.GetUserReviewsByIdAsync(id);
-    return Ok(reviews);
-  }
-
-  /// <summary>
-  /// Hämtar alla uthyrningar/beställningar för en specifik användare.
-  /// Endast administratörer har åtkomst.
-  /// </summary>
-  [Authorize(Roles = "Admin")]
-  [HttpGet("{id:int}/rentals")]
-  public async Task<ActionResult<List<RentalDto>>> GetUserRentalsById(int id)
-  {
-    var rentals = await _userService.GetUserRentalsByIdAsync(id);
-    return Ok(rentals);
-  }
-
-
-  /// <summary>
-  /// Raderar en användare och all relaterad data.
-  /// Endast administratörer har åtkomst.
-  /// </summary>
-  [Authorize(Roles = "Admin")]
-  [HttpDelete("{id:int}")]
-  public async Task<IActionResult> DeleteUser(int id)
-  {
-    var (success, message) = await _adminService.DeleteUserAsync(id);
-
-    if (!success)
-      return BadRequest(new { message });
-
-    return Ok(new { message });
-  }
-
-  /// <summary>
-  /// Sätter ett nytt nickname på en användare.
-  /// Används för moderation, t.ex. om någon valt ett olämpligt nickname.
-  /// Endast administratörer har åtkomst.
-  /// </summary>
-  [Authorize(Roles = "Admin")]
-  [HttpPut("{id:int}/nickname")]
-  public async Task<IActionResult> UpdateNickname(int id, [FromBody] AdminSetNicknameDto dto)
-  {
-    if (!ModelState.IsValid)
-      return BadRequest(ModelState);
-
-    var (success, message) = await _adminService.UpdateNicknameAsync(id, dto);
-
-    if (!success)
-      return BadRequest(new { message });
-
-    return Ok(new { message });
-  }
-
 
   /// <summary>
   /// Hämtar id för den aktuella inloggade användaren från JWT-tokenen.
