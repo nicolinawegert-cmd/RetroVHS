@@ -1,66 +1,49 @@
 @page "/wishlist"
 @using RetroVHS.Shared.DTOs.Wishlist
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
 @inject IWishlistClient WishlistClient
 @inject ICartClient CartClient
 @inject CartState CartState
 @inject NavigationManager Navigation
-@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>Min önskelista</PageTitle>
 
-<AuthorizeView>
-    <Authorized>
-        <div class="cart-page">
-            <h1 class="section-title">💝 Min önskelista</h1>
+<div class="cart-page">
+    <h1 class="section-title">💝 Min önskelista</h1>
 
-            @if (isLoading)
+    @if (isLoading)
+    {
+        <LoadingSpinner Text="Laddar önskelista..." />
+    }
+    else if (items.Count == 0)
+    {
+        <p class="empty-state-text">Din önskelista är tom. Bläddra bland filmer och lägg till dem med ❤️-knappen!</p>
+    }
+    else
+    {
+        <div class="cart-items">
+            @foreach (var item in items)
             {
-                <div class="loading-spinner">
-                    <div class="spinner-border" role="status" style="color: #e94560; width: 2.5rem; height: 2.5rem;"></div>
-                    <p>Laddar önskelista...</p>
-                </div>
-            }
-            else if (items.Count == 0)
-            {
-                <p style="color: #a0a0b0;">Din önskelista är tom. Bläddra bland filmer och lägg till dem med ❤️-knappen!</p>
-            }
-            else
-            {
-                <div class="cart-items">
-                    @foreach (var item in items)
+                <div class="cart-item">
+                    @if (!string.IsNullOrEmpty(item.PosterUrl))
                     {
-                        <div class="cart-item">
-                            @if (!string.IsNullOrEmpty(item.PosterUrl))
-                            {
-                                <img src="@item.PosterUrl" alt="@item.Title" class="wishlist-poster" />
-                            }
-                            <div class="cart-item-info">
-                                <h3 class="wishlist-title" @onclick="() => GoToMovie(item.MovieId)">@item.Title</h3>
-                                <p style="color: #a0a0b0; font-size: 0.85rem; margin: 2px 0 0;">
-                                    Tillagd @item.AddedAt.ToString("d MMM yyyy")
-                                </p>
-                                <p style="color: #e0e0f0; font-size: 0.85rem; font-weight: 600; margin: 2px 0 0;">
-                                    @item.RentalPrice.ToString("0.00") kr
-                                </p>
-                            </div>
-                            <div class="cart-item-actions">
-                                <button class="btn-submit" style="font-size: 0.85rem; padding: 6px 14px;" @onclick="() => AddToCartFromWishlist(item)">
-                                    🛒 Köp
-                                </button>
-                                <button class="btn-remove" style="font-size: 0.75rem; padding: 4px 8px; color: #e94560; border-color: rgba(233,69,96,0.4);" @onclick="() => RemoveItem(item.MovieId)">✕</button>
-                            </div>
-                        </div>
+                        <img src="@item.PosterUrl" alt="@item.Title" class="wishlist-poster" />
                     }
+                    <div class="cart-item-info">
+                        <h3 class="wishlist-title" @onclick="() => GoToMovie(item.MovieId)">@item.Title</h3>
+                        <p class="item-meta">Tillagd @item.AddedAt.ToString("d MMM yyyy")</p>
+                        <p class="item-price-meta">@item.RentalPrice.ToString("0.00") kr</p>
+                    </div>
+                    <div class="cart-item-actions">
+                        <button class="btn-submit btn-compact" @onclick="() => AddToCartFromWishlist(item)">🛒 Köp</button>
+                        <button class="btn-remove btn-tight" @onclick="() => RemoveItem(item.MovieId)">✕</button>
+                    </div>
                 </div>
             }
         </div>
-    </Authorized>
-    <NotAuthorized>
-        <div class="cart-page">
-            <p>Du måste logga in för att se din önskelista.</p>
-        </div>
-    </NotAuthorized>
-</AuthorizeView>
+    }
+</div>
 
 @code {
     private List<WishlistItemDto> items = [];
@@ -68,10 +51,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Auth-guard: undviker GET api/wishlist för oinloggade användare
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        if (authState.User.Identity?.IsAuthenticated == true)
-            items = await WishlistClient.GetWishlistAsync(); // GET api/wishlist
+        items = await WishlistClient.GetWishlistAsync(); // GET api/wishlist
         isLoading = false;
     }
 

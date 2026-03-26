@@ -20,10 +20,19 @@ public class JwtAuthStateProvider : AuthenticationStateProvider, IAppAuthStatePr
     /// <summary>
     /// Anropas efter lyckad inloggning. Parsar JWT-claims och lägger till
     /// användardata (t.ex. förnamn) som extra claims.
+    /// Om tokenen inte kan parsas loggas användaren ut i stället för att
+    /// ett undantag kastas.
     /// </summary>
     public void MarkUserAsAuthenticated(string jwtToken, UserDto user)
     {
         var claims = ParseClaimsFromJwt(jwtToken).ToList();
+
+        // Tom claims-lista betyder malformad token — behandla som utloggning
+        if (claims.Count == 0)
+        {
+            MarkUserAsLoggedOut();
+            return;
+        }
 
         // Lägg till användardata som inte finns i JWT:n
         claims.Add(new Claim("firstName", user.FirstName));
@@ -66,24 +75,44 @@ public class JwtAuthStateProvider : AuthenticationStateProvider, IAppAuthStatePr
 
     /// <summary>
     /// Parsar payload-delen av en JWT-token och returnerar claims.
+    /// Returnerar en tom samling om tokenen är malformad eller inte kan avkodas,
+    /// så att anroparen kan hantera ett ogiltigt tillstånd utan undantag.
     /// </summary>
     private static IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
     {
-        var payload = jwt.Split('.')[1];
-        var jsonBytes = ParseBase64Url(payload);
-        var pairs = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonBytes)!;
-
-        foreach (var (key, value) in pairs)
+        try
         {
-            if (value.ValueKind == JsonValueKind.Array)
+            var parts = jwt.Split('.');
+            if (parts.Length != 3)
+                return [];
+
+            var jsonBytes = ParseBase64Url(parts[1]);
+            var pairs = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonBytes);
+            if (pairs is null)
+                return [];
+
+            var claims = new List<Claim>();
+            foreach (var (key, value) in pairs)
             {
-                foreach (var element in value.EnumerateArray())
-                    yield return new Claim(key, element.GetString()!);
+                if (value.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var element in value.EnumerateArray())
+                    {
+                        var str = element.GetString();
+                        if (str is not null)
+                            claims.Add(new Claim(key, str));
+                    }
+                }
+                else
+                {
+                    claims.Add(new Claim(key, value.ToString()));
+                }
             }
-            else
-            {
-                yield return new Claim(key, value.ToString());
-            }
+            return claims;
+        }
+        catch
+        {
+            return [];
         }
     }
 

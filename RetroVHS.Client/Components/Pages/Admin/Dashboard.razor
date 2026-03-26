@@ -12,10 +12,7 @@
 
     @if (isLoading)
     {
-        <div class="loading-spinner">
-            <div class="spinner-border" role="status" style="color:#e94560;width:2.5rem;height:2.5rem;"></div>
-            <p>Laddar statistik...</p>
-        </div>
+        <LoadingSpinner Text="Laddar statistik..." />
     }
     else if (stats is null)
     {

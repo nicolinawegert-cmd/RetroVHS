@@ -1376,14 +1376,13 @@ h1:focus {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    margin-top: 1rem;
 }
 
 .my-review-card {
-    background: rgba(10, 10, 26, 0.75);
+    background: #16213e;
     border-radius: 10px;
     padding: 1.25rem;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
 }
 
 .my-review-top {
@@ -1765,3 +1764,87 @@ h1:focus {
 .new-genre-row { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.5rem; }
 .new-genre-row input { flex: 1; }
 .create-new-item { font-style: italic; color: #e94560; }
+
+/* ── Utilities (moved from inline styles) ─────────────── */
+
+/* Loading spinner */
+.page-spinner { color: #e94560; width: 2.5rem; height: 2.5rem; }
+
+/* Empty state and muted text */
+.empty-state-text { color: #a0a0b0; }
+
+/* Item metadata: dates, secondary info */
+.item-meta { color: #a0a0b0; font-size: 0.85rem; margin-top: 4px; }
+.item-meta-sm { color: #a0a0b0; font-size: 0.82rem; }
+
+/* Wishlist/cart price secondary line */
+.item-price-meta { color: #e0e0f0; font-size: 0.85rem; font-weight: 600; margin: 2px 0 0; }
+
+/* Stock availability labels */
+.stock-available { color: #50c878; font-weight: 600; }
+.stock-low      { color: #f0a050; font-weight: 600; }
+.stock-out      { color: #e94560; font-weight: 600; }
+
+/* Button size modifiers — combine with btn-submit / btn-remove */
+.btn-compact { font-size: 0.82rem; padding: 5px 12px; }
+.btn-tight   { font-size: 0.75rem; padding: 3px 8px; }
+
+/* Confirm/delete action row inside review or order cards */
+.confirm-actions-row { margin-left: auto; display: flex; align-items: center; gap: 0.4rem; }
+
+/* Order and review action button rows */
+.order-actions  { display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap; }
+.review-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+
+/* Home page "Se alla filmer" nav padding */
+.home-top-nav { padding: 1rem 1.5rem 0; }
+
+/* Clickable h3 titles (e.g. order list) */
+.clickable-title { cursor: pointer; }
+
+/* Wrapper around rental-status badge */
+.rental-status-wrapper { margin-top: 6px; }
+
+/* Admin list page header row */
+.admin-list-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+.section-title-flush { margin: 0; }
+
+/* btn-submit used as <a> link */
+.btn-submit-link { text-decoration: none; }
+
+/* confirm-inline with no top offset (used in table/list rows) */
+.confirm-inline-static { position: static; margin-top: 0.3rem; }
+
+/* Ghost delete button (admin lists) */
+.btn-delete-ghost { font-size: 0.8rem; padding: 3px 10px; border: none; background: transparent; cursor: pointer; color: #a0a0b0; }
+.btn-delete-ghost:hover { color: #e94560; }
+
+/* Status badge spacing when placed inline after a name */
+.badge-inline { margin-left: 0.4rem; }
+
+/* Wide action button (user profile admin actions) */
+.btn-action-wide { max-width: 240px; width: 100%; }
+
+/* Review display text */
+.review-movie-link   { color: #e0e0f0; text-decoration: none; }
+.review-movie-link:hover { color: #e94560; }
+.review-stars        { color: #f5c518; }
+.review-comment-text { color: #c0c0d0; font-size: 0.9rem; }
+.review-no-comment   { color: #606070; font-size: 0.85rem; font-style: italic; }
+.rating-count        { color: #606070; font-size: 0.8rem; }
+
+/* MovieForm: flex inputs in person/company search rows */
+.input-flex      { flex: 1; }
+.input-order-num { width: 80px; }
+
+/* MovieForm: featured checkbox row (horizontal layout) */
+.movie-form-field.row-inline { flex-direction: row; align-items: center; gap: 0.75rem; }
+.form-label-inline { margin: 0; font-size: 0.9rem; color: #e0e0f0; }
+
+/* MovieForm: bottom submit/cancel row */
+.form-actions { margin-top: 1.5rem; display: flex; gap: 1rem; }
+.form-cancel-link { color: #a0a0b0; text-decoration: none; align-self: center; }
+.form-cancel-link:hover { color: #e0e0f0; }
+
+/* MovieDetails back link with top margin */
+.admin-back-link-detail { display: inline-block; margin: 0.5rem 0 0 1rem; }

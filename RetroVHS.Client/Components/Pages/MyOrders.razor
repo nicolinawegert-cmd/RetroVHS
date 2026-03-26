@@ -2,100 +2,85 @@
 @using RetroVHS.Shared.DTOs.Rentals
 @using RetroVHS.Shared.Enums
 @using RetroVHS.Client.Helpers
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
 @inject IUserClient UserClient
 @inject NavigationManager Navigation
-@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>Mina beställningar</PageTitle>
 
-<AuthorizeView>
-    <Authorized>
-        <div class="cart-page">
-            <h1 class="section-title">📦 Mina beställningar</h1>
+<div class="cart-page">
+    <h1 class="section-title">📦 Mina beställningar</h1>
 
-            @if (isLoading)
+    @if (isLoading)
+    {
+        <LoadingSpinner Text="Laddar beställningar..." />
+    }
+    else if (orders.Count == 0)
+    {
+        <p class="empty-state-text">Du har inga beställningar ännu.</p>
+    }
+    else
+    {
+        <div class="cart-items">
+            @foreach (var order in orders)
             {
-                <div class="loading-spinner">
-                    <div class="spinner-border" role="status" style="color: #e94560; width: 2.5rem; height: 2.5rem;"></div>
-                    <p>Laddar beställningar...</p>
-                </div>
-            }
-            else if (orders.Count == 0)
-            {
-                <p style="color: #a0a0b0;">Du har inga beställningar ännu.</p>
-            }
-            else
-            {
-                <div class="cart-items">
-                    @foreach (var order in orders)
-                    {
-                        var orderId = order.Id;
-                        var movieId = order.MovieId;
-                        var movieUrl = "/movie/" + movieId;
-                        <div class="cart-item">
-                            <div class="cart-item-info">
-                                <h3 style="cursor:pointer" @onclick="() => Navigation.NavigateTo(movieUrl)">@order.Title</h3>
-                                <p class="cart-item-price">@order.PricePaid.ToString("0.00") kr</p>
-                                <p style="color: #a0a0b0; font-size: 0.85rem; margin-top: 4px;">
-                                    Köpt @order.RentedAt.ToString("d MMM yyyy")
-                                </p>
-                                <div style="margin-top:6px;">
-                                    <span class="rental-status @RentalStatusHelper.GetStatusClass(order.Status)">@RentalStatusHelper.GetStatusLabel(order.Status)</span>
-                                </div>
-
-                                @if (order.Status == RentalStatus.Active)
-                                {
-                                    @if (confirmingId == orderId && confirmAction == ActionComplete)
-                                    {
-                                        <div class="confirm-inline">
-                                            <p>Bekräfta att du har mottagit filmen?</p>
-                                            <button class="btn-confirm-yes" @onclick="() => ExecuteActionAsync(order, ActionComplete)" disabled="@acting">
-                                                @(acting ? "..." : "Ja, bekräfta")
-                                            </button>
-                                            <button class="btn-confirm-cancel" @onclick="CancelConfirm" disabled="@acting">Avbryt</button>
-                                        </div>
-                                    }
-                                    else if (confirmingId == orderId && confirmAction == ActionCancel)
-                                    {
-                                        <div class="confirm-inline">
-                                            <p>Vill du avbryta beställningen?</p>
-                                            <button class="btn-confirm-yes" @onclick="() => ExecuteActionAsync(order, ActionCancel)" disabled="@acting">
-                                                @(acting ? "..." : "Ja, avbryt")
-                                            </button>
-                                            <button class="btn-confirm-cancel" @onclick="CancelConfirm" disabled="@acting">Nej</button>
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <div style="display:flex; gap:0.5rem; margin-top:0.5rem; flex-wrap:wrap;">
-                                            <button class="btn-submit" style="font-size:0.82rem;padding:5px 12px;"
-                                                    @onclick="() => ShowConfirm(orderId, ActionComplete)">
-                                                ✅ Bekräfta leverans
-                                            </button>
-                                            <button class="btn-remove" style="font-size:0.82rem;padding:5px 12px;"
-                                                    @onclick="() => ShowConfirm(orderId, ActionCancel)">
-                                                Avbryt beställning
-                                            </button>
-                                        </div>
-                                    }
-                                }
-                                @if (!string.IsNullOrEmpty(actionError) && actionErrorId == orderId)
-                                {
-                                    <p class="review-error" style="margin-top:0.4rem;">@actionError</p>
-                                }
-                            </div>
+                var orderId = order.Id;
+                var movieId = order.MovieId;
+                var movieUrl = "/movie/" + movieId;
+                <div class="cart-item">
+                    <div class="cart-item-info">
+                        <h3 class="clickable-title" @onclick="() => Navigation.NavigateTo(movieUrl)">@order.Title</h3>
+                        <p class="cart-item-price">@order.PricePaid.ToString("0.00") kr</p>
+                        <p class="item-meta">Köpt @order.RentedAt.ToString("d MMM yyyy")</p>
+                        <div class="rental-status-wrapper">
+                            <span class="rental-status @RentalStatusHelper.GetStatusClass(order.Status)">@RentalStatusHelper.GetStatusLabel(order.Status)</span>
                         </div>
-                    }
+
+                        @if (order.Status == RentalStatus.Active)
+                        {
+                            @if (confirmingId == orderId && confirmAction == ActionComplete)
+                            {
+                                <div class="confirm-inline">
+                                    <p>Bekräfta att du har mottagit filmen?</p>
+                                    <button class="btn-confirm-yes" @onclick="() => ExecuteActionAsync(order, ActionComplete)" disabled="@acting">
+                                        @(acting ? "..." : "Ja, bekräfta")
+                                    </button>
+                                    <button class="btn-confirm-cancel" @onclick="CancelConfirm" disabled="@acting">Avbryt</button>
+                                </div>
+                            }
+                            else if (confirmingId == orderId && confirmAction == ActionCancel)
+                            {
+                                <div class="confirm-inline">
+                                    <p>Vill du avbryta beställningen?</p>
+                                    <button class="btn-confirm-yes" @onclick="() => ExecuteActionAsync(order, ActionCancel)" disabled="@acting">
+                                        @(acting ? "..." : "Ja, avbryt")
+                                    </button>
+                                    <button class="btn-confirm-cancel" @onclick="CancelConfirm" disabled="@acting">Nej</button>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="order-actions">
+                                    <button class="btn-submit btn-compact" @onclick="() => ShowConfirm(orderId, ActionComplete)">
+                                        ✅ Bekräfta leverans
+                                    </button>
+                                    <button class="btn-remove btn-compact" @onclick="() => ShowConfirm(orderId, ActionCancel)">
+                                        Avbryt beställning
+                                    </button>
+                                </div>
+                            }
+                        }
+                        @if (!string.IsNullOrEmpty(actionError) && actionErrorId == orderId)
+                        {
+                            <p class="review-error">@actionError</p>
+                        }
+                    </div>
                 </div>
             }
         </div>
-    </Authorized>
-    <NotAuthorized>
-        <div class="cart-page">
-            <p>Du måste logga in för att se dina beställningar.</p>
-        </div>
-    </NotAuthorized>
-</AuthorizeView>
+    }
+</div>
 
 @code {
     // Konstanter för åtgärdstyper — undviker magic strings i templates
@@ -114,10 +99,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Auth-guard: undviker GET api/users/me/rentals för oinloggade användare
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        if (authState.User.Identity?.IsAuthenticated == true)
-            orders = await UserClient.GetMyOrdersAsync(); // GET api/users/me/rentals
+        orders = await UserClient.GetMyOrdersAsync(); // GET api/users/me/rentals
         isLoading = false;
     }
 
@@ -141,23 +123,28 @@
     {
         acting = true;
         actionError = null;
-        bool success = action == ActionComplete
-            ? await UserClient.CompleteRentalAsync(order.Id)
-            : await UserClient.CancelRentalAsync(order.Id);
+        try
+        {
+            bool success = action == ActionComplete
+                ? await UserClient.CompleteRentalAsync(order.Id)
+                : await UserClient.CancelRentalAsync(order.Id);
 
-        if (success)
-        {
-            // Uppdatera status lokalt — undviker ett extra API-anrop för att ladda om listan
-            order.Status = action == ActionComplete ? RentalStatus.Completed : RentalStatus.Cancelled;
-            confirmingId = null;
-            confirmAction = null;
+            if (success)
+            {
+                // Uppdatera status lokalt — undviker ett extra API-anrop för att ladda om listan
+                order.Status = action == ActionComplete ? RentalStatus.Completed : RentalStatus.Cancelled;
+                confirmingId = null;
+                confirmAction = null;
+            }
+            else
+            {
+                actionError = "Åtgärden misslyckades. Försök igen.";
+                actionErrorId = order.Id;
+            }
         }
-        else
+        finally
         {
-            actionError = "Åtgärden misslyckades. Försök igen.";
-            actionErrorId = order.Id;
+            acting = false;
         }
-        acting = false;
     }
-
 }

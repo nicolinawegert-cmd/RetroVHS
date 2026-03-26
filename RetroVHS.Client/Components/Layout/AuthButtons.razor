@@ -1,0 +1,206 @@
+@using RetroVHS.Shared.DTOs.Auth
+@inject IAuthClient AuthClient
+
+<div class="auth-buttons">
+    <div class="login-wrapper">
+        <button class="btn-login" @onclick="ToggleLoginForm">Logga in</button>
+
+        @if (showLoginForm)
+        {
+            <div class="login-dropdown">
+                <EditForm Model="loginRequest" OnValidSubmit="HandleLoginAsync">
+                    <DataAnnotationsValidator />
+                    <div class="login-field">
+                        <input type="email"
+                               placeholder="E-post"
+                               @bind="loginRequest.Email" />
+                    </div>
+                    <div class="login-field password-field">
+                        <div class="password-input-wrapper">
+                            <input type="@(showLoginPassword ? "text" : "password")"
+                                   placeholder="Lösenord"
+                                   @bind="loginRequest.Password" />
+                            <button type="button" class="btn-eye" @onclick="() => showLoginPassword = !showLoginPassword"
+                                    tabindex="-1">
+                                @if (showLoginPassword)
+                                {
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                }
+                                else
+                                {
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                }
+                            </button>
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(loginError))
+                    {
+                        <div class="login-error">@loginError</div>
+                    }
+                    <button type="submit" class="btn-submit" disabled="@isLoggingIn">
+                        @(isLoggingIn ? "Loggar in..." : "Logga in")
+                    </button>
+                </EditForm>
+            </div>
+        }
+    </div>
+
+    <div class="login-wrapper">
+        <button class="btn-register" @onclick="ToggleRegisterForm">Registrera</button>
+
+        @if (showRegisterForm)
+        {
+            <div class="login-dropdown register-dropdown">
+                <EditForm Model="registerRequest" OnValidSubmit="HandleRegisterAsync">
+                    <DataAnnotationsValidator />
+                    <div class="login-field">
+                        <InputText placeholder="Förnamn"
+                                   @bind-Value="registerRequest.FirstName" />
+                        <ValidationMessage For="() => registerRequest.FirstName" />
+                    </div>
+                    <div class="login-field">
+                        <InputText placeholder="Efternamn"
+                                   @bind-Value="registerRequest.LastName" />
+                        <ValidationMessage For="() => registerRequest.LastName" />
+                    </div>
+                    <div class="login-field">
+                        <InputText placeholder="Nickname (valfritt)"
+                                   @bind-Value="registerRequest.Nickname" />
+                    </div>
+                    <div class="login-field">
+                        <InputText type="email"
+                                   placeholder="E-post"
+                                   @bind-Value="registerRequest.Email" />
+                        <ValidationMessage For="() => registerRequest.Email" />
+                    </div>
+                    <div class="login-field password-field">
+                        <div class="password-input-wrapper">
+                            <InputText type="@(showRegPassword ? "text" : "password")"
+                                       placeholder="Lösenord"
+                                       @bind-Value="registerRequest.Password" />
+                            <button type="button" class="btn-eye" @onclick="() => showRegPassword = !showRegPassword"
+                                    tabindex="-1">
+                                @if (showRegPassword)
+                                {
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                }
+                                else
+                                {
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                }
+                            </button>
+                        </div>
+                        <ValidationMessage For="() => registerRequest.Password" />
+                    </div>
+                    <div class="login-field password-field">
+                        <div class="password-input-wrapper">
+                            <InputText type="@(showRegConfirmPassword ? "text" : "password")"
+                                       placeholder="Bekräfta lösenord"
+                                       @bind-Value="registerRequest.ConfirmPassword" />
+                            <button type="button" class="btn-eye" @onclick="() => showRegConfirmPassword = !showRegConfirmPassword"
+                                    tabindex="-1">
+                                @if (showRegConfirmPassword)
+                                {
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                }
+                                else
+                                {
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                }
+                            </button>
+                        </div>
+                        <ValidationMessage For="() => registerRequest.ConfirmPassword" />
+                    </div>
+                    @if (!string.IsNullOrEmpty(registerError))
+                    {
+                        <div class="login-error">@registerError</div>
+                    }
+                    <button type="submit" class="btn-submit" disabled="@isRegistering">
+                        @(isRegistering ? "Registrerar..." : "Skapa konto")
+                    </button>
+                </EditForm>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public EventCallback OnLoginSuccess { get; set; }
+
+    private LoginRequestDto loginRequest = new();
+    private bool showLoginForm;
+    private bool isLoggingIn;
+    private string? loginError;
+    private bool showLoginPassword;
+
+    private RegisterRequestDto registerRequest = new();
+    private bool showRegisterForm;
+    private bool isRegistering;
+    private string? registerError;
+    private bool showRegPassword;
+    private bool showRegConfirmPassword;
+
+    private void ToggleLoginForm()
+    {
+        showLoginForm = !showLoginForm;
+        showRegisterForm = false;
+        loginError = null;
+        showLoginPassword = false;
+    }
+
+    private void ToggleRegisterForm()
+    {
+        showRegisterForm = !showRegisterForm;
+        showLoginForm = false;
+        registerError = null;
+        showRegPassword = false;
+        showRegConfirmPassword = false;
+    }
+
+    private async Task HandleLoginAsync()
+    {
+        isLoggingIn = true;
+        loginError = null;
+
+        var result = await AuthClient.LoginAsync(loginRequest);
+
+        if (result.Succeeded)
+        {
+            showLoginForm = false;
+            loginRequest = new();
+            await OnLoginSuccess.InvokeAsync();
+        }
+        else
+        {
+            loginError = result.Message is { Length: > 0 }
+                ? result.Message
+                : "Inloggning misslyckades.";
+        }
+
+        isLoggingIn = false;
+    }
+
+    private async Task HandleRegisterAsync()
+    {
+        isRegistering = true;
+        registerError = null;
+
+        var result = await AuthClient.RegisterAsync(registerRequest);
+
+        if (result.Succeeded)
+        {
+            showRegisterForm = false;
+            registerRequest = new();
+        }
+        else
+        {
+            registerError = result.Errors.Count > 0
+                ? string.Join(" ", result.Errors)
+                : result.Message is { Length: > 0 }
+                    ? result.Message
+                    : "Registrering misslyckades.";
+        }
+
+        isRegistering = false;
+    }
+}

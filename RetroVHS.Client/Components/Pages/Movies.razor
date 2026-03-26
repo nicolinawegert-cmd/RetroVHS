@@ -12,10 +12,7 @@
 
     @if (isLoading)
     {
-        <div class="loading-spinner">
-            <div class="spinner-border" role="status" style="color:#e94560;width:2.5rem;height:2.5rem;"></div>
-            <p>Laddar filmer...</p>
-        </div>
+        <LoadingSpinner Text="Laddar filmer..." />
     }
     else
     {
@@ -37,7 +34,7 @@
 
         @if (filtered.Count == 0)
         {
-            <p style="color:#a0a0b0;">Inga filmer matchar filtret.</p>
+            <p class="empty-state-text">Inga filmer matchar filtret.</p>
         }
         else
         {
@@ -49,7 +46,7 @@
                         <a class="movie-list-title" href="/movie/@movie.Id">@movie.Title</a>
                         @if (movie.RatingCount > 0)
                         {
-                            <span class="movie-list-rating">★ @movie.RatingAverage.ToString("0.0") <span style="color:#606070;font-size:0.8rem;">(@movie.RatingCount)</span></span>
+                            <span class="movie-list-rating">★ @movie.RatingAverage.ToString("0.0") <span class="rating-count">(@movie.RatingCount)</span></span>
                         }
                         else
                         {

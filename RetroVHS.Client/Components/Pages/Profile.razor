@@ -11,10 +11,7 @@
         @if (isLoading)
         {
             <div class="movie-section">
-                <div class="loading-spinner">
-                    <div class="spinner-border" role="status" style="color: #e94560; width: 2.5rem; height: 2.5rem;"></div>
-                    <p>Laddar profil...</p>
-                </div>
+                <LoadingSpinner Text="Laddar profil..." />
             </div>
         }
         else
@@ -159,22 +156,26 @@
         savingProfile = true;
         profileError = null;
         profileSuccess = null;
-
-        var (user, error) = await UserClient.UpdateProfileAsync(profileDto);
-
-        if (user is not null)
+        try
         {
-            // UpdateDisplayClaims uppdaterar firstName/lastName/nickname i JWT-claims i minnet
-            // så att headern visar det nya förnamnet utan att användaren behöver logga in igen
-            AppAuthState.UpdateDisplayClaims(user);
-            profileSuccess = "Profilen har uppdaterats.";
-        }
-        else
-        {
-            profileError = error ?? "Kunde inte uppdatera profilen.";
-        }
+            var (user, error) = await UserClient.UpdateProfileAsync(profileDto);
 
-        savingProfile = false;
+            if (user is not null)
+            {
+                // UpdateDisplayClaims uppdaterar firstName/lastName/nickname i JWT-claims i minnet
+                // så att headern visar det nya förnamnet utan att användaren behöver logga in igen
+                AppAuthState.UpdateDisplayClaims(user);
+                profileSuccess = "Profilen har uppdaterats.";
+            }
+            else
+            {
+                profileError = error ?? "Kunde inte uppdatera profilen.";
+            }
+        }
+        finally
+        {
+            savingProfile = false;
+        }
     }
 
     // PUT api/users/me/password — null = framgång, sträng = felmeddelande
@@ -183,20 +184,24 @@
         savingPassword = true;
         passwordError = null;
         passwordSuccess = null;
-
-        var error = await UserClient.ChangePasswordAsync(passwordDto);
-
-        if (error is null)
+        try
         {
-            passwordSuccess = "Lösenordet har bytts.";
-            passwordDto = new ChangePasswordDto(); // Rensa formuläret
-        }
-        else
-        {
-            passwordError = error;
-        }
+            var error = await UserClient.ChangePasswordAsync(passwordDto);
 
-        savingPassword = false;
+            if (error is null)
+            {
+                passwordSuccess = "Lösenordet har bytts.";
+                passwordDto = new ChangePasswordDto(); // Rensa formuläret
+            }
+            else
+            {
+                passwordError = error;
+            }
+        }
+        finally
+        {
+            savingPassword = false;
+        }
     }
 
     // Returnerar rätt SVG-ikon beroende på om lösenordet visas eller är dolt

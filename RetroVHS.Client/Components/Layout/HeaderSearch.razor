@@ -1,0 +1,89 @@
+@using RetroVHS.Shared.DTOs.Movies
+@inject IMovieClient MovieClient
+@inject NavigationManager Navigation
+@implements IDisposable
+
+<div class="header-search @(IsOpen ? "search-open" : "")" @onclick:stopPropagation="true">
+    <div class="search-container">
+        <input type="text"
+               class="search-input"
+               placeholder="Sök filmer..."
+               @bind="searchText"
+               @bind:event="oninput"
+               @bind:after="OnSearchInputAsync"
+               @onfocus="OnSearchFocus"
+               @onblur="OnSearchBlur" />
+
+        @if (showResults && searchResults.Count > 0)
+        {
+            <div class="search-results">
+                @foreach (var movie in searchResults)
+                {
+                    <div class="search-result-item" @onmousedown="() => SelectMovie(movie)">
+                        <span class="result-title">@movie.Title</span>
+                        <span class="result-year">(@movie.ReleaseYear)</span>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private string searchText = string.Empty;
+    private List<MovieListDto> searchResults = [];
+    private bool showResults;
+    private CancellationTokenSource? _debounceTokenSource;
+
+    private async Task OnSearchInputAsync()
+    {
+        _debounceTokenSource?.Cancel();
+        _debounceTokenSource = new CancellationTokenSource();
+        var token = _debounceTokenSource.Token;
+
+        if (string.IsNullOrWhiteSpace(searchText))
+        {
+            searchResults = [];
+            showResults = false;
+            return;
+        }
+
+        try
+        {
+            await Task.Delay(300, token);
+            searchResults = await MovieClient.SearchMoviesAsync(searchText);
+            showResults = searchResults.Count > 0;
+        }
+        catch (TaskCanceledException)
+        {
+            // Debounce avbruten, ignorera
+        }
+    }
+
+    private void OnSearchFocus()
+    {
+        if (searchResults.Count > 0)
+            showResults = true;
+    }
+
+    private async Task OnSearchBlur()
+    {
+        // Kort fördröjning så att mousedown på resultat hinner triggas före blur
+        await Task.Delay(200);
+        showResults = false;
+    }
+
+    private async Task SelectMovie(MovieListDto movie)
+    {
+        searchText = string.Empty;
+        searchResults = [];
+        showResults = false;
+        await OnClose.InvokeAsync();
+        Navigation.NavigateTo($"/movie/{movie.Id}");
+    }
+
+    public void Dispose() => _debounceTokenSource?.Dispose();
+}

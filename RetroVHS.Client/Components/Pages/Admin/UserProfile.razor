@@ -12,10 +12,7 @@
 
     @if (isLoading)
     {
-        <div class="loading-spinner">
-            <div class="spinner-border" role="status" style="color:#e94560;width:2.5rem;height:2.5rem;"></div>
-            <p>Laddar...</p>
-        </div>
+        <LoadingSpinner />
     }
     else if (user is null)
     {
@@ -25,7 +22,7 @@
     {
         <h1 class="section-title">@user.FullName</h1>
 
-        <div class="admin-nav-links" style="margin-bottom:1.5rem;">
+        <div class="admin-nav-links">
             <a href="/admin/users/@user.Id/reviews">Recensioner</a>
             <a href="/admin/users/@user.Id/orders">Beställningar</a>
         </div>
@@ -36,11 +33,11 @@
             <p><strong>Status:</strong>
                 @if (user.IsBlocked)
                 {
-                    <span class="rental-status status-cancelled" style="margin-left:0.4rem;">Blockerad</span>
+                    <span class="rental-status status-cancelled badge-inline">Blockerad</span>
                 }
                 else
                 {
-                    <span class="rental-status status-completed" style="margin-left:0.4rem;">Aktiv</span>
+                    <span class="rental-status status-completed badge-inline">Aktiv</span>
                 }
             </p>
         </div>
@@ -56,7 +53,7 @@
             }
             else
             {
-                <button class="btn-submit" style="max-width:240px;" @onclick="() => showNicknameConfirm = true" disabled="@(user.Nickname is null)">
+                <button class="btn-submit btn-action-wide" @onclick="() => showNicknameConfirm = true" disabled="@(user.Nickname is null)">
                     Sätt nickname till null
                 </button>
             }
@@ -71,7 +68,7 @@
             }
             else
             {
-                <button class="btn-submit" style="max-width:240px;" @onclick="() => showBlockConfirm = true">
+                <button class="btn-submit btn-action-wide" @onclick="() => showBlockConfirm = true">
                     @(user.IsBlocked ? "Avblockera användare" : "Blockera användare")
                 </button>
             }
@@ -86,7 +83,7 @@
             }
             else
             {
-                <button class="btn-remove" style="max-width:240px;" @onclick="() => showDeleteConfirm = true">Radera användare</button>
+                <button class="btn-remove btn-action-wide" @onclick="() => showDeleteConfirm = true">Radera användare</button>
             }
 
             @if (!string.IsNullOrEmpty(actionMessage))
@@ -121,35 +118,53 @@
     private async Task SetNicknameNullAsync()
     {
         acting = true;
-        var ok = await AdminClient.SetNicknameNullAsync(Id);
-        if (ok && user is not null) user.Nickname = null; // Uppdatera lokalt
-        showNicknameConfirm = false;
-        actionMessage = ok ? "Nickname borttaget." : "Åtgärden misslyckades.";
-        actionSuccess = ok;
-        acting = false;
+        try
+        {
+            var ok = await AdminClient.SetNicknameNullAsync(Id);
+            if (ok && user is not null) user.Nickname = null; // Uppdatera lokalt
+            showNicknameConfirm = false;
+            actionMessage = ok ? "Nickname borttaget." : "Åtgärden misslyckades.";
+            actionSuccess = ok;
+        }
+        finally
+        {
+            acting = false;
+        }
     }
 
     // PUT api/admin/users/{id}/block eller /unblock beroende på nuvarande status
     private async Task ToggleBlockAsync()
     {
         acting = true;
-        var ok = user!.IsBlocked
-            ? await AdminClient.UnblockUserAsync(Id)
-            : await AdminClient.BlockUserAsync(Id);
-        if (ok) user.IsBlocked = !user.IsBlocked; // Toggla lokalt
-        showBlockConfirm = false;
-        actionMessage = ok ? (user.IsBlocked ? "Användaren blockerad." : "Användaren avblockerad.") : "Åtgärden misslyckades.";
-        actionSuccess = ok;
-        acting = false;
+        try
+        {
+            var ok = user!.IsBlocked
+                ? await AdminClient.UnblockUserAsync(Id)
+                : await AdminClient.BlockUserAsync(Id);
+            if (ok) user.IsBlocked = !user.IsBlocked; // Toggla lokalt
+            showBlockConfirm = false;
+            actionMessage = ok ? (user.IsBlocked ? "Användaren blockerad." : "Användaren avblockerad.") : "Åtgärden misslyckades.";
+            actionSuccess = ok;
+        }
+        finally
+        {
+            acting = false;
+        }
     }
 
     // DELETE api/admin/users/{id} — navigerar tillbaka till listan vid framgång
     private async Task DeleteUserAsync()
     {
         acting = true;
-        var ok = await AdminClient.DeleteUserAsync(Id);
-        acting = false;
-        if (ok) Navigation.NavigateTo("/admin/users");
-        else { actionMessage = "Kunde inte radera användaren."; actionSuccess = false; showDeleteConfirm = false; }
+        try
+        {
+            var ok = await AdminClient.DeleteUserAsync(Id);
+            if (ok) Navigation.NavigateTo("/admin/users");
+            else { actionMessage = "Kunde inte radera användaren."; actionSuccess = false; showDeleteConfirm = false; }
+        }
+        finally
+        {
+            acting = false;
+        }
     }
 }
