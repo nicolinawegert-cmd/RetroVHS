@@ -252,8 +252,15 @@ public class AdminController : ControllerBase
     [HttpDelete("movies/{id:int}")]
     public async Task<IActionResult> DeleteMovie(int id)
     {
-        var deleted = await _movieService.DeleteMovieAsync(id);
-        if (!deleted) return NotFound();
-        return NoContent();
+        try
+        {
+            var deleted = await _movieService.DeleteMovieAsync(id);
+            if (!deleted) return NotFound();
+            return NoContent();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 }

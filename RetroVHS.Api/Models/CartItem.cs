@@ -41,7 +41,7 @@ public class CartItem
     /// Vi sparar detta separat för att historiken i varukorgen inte ska ändras
     /// om filmens ordinarie pris ändras senare.
     /// </summary>
-    [Range(typeof(decimal), "0.01", "999.99")]
+    [Range(0.01, 999.99)]
     public decimal UnitPrice { get; set; }
 
     /// <summary>

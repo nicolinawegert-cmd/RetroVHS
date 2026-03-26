@@ -312,6 +312,7 @@
                 trailerUrl = movie.TrailerUrl;
                 rentalPrice = movie.RentalPrice;
                 availabilityStatus = Enum.TryParse<MovieAvailabilityStatus>(movie.AvailabilityStatus, out var s) ? s : MovieAvailabilityStatus.Available;
+                stockQuantity = movie.StockQuantity;
                 isFeatured = movie.IsFeatured;
                 language = movie.Language;
                 country = movie.Country;
@@ -436,6 +437,10 @@
                 if (result is not null) Navigation.NavigateTo("/admin/movies");
                 else submitError = "Kunde inte skapa filmen. Kontrollera att alla ID:n är giltiga.";
             }
+        }
+        catch (HttpRequestException ex)
+        {
+            submitError = $"Serverfel: {ex.Message}";
         }
         finally
         {

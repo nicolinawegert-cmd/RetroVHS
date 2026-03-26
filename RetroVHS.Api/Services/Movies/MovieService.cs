@@ -319,14 +319,20 @@ public class MovieService : IMovieService
 
   /// <summary>
   /// Tar bort en film från katalogen om den finns.
+  /// Relaterade ordrar och kundvagnsrader tas bort automatiskt.
   /// </summary>
   public async Task<bool> DeleteMovieAsync(int id)
   {
-    var movie = await _context.Movies.FindAsync(id);
+    var movie = await _context.Movies
+        .Include(m => m.Rentals)
+        .Include(m => m.CartItems)
+        .FirstOrDefaultAsync(m => m.Id == id);
 
     if (movie == null)
       return false;
 
+    _context.Rentals.RemoveRange(movie.Rentals);
+    _context.CartItems.RemoveRange(movie.CartItems);
     _context.Movies.Remove(movie);
     await _context.SaveChangesAsync();
     return true;
