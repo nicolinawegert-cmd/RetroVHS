@@ -1,11 +1,19 @@
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using RetroVHS.Api.Data;
 using RetroVHS.Api.Models;
+using RetroVHS.Api.Services.Admin;
 using RetroVHS.Api.Services.Auth;
-using System.Text;
+using RetroVHS.Api.Services.Cart;
+using RetroVHS.Api.Services.Movies;
+using RetroVHS.Api.Services.Rentals;
+using RetroVHS.Api.Services.Reviews;
+using RetroVHS.Api.Services.Users;
+using RetroVHS.Api.Services.Wishlists;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,6 +51,14 @@ builder.Services
 
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IMovieService, MovieService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IRentalService, RentalService>();
+builder.Services.AddScoped<IWishlistService, WishlistService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
+
 
 // =========================
 // JWT Authentication
@@ -103,8 +119,8 @@ builder.Services.AddCors(options =>
     {
         policy
             .WithOrigins(
-                "https://localhost:7001",
-                "http://localhost:5001"
+                "https://localhost:7220",
+                "http://localhost:5084"
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
@@ -116,7 +132,43 @@ builder.Services.AddCors(options =>
 // =========================
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "RetroVHS API",
+        Version = "v1"
+    });
+
+    // 🔐 Lägg till JWT auth i Swagger
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Skriv: Bearer {din token}"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
+
 
 var app = builder.Build();
 
@@ -143,8 +195,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
+else
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseCors("AllowClient");
 

@@ -1,0 +1,71 @@
+@page "/admin"
+@attribute [Authorize(Roles = "Admin")]
+@using RetroVHS.Shared.DTOs.Admin
+@using Microsoft.AspNetCore.Authorization
+@inject IAdminClient AdminClient
+@inject NavigationManager Navigation
+
+<PageTitle>Admin — Dashboard</PageTitle>
+
+<div class="admin-page">
+    <h1 class="section-title">🛡️ Admin Dashboard</h1>
+
+    @if (isLoading)
+    {
+        <LoadingSpinner Text="Laddar statistik..." />
+    }
+    else if (stats is null)
+    {
+        <p class="review-error">Kunde inte hämta statistik.</p>
+    }
+    else
+    {
+        <div class="admin-stat-grid">
+            <div class="admin-stat-card">
+                <div class="admin-stat-value">@stats.TotalUsers</div>
+                <div class="admin-stat-label">Användare</div>
+            </div>
+            <div class="admin-stat-card">
+                <div class="admin-stat-value">@stats.BlockedUsers</div>
+                <div class="admin-stat-label">Blockerade</div>
+            </div>
+            <div class="admin-stat-card">
+                <div class="admin-stat-value">@stats.TotalMovies</div>
+                <div class="admin-stat-label">Filmer</div>
+            </div>
+            <div class="admin-stat-card">
+                <div class="admin-stat-value">@stats.ActiveRentals</div>
+                <div class="admin-stat-label">Beställningar under leverans</div>
+            </div>
+            <div class="admin-stat-card">
+                <div class="admin-stat-value">@stats.TotalRentals</div>
+                <div class="admin-stat-label">Totalt levererade beställningar</div>
+            </div>
+            <div class="admin-stat-card">
+                <div class="admin-stat-value">@stats.CancelledRentals</div>
+                <div class="admin-stat-label">Avbrutna beställningar</div>
+            </div>
+            <div class="admin-stat-card">
+                <div class="admin-stat-value">@stats.TotalReviews</div>
+                <div class="admin-stat-label">Recensioner</div>
+            </div>
+        </div>
+
+        <div class="admin-nav-links">
+            <a href="/admin/users">👥 Hantera användare</a>
+            <a href="/admin/movies">🎬 Hantera filmer</a>
+        </div>
+    }
+</div>
+
+@code {
+    private AdminDashboardDto? stats;
+    private bool isLoading = true;
+
+    // GET api/admin/stats — hämtar aggregerad statistik (användare, filmer, beställningar, recensioner)
+    protected override async Task OnInitializedAsync()
+    {
+        stats = await AdminClient.GetDashboardStatsAsync();
+        isLoading = false;
+    }
+}

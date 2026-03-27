@@ -1,7 +1,184 @@
-﻿@page "/"
+@page "/"
+@using RetroVHS.Shared.DTOs.Movies
+@inject IMovieClient MovieClient
+@inject IWishlistClient WishlistClient
+@inject ICartClient CartClient
+@inject CartState CartState
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+@implements IDisposable
 
-<PageTitle>Home</PageTitle>
+<PageTitle>RetroVHS</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="home-top-nav">
+	<a href="/movies" class="see-all-link">Se alla filmer →</a>
+</div>
 
-Welcome to your new app.
+@if (isLoading)
+{
+	<div class="movie-section">
+		<LoadingSpinner Text="Laddar filmer..." />
+	</div>
+}
+else
+{
+	@if (topRated.Count > 0)
+	{
+		<div class="movie-section">
+			<h2 class="section-title">⭐ Bästa Filmerna Topp 5</h2>
+			<div class="movie-grid">
+				@foreach (var movie in topRated)
+				{
+					<MovieCard Movie="movie"
+							   ShowWishlist="isAuthenticated && !isAdmin"
+							   IsInWishlist="wishlistIds.Contains(movie.Id)"
+							   OnMovieSelected="GoToMovie"
+							   OnWishlistToggled="ToggleWishlist"
+							   OnAddToCart="AddToCart" />
+				}
+			</div>
+		</div>
+	}
+
+	@if (bestsellers.Count > 0)
+	{
+		<div class="movie-section">
+			<h2 class="section-title">🏆 Bästsäljarna</h2>
+			<div class="movie-grid">
+				@foreach (var movie in bestsellers)
+				{
+					<MovieCard Movie="movie"
+							   ShowWishlist="isAuthenticated && !isAdmin"
+							   IsInWishlist="wishlistIds.Contains(movie.Id)"
+							   OnMovieSelected="GoToMovie"
+							   OnWishlistToggled="ToggleWishlist"
+							   OnAddToCart="AddToCart" />
+				}
+			</div>
+		</div>
+	}
+
+	@foreach (var gs in genreSections)
+	{
+		<div class="movie-section">
+			<h2 class="section-title">🎬 Topp 5 @gs.GenreName</h2>
+			<div class="movie-grid">
+				@foreach (var movie in gs.Movies)
+				{
+					<MovieCard Movie="movie"
+							   ShowWishlist="isAuthenticated && !isAdmin"
+							   IsInWishlist="wishlistIds.Contains(movie.Id)"
+							   OnMovieSelected="GoToMovie"
+							   OnWishlistToggled="ToggleWishlist"
+							   OnAddToCart="AddToCart" />
+				}
+			</div>
+		</div>
+	}
+
+}
+
+@code {
+	// De tre filmsektionerna som visas på startsidan
+	private List<MovieListDto> topRated = [];
+	private List<MovieListDto> bestsellers = [];
+	private List<GenreSectionDto> genreSections = [];
+
+	// HashSet för O(1)-sökning — används för att markera hjärtan på filmkorten
+	private HashSet<int> wishlistIds = [];
+
+	private bool isLoading = true;
+	private bool isAuthenticated;
+	private bool isAdmin;
+	private bool hasLoaded;
+
+	protected override void OnInitialized()
+	{
+		// Prenumerera på auth-ändringar så att önskelistan laddas om vid inloggning/utloggning
+		AuthStateProvider.AuthenticationStateChanged += OnAuthStateChanged;
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		// OnAfterRenderAsync används istället för OnInitializedAsync eftersom ProtectedLocalStorage
+		// (som används av TryRestoreSessionAsync) inte är tillgänglig förrän efter första render.
+		if (!firstRender || hasLoaded) return;
+		hasLoaded = true;
+		await LoadData();
+	}
+
+	private async Task LoadData()
+	{
+		var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+		isAuthenticated = authState.User.Identity?.IsAuthenticated == true;
+		isAdmin = authState.User.IsInRole("Admin");
+
+		// De tre filmlistorna laddas parallellt för bättre prestanda
+		var topRatedTask = MovieClient.GetTopRatedAsync();       // GET api/movies/top-rated
+		var bestsellersTask = MovieClient.GetBestsellersAsync(); // GET api/movies/bestsellers
+		var genreSectionsTask = MovieClient.GetTopGenreSectionsAsync(); // GET api/movies/genre-sections
+
+		await Task.WhenAll(topRatedTask, bestsellersTask, genreSectionsTask);
+
+		topRated = topRatedTask.Result;
+		bestsellers = bestsellersTask.Result;
+		genreSections = genreSectionsTask.Result;
+
+		// Önskelistan hämtas bara för inloggade icke-admin-användare
+		if (isAuthenticated)
+		{
+			var wishlist = await WishlistClient.GetWishlistAsync(); // GET api/wishlist
+			wishlistIds = wishlist.Select(w => w.MovieId).ToHashSet();
+		}
+		else
+		{
+			wishlistIds = [];
+		}
+
+		isLoading = false;
+		StateHasChanged();
+	}
+
+	// Anropas av Blazors auth-system när inloggningsstatus ändras.
+	// _ = används för att eldstad-och-glömma utan att blockera UI-tråden.
+	private void OnAuthStateChanged(Task<AuthenticationState> task)
+	{
+		_ = InvokeAsync(LoadData);
+	}
+
+	// Togglar önskelistan — lägger till eller tar bort beroende på nuvarande state
+	private async Task ToggleWishlist(int movieId)
+	{
+		if (wishlistIds.Contains(movieId))
+		{
+			var success = await WishlistClient.RemoveFromWishlistAsync(movieId); // DELETE api/wishlist/{movieId}
+			if (success) wishlistIds.Remove(movieId);
+		}
+		else
+		{
+			var success = await WishlistClient.AddToWishlistAsync(movieId); // POST api/wishlist
+			if (success) wishlistIds.Add(movieId);
+		}
+	}
+
+	// Lägger till film i varukorg och uppdaterar räknaren i headern via CartState
+	private async Task AddToCart(int movieId)
+	{
+		var result = await CartClient.AddToCartAsync(movieId); // POST api/cart
+		if (result is not null)
+		{
+			CartState.SetCount(result.Items.Count);
+		}
+	}
+
+	private void GoToMovie(MovieListDto movie)
+	{
+		Navigation.NavigateTo($"/movie/{movie.Id}");
+	}
+
+	public void Dispose()
+	{
+		// Avprenumerera för att undvika minnesläckor när komponenten tas bort
+		AuthStateProvider.AuthenticationStateChanged -= OnAuthStateChanged;
+	}
+}

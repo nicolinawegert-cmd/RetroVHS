@@ -1,0 +1,150 @@
+@page "/my-orders"
+@using RetroVHS.Shared.DTOs.Rentals
+@using RetroVHS.Shared.Enums
+@using RetroVHS.Client.Helpers
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject IUserClient UserClient
+@inject NavigationManager Navigation
+
+<PageTitle>Mina beställningar</PageTitle>
+
+<div class="cart-page">
+    <h1 class="section-title">📦 Mina beställningar</h1>
+
+    @if (isLoading)
+    {
+        <LoadingSpinner Text="Laddar beställningar..." />
+    }
+    else if (orders.Count == 0)
+    {
+        <p class="empty-state-text">Du har inga beställningar ännu.</p>
+    }
+    else
+    {
+        <div class="cart-items">
+            @foreach (var order in orders)
+            {
+                var orderId = order.Id;
+                var movieId = order.MovieId;
+                var movieUrl = "/movie/" + movieId;
+                <div class="cart-item">
+                    <div class="cart-item-info">
+                        <h3 class="clickable-title" @onclick="() => Navigation.NavigateTo(movieUrl)">@order.Title</h3>
+                        <p class="cart-item-price">@order.PricePaid.ToString("0.00") kr</p>
+                        <p class="item-meta">Köpt @order.RentedAt.ToString("d MMM yyyy")</p>
+                        <div class="rental-status-wrapper">
+                            <span class="rental-status @RentalStatusHelper.GetStatusClass(order.Status)">@RentalStatusHelper.GetStatusLabel(order.Status)</span>
+                        </div>
+
+                        @if (order.Status == RentalStatus.Active)
+                        {
+                            @if (confirmingId == orderId && confirmAction == ActionComplete)
+                            {
+                                <div class="confirm-inline">
+                                    <p>Bekräfta att du har mottagit filmen?</p>
+                                    <button class="btn-confirm-yes" @onclick="() => ExecuteActionAsync(order, ActionComplete)" disabled="@acting">
+                                        @(acting ? "..." : "Ja, bekräfta")
+                                    </button>
+                                    <button class="btn-confirm-cancel" @onclick="CancelConfirm" disabled="@acting">Avbryt</button>
+                                </div>
+                            }
+                            else if (confirmingId == orderId && confirmAction == ActionCancel)
+                            {
+                                <div class="confirm-inline">
+                                    <p>Vill du avbryta beställningen?</p>
+                                    <button class="btn-confirm-yes" @onclick="() => ExecuteActionAsync(order, ActionCancel)" disabled="@acting">
+                                        @(acting ? "..." : "Ja, avbryt")
+                                    </button>
+                                    <button class="btn-confirm-cancel" @onclick="CancelConfirm" disabled="@acting">Nej</button>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="order-actions">
+                                    <button class="btn-submit btn-compact" @onclick="() => ShowConfirm(orderId, ActionComplete)">
+                                        ✅ Bekräfta leverans
+                                    </button>
+                                    <button class="btn-remove btn-compact" @onclick="() => ShowConfirm(orderId, ActionCancel)">
+                                        Avbryt beställning
+                                    </button>
+                                </div>
+                            }
+                        }
+                        @if (!string.IsNullOrEmpty(actionError) && actionErrorId == orderId)
+                        {
+                            <p class="review-error">@actionError</p>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    // Konstanter för åtgärdstyper — undviker magic strings i templates
+    private const string ActionComplete = "complete";
+    private const string ActionCancel = "cancel";
+
+    private List<RentalDto> orders = [];
+    private bool isLoading = true;
+
+    // Bekräftelsedialog-state: vilken order och vilken åtgärd väntar på bekräftelse
+    private int? confirmingId;
+    private string? confirmAction;
+    private bool acting;
+    private string? actionError;
+    private int? actionErrorId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        orders = await UserClient.GetMyOrdersAsync(); // GET api/users/me/rentals
+        isLoading = false;
+    }
+
+    private void ShowConfirm(int id, string action)
+    {
+        confirmingId = id;
+        confirmAction = action;
+        actionError = null;
+        actionErrorId = null;
+    }
+
+    private void CancelConfirm()
+    {
+        confirmingId = null;
+        confirmAction = null;
+    }
+
+    // Skickar rätt API-anrop beroende på åtgärd och uppdaterar status lokalt vid framgång
+    // PUT api/rentals/{id}/complete eller PUT api/rentals/{id}/cancel
+    private async Task ExecuteActionAsync(RentalDto order, string action)
+    {
+        acting = true;
+        actionError = null;
+        try
+        {
+            bool success = action == ActionComplete
+                ? await UserClient.CompleteRentalAsync(order.Id)
+                : await UserClient.CancelRentalAsync(order.Id);
+
+            if (success)
+            {
+                // Uppdatera status lokalt — undviker ett extra API-anrop för att ladda om listan
+                order.Status = action == ActionComplete ? RentalStatus.Completed : RentalStatus.Cancelled;
+                confirmingId = null;
+                confirmAction = null;
+            }
+            else
+            {
+                actionError = "Åtgärden misslyckades. Försök igen.";
+                actionErrorId = order.Id;
+            }
+        }
+        finally
+        {
+            acting = false;
+        }
+    }
+}

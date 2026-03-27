@@ -1,0 +1,123 @@
+@page "/checkout/{CartId:int}"
+@using RetroVHS.Shared.DTOs.Cart
+@using RetroVHS.Shared.DTOs.Rentals
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject ICartClient CartClient
+@inject NavigationManager Navigation
+@inject CartState CartState
+
+<PageTitle>Kassa</PageTitle>
+
+<div class="cart-page">
+
+    @if (isCompleted && result != null)
+    {
+        <div class="checkout-confirmation">
+            <h1 class="section-title">✅ Köp genomfört!</h1>
+            <p>@result.Message</p>
+
+            <div class="cart-items">
+                @foreach (var rental in result.Rentals)
+                {
+                    <div class="cart-item">
+                        <div class="cart-item-info">
+                            <h3>@rental.Title</h3>
+                            <p class="cart-item-price">@rental.PricePaid.ToString("0.00") kr</p>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <button class="btn-submit" @onclick='() => Navigation.NavigateTo("/")'>
+                Tillbaka till startsidan
+            </button>
+        </div>
+    }
+    else
+    {
+        <h1 class="section-title">💳 Kassa</h1>
+
+        @if (isLoading)
+        {
+            <LoadingSpinner />
+        }
+        else if (cart == null || cart.Items.Count == 0)
+        {
+            <p>Varukorgen är tom.</p>
+        }
+        else
+        {
+            <div class="cart-items">
+                @foreach (var item in cart.Items)
+                {
+                    <div class="cart-item">
+                        <div class="cart-item-info">
+                            <h3>@item.Title</h3>
+                            <p class="cart-item-price">@item.UnitPrice.ToString("0.00") kr</p>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="cart-summary">
+                <div class="cart-total">
+                    <span>Att betala:</span>
+                    <span class="cart-total-price">@cart.TotalPrice.ToString("0.00") kr</span>
+                </div>
+
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <p class="review-error">@errorMessage</p>
+                }
+
+                <button class="btn-submit" @onclick="HandleCheckout" disabled="@processing">
+                    @(processing ? "Bearbetar..." : "Genomför köp")
+                </button>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    // CartId tas emot via URL-parametern /checkout/{CartId}
+    [Parameter] public int CartId { get; set; }
+
+    private CartDto? cart;
+    private CheckoutResponseDto? result; // Svar från API efter genomfört köp
+    private bool isLoading = true;
+    private bool processing;
+    private bool isCompleted; // true = bekräftelsevyn visas
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        cart = await CartClient.GetCartAsync(); // GET api/cart
+        isLoading = false;
+    }
+
+    // POST api/cart/checkout — genomför köpet och skapar uthyrningsposter i databasen
+    private async Task HandleCheckout()
+    {
+        processing = true;
+        errorMessage = null;
+        try
+        {
+            result = await CartClient.CheckoutAsync(CartId);
+
+            if (result != null && result.Success)
+            {
+                isCompleted = true;
+                CartState.SetCount(0); // Töm varukorgsräknaren i headern
+            }
+            else
+            {
+                errorMessage = result?.Message ?? "Något gick fel. Försök igen.";
+            }
+        }
+        finally
+        {
+            processing = false;
+        }
+    }
+}

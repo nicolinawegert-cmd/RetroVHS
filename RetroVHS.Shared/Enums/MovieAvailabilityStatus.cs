@@ -1,4 +1,6 @@
 ﻿
+namespace RetroVHS.Shared.Enums;
+
 /// <summary>
 /// Describes whether a movie can currently be rented or viewed in the catalog.
 /// We use this instead of plain text strings to reduce typo risks

@@ -1,0 +1,90 @@
+@page "/admin/users/{UserId:int}/orders"
+@attribute [Authorize(Roles = "Admin")]
+@using RetroVHS.Shared.DTOs.Rentals
+@using RetroVHS.Shared.Enums
+@using RetroVHS.Client.Helpers
+@using Microsoft.AspNetCore.Authorization
+@inject IAdminClient AdminClient
+
+<PageTitle>Admin — Beställningar</PageTitle>
+
+<div class="admin-page">
+    <a href="/admin/users/@UserId" class="admin-back-link">← Användarprofil</a>
+    <h1 class="section-title">Beställningar</h1>
+
+    @if (isLoading)
+    {
+        <LoadingSpinner Text="Laddar beställningar..." />
+    }
+    else if (rentals.Count == 0)
+    {
+        <p class="empty-state-text">Inga beställningar hittades.</p>
+    }
+    else
+    {
+        <div class="cart-items">
+            @foreach (var rental in rentals)
+            {
+                var ren = rental;
+                <div class="cart-item">
+                    <div class="cart-item-info">
+                        <h3>@ren.Title</h3>
+                        <p class="cart-item-price">@ren.PricePaid.ToString("0.00") kr</p>
+                        <p class="item-meta-sm">@ren.RentedAt.ToString("d MMM yyyy")</p>
+                        <div class="rental-status-wrapper">
+                            <span class="rental-status @RentalStatusHelper.GetStatusClass(ren.Status)">@RentalStatusHelper.GetStatusLabel(ren.Status)</span>
+                        </div>
+
+                        @if (ren.Status == RentalStatus.Active)
+                        {
+                            @if (confirmCancelId == ren.Id)
+                            {
+                                <div class="confirm-inline">
+                                    <p>Avbryt denna beställning?</p>
+                                    <button class="btn-confirm-yes" @onclick="() => CancelRentalAsync(ren)" disabled="@acting">@(acting ? "..." : "Ja, avbryt")</button>
+                                    <button class="btn-confirm-cancel" @onclick="() => confirmCancelId = null" disabled="@acting">Nej</button>
+                                </div>
+                            }
+                            else
+                            {
+                                <button class="btn-remove btn-compact" @onclick="() => confirmCancelId = ren.Id">Avbryt beställning</button>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int UserId { get; set; }
+    private List<RentalDto> rentals = [];
+    private bool isLoading = true;
+    private int? confirmCancelId; // ID för beställning som väntar på bekräftad avbokning
+    private bool acting;
+
+    // GET api/admin/users/{UserId}/rentals
+    protected override async Task OnInitializedAsync()
+    {
+        rentals = await AdminClient.GetUserRentalsAsync(UserId);
+        isLoading = false;
+    }
+
+    // PUT api/admin/rentals/{rentalId}/cancel — uppdaterar status lokalt vid framgång
+    private async Task CancelRentalAsync(RentalDto rental)
+    {
+        acting = true;
+        try
+        {
+            var ok = await AdminClient.CancelRentalAsync(rental.Id);
+            if (ok) rental.Status = RentalStatus.Cancelled;
+            confirmCancelId = null;
+        }
+        finally
+        {
+            acting = false;
+        }
+    }
+
+}

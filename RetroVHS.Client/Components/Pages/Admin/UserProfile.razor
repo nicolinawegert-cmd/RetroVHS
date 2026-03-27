@@ -1,0 +1,170 @@
+@page "/admin/users/{Id:int}"
+@attribute [Authorize(Roles = "Admin")]
+@using RetroVHS.Shared.DTOs.Auth
+@using Microsoft.AspNetCore.Authorization
+@inject IAdminClient AdminClient
+@inject NavigationManager Navigation
+
+<PageTitle>Admin — Användarprofil</PageTitle>
+
+<div class="admin-page">
+    <a href="/admin/users" class="admin-back-link">← Alla användare</a>
+
+    @if (isLoading)
+    {
+        <LoadingSpinner />
+    }
+    else if (user is null)
+    {
+        <p class="review-error">Användaren hittades inte.</p>
+    }
+    else
+    {
+        <h1 class="section-title">@user.FullName</h1>
+
+        <div class="admin-nav-links">
+            <a href="/admin/users/@user.Id/reviews">Recensioner</a>
+            <a href="/admin/users/@user.Id/orders">Beställningar</a>
+        </div>
+
+        <div class="admin-user-info">
+            <p><strong>E-post:</strong> @user.Email</p>
+            <p><strong>Nickname:</strong> @(user.Nickname ?? "—")</p>
+            <p><strong>Status:</strong>
+                @if (user.IsBlocked)
+                {
+                    <span class="rental-status status-cancelled badge-inline">Blockerad</span>
+                }
+                else
+                {
+                    <span class="rental-status status-completed badge-inline">Aktiv</span>
+                }
+            </p>
+        </div>
+
+        <div class="admin-actions">
+            @if (showNicknameConfirm)
+            {
+                <div class="confirm-inline">
+                    <p>Sätt nickname till null för @user.FullName?</p>
+                    <button class="btn-confirm-yes" @onclick="SetNicknameNullAsync" disabled="@acting">@(acting ? "..." : "Ja")</button>
+                    <button class="btn-confirm-cancel" @onclick="() => showNicknameConfirm = false" disabled="@acting">Avbryt</button>
+                </div>
+            }
+            else
+            {
+                <button class="btn-submit btn-action-wide" @onclick="() => showNicknameConfirm = true" disabled="@(user.Nickname is null)">
+                    Sätt nickname till null
+                </button>
+            }
+
+            @if (showBlockConfirm)
+            {
+                <div class="confirm-inline">
+                    <p>@(user.IsBlocked ? "Avblockera" : "Blockera") @user.FullName?</p>
+                    <button class="btn-confirm-yes" @onclick="ToggleBlockAsync" disabled="@acting">@(acting ? "..." : "Ja")</button>
+                    <button class="btn-confirm-cancel" @onclick="() => showBlockConfirm = false" disabled="@acting">Avbryt</button>
+                </div>
+            }
+            else
+            {
+                <button class="btn-submit btn-action-wide" @onclick="() => showBlockConfirm = true">
+                    @(user.IsBlocked ? "Avblockera användare" : "Blockera användare")
+                </button>
+            }
+
+            @if (showDeleteConfirm)
+            {
+                <div class="confirm-inline">
+                    <p>Radera @user.FullName och all data permanent?</p>
+                    <button class="btn-confirm-yes" @onclick="DeleteUserAsync" disabled="@acting">@(acting ? "..." : "Ja, radera")</button>
+                    <button class="btn-confirm-cancel" @onclick="() => showDeleteConfirm = false" disabled="@acting">Avbryt</button>
+                </div>
+            }
+            else
+            {
+                <button class="btn-remove btn-action-wide" @onclick="() => showDeleteConfirm = true">Radera användare</button>
+            }
+
+            @if (!string.IsNullOrEmpty(actionMessage))
+            {
+                <p class="@(actionSuccess ? "profile-success" : "review-error")">@actionMessage</p>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private UserDto? user;
+    private bool isLoading = true;
+    private bool acting; // true medan ett API-anrop pågår — inaktiverar knappar
+
+    // Bekräftelsedialoger — bara en visas åt gången
+    private bool showNicknameConfirm;
+    private bool showBlockConfirm;
+    private bool showDeleteConfirm;
+    private string? actionMessage;
+    private bool actionSuccess;
+
+    // GET api/admin/users/{id}
+    protected override async Task OnInitializedAsync()
+    {
+        user = await AdminClient.GetUserByIdAsync(Id);
+        isLoading = false;
+    }
+
+    // PUT api/admin/users/{id}/nickname (med Nickname = null)
+    private async Task SetNicknameNullAsync()
+    {
+        acting = true;
+        try
+        {
+            var ok = await AdminClient.SetNicknameNullAsync(Id);
+            if (ok && user is not null) user.Nickname = null; // Uppdatera lokalt
+            showNicknameConfirm = false;
+            actionMessage = ok ? "Nickname borttaget." : "Åtgärden misslyckades.";
+            actionSuccess = ok;
+        }
+        finally
+        {
+            acting = false;
+        }
+    }
+
+    // PUT api/admin/users/{id}/block eller /unblock beroende på nuvarande status
+    private async Task ToggleBlockAsync()
+    {
+        acting = true;
+        try
+        {
+            var ok = user!.IsBlocked
+                ? await AdminClient.UnblockUserAsync(Id)
+                : await AdminClient.BlockUserAsync(Id);
+            if (ok) user.IsBlocked = !user.IsBlocked; // Toggla lokalt
+            showBlockConfirm = false;
+            actionMessage = ok ? (user.IsBlocked ? "Användaren blockerad." : "Användaren avblockerad.") : "Åtgärden misslyckades.";
+            actionSuccess = ok;
+        }
+        finally
+        {
+            acting = false;
+        }
+    }
+
+    // DELETE api/admin/users/{id} — navigerar tillbaka till listan vid framgång
+    private async Task DeleteUserAsync()
+    {
+        acting = true;
+        try
+        {
+            var ok = await AdminClient.DeleteUserAsync(Id);
+            if (ok) Navigation.NavigateTo("/admin/users");
+            else { actionMessage = "Kunde inte radera användaren."; actionSuccess = false; showDeleteConfirm = false; }
+        }
+        finally
+        {
+            acting = false;
+        }
+    }
+}

@@ -1,0 +1,105 @@
+@page "/admin/movies"
+@attribute [Authorize(Roles = "Admin")]
+@using RetroVHS.Shared.DTOs.Movies
+@using Microsoft.AspNetCore.Authorization
+@inject IAdminClient AdminClient
+@inject NavigationManager Navigation
+
+<PageTitle>Admin — Filmer</PageTitle>
+
+<div class="admin-page">
+    <a href="/admin" class="admin-back-link">← Dashboard</a>
+    <div class="admin-list-header">
+        <h1 class="section-title section-title-flush">🎬 Filmer</h1>
+        <a href="/admin/movies/new" class="btn-submit btn-submit-link">+ Lägg till film</a>
+    </div>
+
+    @if (!string.IsNullOrEmpty(deleteError))
+    {
+        <div class="login-error" style="margin-bottom: 1rem;">@deleteError</div>
+    }
+
+    @if (isLoading)
+    {
+        <LoadingSpinner Text="Laddar filmer..." />
+    }
+    else if (movies.Count == 0)
+    {
+        <p class="empty-state-text">Inga filmer hittades.</p>
+    }
+    else
+    {
+        <div class="movies-list">
+            @foreach (var movie in movies)
+            {
+                var m = movie;
+                <div class="movie-list-row">
+                    <span class="movie-list-year">@m.ReleaseYear</span>
+                    <a class="movie-list-title" href="/movie/@m.Id">@m.Title</a>
+                    @if (m.RatingCount > 0)
+                    {
+                        <span class="movie-list-rating">★ @m.RatingAverage.ToString("0.0")</span>
+                    }
+                    else
+                    {
+                        <span class="movie-list-rating no-rating">Inga betyg</span>
+                    }
+                    <div class="movie-list-actions">
+                        <a href="/admin/movies/@m.Id/edit">Redigera</a>
+                        @if (confirmDeleteId == m.Id)
+                        {
+                            <div class="confirm-inline confirm-inline-static">
+                                <p>Radera "@m.Title"?</p>
+                                <button class="btn-confirm-yes" @onclick="() => DeleteMovieAsync(m.Id)" disabled="@deleting">@(deleting ? "..." : "Ja")</button>
+                                <button class="btn-confirm-cancel" @onclick="() => confirmDeleteId = null" disabled="@deleting">Avbryt</button>
+                            </div>
+                        }
+                        else
+                        {
+                            <button class="btn-delete-ghost" @onclick="() => confirmDeleteId = m.Id">Radera</button>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<MovieListDto> movies = [];
+    private bool isLoading = true;
+    private int? confirmDeleteId; // ID för film som väntar på bekräftad borttagning
+    private bool deleting;
+    private string? deleteError;
+
+    // GET api/admin/movies
+    protected override async Task OnInitializedAsync()
+    {
+        movies = await AdminClient.GetAllMoviesAsync();
+        isLoading = false;
+    }
+
+    // DELETE api/admin/movies/{id} — tar bort filmen lokalt i listan vid framgång
+    private async Task DeleteMovieAsync(int id)
+    {
+        deleting = true;
+        deleteError = null;
+        try
+        {
+            var ok = await AdminClient.DeleteMovieAsync(id);
+            if (ok) movies.RemoveAll(m => m.Id == id);
+            confirmDeleteId = null;
+        }
+        catch (HttpRequestException ex)
+        {
+            deleteError = ex.Message.Contains("uthyrningshistorik")
+                ? "Filmen kan inte raderas eftersom den har uthyrningshistorik."
+                : "Kunde inte radera filmen.";
+            confirmDeleteId = null;
+        }
+        finally
+        {
+            deleting = false;
+        }
+    }
+}

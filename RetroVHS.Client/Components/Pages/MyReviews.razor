@@ -1,0 +1,170 @@
+@page "/my-reviews"
+@using RetroVHS.Shared.DTOs.Reviews
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
+@inject IUserClient UserClient
+@inject IReviewClient ReviewClient
+
+<PageTitle>Mina recensioner</PageTitle>
+
+<div class="cart-page">
+    <h1 class="section-title">Mina recensioner</h1>
+
+    @if (isLoading)
+    {
+        <LoadingSpinner Text="Laddar recensioner..." />
+    }
+    else if (reviews.Count == 0)
+    {
+        <p class="empty-state-text">Du har inte recenserat några filmer ännu. Betygsätt en film på dess sida!</p>
+    }
+            else
+            {
+                <div class="my-reviews-list">
+                    @foreach (var review in reviews)
+                    {
+                        <div class="my-review-card">
+                            @if (editingId == review.Id)
+                            {
+                                <div class="my-review-edit">
+                                    <div class="my-review-edit-header">
+                                        <a class="my-review-movie-title" href="/movie/@review.MovieId">@review.MovieTitle</a>
+                                    </div>
+                                    <div class="star-row">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            var star = i;
+                                            <button type="button"
+                                                    class="star-btn @(star <= (editHoverRating > 0 ? editHoverRating : editRating) ? "star-filled" : "")"
+                                                    @onclick="() => editRating = star"
+                                                    @onmouseenter="() => editHoverRating = star"
+                                                    @onmouseleave="() => editHoverRating = 0">
+                                                @(star <= (editHoverRating > 0 ? editHoverRating : editRating) ? "★" : "☆")
+                                            </button>
+                                        }
+                                        @if ((editHoverRating > 0 ? editHoverRating : editRating) > 0)
+                                        {
+                                            <span class="star-row-label">@(editHoverRating > 0 ? editHoverRating : editRating) / 5</span>
+                                        }
+                                    </div>
+                                    <textarea class="review-textarea"
+                                              placeholder="Kommentar (valfritt)"
+                                              @bind="editComment"
+                                              rows="3"
+                                              maxlength="1000"></textarea>
+                                    @if (!string.IsNullOrEmpty(editError))
+                                    {
+                                        <p class="review-error">@editError</p>
+                                    }
+                                    <div class="my-review-edit-actions">
+                                        <button class="btn-submit" @onclick="() => SaveEditAsync(review)" disabled="@(saving || editRating == 0)">
+                                            @(saving ? "Sparar..." : "Spara")
+                                        </button>
+                                        <button class="btn-cancel-edit" @onclick="CancelEdit" disabled="@saving">Avbryt</button>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="my-review-view">
+                                    <div class="my-review-top">
+                                        <a class="my-review-movie-title" href="/movie/@review.MovieId">@review.MovieTitle</a>
+                                        <button class="btn-edit-review" @onclick="() => StartEdit(review)">Redigera</button>
+                                    </div>
+                                    <div class="my-review-meta">
+                                        <span class="review-stars">@(new string('★', review.Rating))@(new string('☆', 5 - review.Rating))</span>
+                                        <span class="review-rating-label">@review.Rating / 5</span>
+                                        <span class="review-date">@review.CreatedAt.ToString("d MMM yyyy")</span>
+                                        @if (review.IsEdited)
+                                        {
+                                            <span class="my-review-edited">(redigerad)</span>
+                                        }
+                                    </div>
+                                    @if (!string.IsNullOrWhiteSpace(review.Comment))
+                                    {
+                                        <p class="review-comment">@review.Comment</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="my-review-no-comment">Ingen kommentar</p>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+@code {
+    private List<ReviewDto> reviews = [];
+    private bool isLoading = true;
+
+    // Redigeringsstate — bara en recension kan redigeras åt gången
+    private int? editingId;       // ID för recensionen som redigeras just nu (null = ingen)
+    private int editRating;
+    private int editHoverRating;  // Temporärt betyg vid hover över stjärnorna
+    private string editComment = string.Empty;
+    private bool saving;
+    private string? editError;
+
+    // Sidan skyddas av @attribute [Authorize] — OnInitializedAsync nås alltså bara av inloggade
+    protected override async Task OnInitializedAsync()
+    {
+        reviews = await UserClient.GetMyReviewsAsync(); // GET api/users/me/reviews
+        isLoading = false;
+    }
+
+    private void StartEdit(ReviewDto review)
+    {
+        editingId = review.Id;
+        editRating = review.Rating;
+        editComment = review.Comment ?? string.Empty;
+        editHoverRating = 0;
+        editError = null;
+    }
+
+    private void CancelEdit()
+    {
+        editingId = null;
+        editError = null;
+    }
+
+    // PUT api/reviews/{id} — ersätter recensionen in-place i den lokala listan vid framgång
+    private async Task SaveEditAsync(ReviewDto review)
+    {
+        if (editRating == 0) return;
+        saving = true;
+        editError = null;
+        try
+        {
+            var dto = new UpdateReviewDto
+            {
+                Id = review.Id,
+                Rating = editRating,
+                Comment = editComment
+            };
+
+            var result = await ReviewClient.UpdateReviewAsync(dto);
+            if (result is not null)
+            {
+                var idx = reviews.FindIndex(r => r.Id == review.Id);
+                if (idx >= 0)
+                {
+                    // MovieTitle finns inte i API-svaret, kopiera det från befintlig post
+                    result.MovieTitle = review.MovieTitle;
+                    reviews[idx] = result;
+                }
+                editingId = null;
+            }
+            else
+            {
+                editError = "Kunde inte spara ändringarna. Försök igen.";
+            }
+        }
+        finally
+        {
+            saving = false;
+        }
+    }
+}

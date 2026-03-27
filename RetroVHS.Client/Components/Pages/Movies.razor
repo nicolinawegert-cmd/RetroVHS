@@ -1,0 +1,111 @@
+@page "/movies"
+@using RetroVHS.Shared.DTOs.Movies
+@using Microsoft.AspNetCore.Components.Authorization
+@inject IMovieClient MovieClient
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>Alla filmer</PageTitle>
+
+<div class="movies-page">
+    <h1 class="section-title">🎬 Alla filmer</h1>
+
+    @if (isLoading)
+    {
+        <LoadingSpinner Text="Laddar filmer..." />
+    }
+    else
+    {
+        <div class="movies-controls">
+            <select @bind="selectedGenre" @bind:after="ApplyFilter">
+                <option value="">Alla genres</option>
+                @foreach (var g in allGenres)
+                {
+                    <option value="@g">@g</option>
+                }
+            </select>
+
+            <select @bind="sortOption" @bind:after="ApplyFilter">
+                <option value="title-asc">Titel A→Z</option>
+                <option value="title-desc">Titel Z→A</option>
+                <option value="rating-desc">Betyg (högt→lågt)</option>
+            </select>
+        </div>
+
+        @if (filtered.Count == 0)
+        {
+            <p class="empty-state-text">Inga filmer matchar filtret.</p>
+        }
+        else
+        {
+            <div class="movies-list">
+                @foreach (var movie in filtered)
+                {
+                    <div class="movie-list-row">
+                        <span class="movie-list-year">@movie.ReleaseYear</span>
+                        <a class="movie-list-title" href="/movie/@movie.Id">@movie.Title</a>
+                        @if (movie.RatingCount > 0)
+                        {
+                            <span class="movie-list-rating">★ @movie.RatingAverage.ToString("0.0") <span class="rating-count">(@movie.RatingCount)</span></span>
+                        }
+                        else
+                        {
+                            <span class="movie-list-rating no-rating">Inga betyg</span>
+                        }
+                        <div class="movie-list-actions">
+                            @if (isAdmin)
+                            {
+                                <a href="/admin/movies/@movie.Id/edit">Redigera</a>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+@code {
+	// Alla filmer från API:t — filtrering sker client-side för snabb respons
+    private List<MovieListDto> allMovies = [];
+    private List<MovieListDto> filtered = [];
+    private List<string> allGenres = [];
+    private string selectedGenre = "";
+    private string sortOption = "title-asc";
+    private bool isLoading = true;
+    private bool isAdmin; // Admin-användare ser "Redigera"-länk bredvid varje film
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        isAdmin = authState.User.IsInRole("Admin");
+
+        allMovies = await MovieClient.GetAllMoviesAsync(); // GET api/movies
+
+        // Bygg genre-listan från de filmer som faktiskt finns — inga separata API-anrop
+        allGenres = allMovies
+            .SelectMany(m => m.Genres)
+            .Distinct()
+            .OrderBy(g => g)
+            .ToList();
+        isLoading = false;
+        ApplyFilter();
+    }
+
+    // Filtrering och sortering sker helt client-side — inga ytterligare API-anrop
+    private void ApplyFilter()
+    {
+        var result = allMovies.AsEnumerable();
+        if (!string.IsNullOrEmpty(selectedGenre))
+            result = result.Where(m => m.Genres.Contains(selectedGenre));
+
+        result = sortOption switch
+        {
+            "title-desc"  => result.OrderByDescending(m => m.Title),
+            "rating-desc" => result.OrderByDescending(m => m.RatingAverage),
+            _             => result.OrderBy(m => m.Title)
+        };
+
+        filtered = result.ToList();
+    }
+}

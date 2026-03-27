@@ -1,0 +1,116 @@
+@page "/cart"
+@using RetroVHS.Shared.DTOs.Cart
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject ICartClient CartClient
+@inject CartState CartState
+@inject NavigationManager Navigation
+
+<PageTitle>Varukorg</PageTitle>
+
+<div class="cart-page">
+    <h1 class="section-title">🛒 Din varukorg</h1>
+
+    @if (isLoading)
+    {
+        <LoadingSpinner Text="Laddar varukorg..." />
+    }
+    else if (cart == null || cart.Items.Count == 0)
+    {
+        <div class="cart-empty">
+            <p>Din varukorg är tom.</p>
+            <button class="btn-submit" @onclick='() => Navigation.NavigateTo("/")'>
+                Bläddra bland filmer
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="cart-items">
+            @foreach (var item in cart.Items)
+            {
+                <div class="cart-item">
+                    <div class="cart-item-poster">
+                        @if (!string.IsNullOrEmpty(item.PosterUrl))
+                        {
+                            <img src="@item.PosterUrl" alt="@item.Title" />
+                        }
+                        else
+                        {
+                            <div class="cart-item-no-poster">🎬</div>
+                        }
+                    </div>
+                    <div class="cart-item-info">
+                        <h3>@item.Title</h3>
+                        <p class="cart-item-price">
+                            @if (item.Quantity > 1)
+                            {
+                                <span>@item.Quantity × @item.UnitPrice.ToString("0.00") kr = @((item.Quantity * item.UnitPrice).ToString("0.00")) kr</span>
+                            }
+                            else
+                            {
+                                <span>@item.UnitPrice.ToString("0.00") kr</span>
+                            }
+                        </p>
+                    </div>
+                    <button class="btn-remove" @onclick="() => RemoveItem(item.Id)" disabled="@removing">
+                        ✕ Ta bort
+                    </button>
+                </div>
+            }
+        </div>
+
+        <div class="cart-summary">
+            <div class="cart-total">
+                <span>Totalt (@cart.Items.Sum(i => i.Quantity) filmer):</span>
+                <span class="cart-total-price">@cart.TotalPrice.ToString("0.00") kr</span>
+            </div>
+            <button class="btn-submit" @onclick="GoToCheckout">
+                Gå till kassan
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    private CartDto? cart;
+    private bool isLoading = true;
+    private bool removing;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCart();
+    }
+
+    // GET api/cart — hämtar varukorgen och synkroniserar räknaren i headern
+    private async Task LoadCart()
+    {
+        isLoading = true;
+        cart = await CartClient.GetCartAsync();
+        CartState.SetCount(cart?.TotalItems ?? 0);
+        isLoading = false;
+    }
+
+    // DELETE api/cart/{cartItemId} — laddar om hela varukorgen efter borttagning
+    private async Task RemoveItem(int cartItemId)
+    {
+        removing = true;
+        try
+        {
+            var success = await CartClient.RemoveFromCartAsync(cartItemId);
+            if (success)
+                await LoadCart();
+        }
+        finally
+        {
+            removing = false;
+        }
+    }
+
+    // Navigerar till /checkout/{cart.Id} — cart.Id skickas med som URL-parameter
+    private void GoToCheckout()
+    {
+        if (cart != null)
+            Navigation.NavigateTo($"/checkout/{cart.Id}");
+    }
+}

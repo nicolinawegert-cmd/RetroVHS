@@ -1,0 +1,123 @@
+@page "/admin/users/{UserId:int}/reviews"
+@attribute [Authorize(Roles = "Admin")]
+@using RetroVHS.Shared.DTOs.Reviews
+@using Microsoft.AspNetCore.Authorization
+@inject IAdminClient AdminClient
+
+<PageTitle>Admin — Recensioner</PageTitle>
+
+<div class="admin-page">
+    <a href="/admin/users/@UserId" class="admin-back-link">← Användarprofil</a>
+    <h1 class="section-title">Recensioner</h1>
+
+    @if (isLoading)
+    {
+        <LoadingSpinner Text="Laddar recensioner..." />
+    }
+    else if (reviews.Count == 0)
+    {
+        <p class="empty-state-text">Inga recensioner hittades.</p>
+    }
+    else
+    {
+        <div class="cart-items">
+            @foreach (var review in reviews)
+            {
+                var r = review;
+                <div class="cart-item">
+                    <div class="cart-item-info">
+                        <h3><a href="/movie/@r.MovieId" class="review-movie-link">@r.MovieTitle</a></h3>
+                        <p class="review-stars">@(new string('★', r.Rating))@(new string('☆', 5 - r.Rating)) @r.Rating/5</p>
+                        <p class="item-meta-sm">@r.CreatedAt.ToString("d MMM yyyy")</p>
+                        @if (!string.IsNullOrWhiteSpace(r.Comment))
+                        {
+                            <p class="review-comment-text">@r.Comment</p>
+                        }
+                        else
+                        {
+                            <p class="review-no-comment">Ingen kommentar</p>
+                        }
+
+                        <div class="review-actions">
+                            @if (confirmRemoveCommentId == r.Id)
+                            {
+                                <div class="confirm-inline">
+                                    <p>Ta bort kommentaren? Betyget behålls.</p>
+                                    <button class="btn-confirm-yes" @onclick="() => RemoveCommentAsync(r)" disabled="@acting">@(acting ? "..." : "Ja")</button>
+                                    <button class="btn-confirm-cancel" @onclick="() => confirmRemoveCommentId = null" disabled="@acting">Avbryt</button>
+                                </div>
+                            }
+                            else if (!string.IsNullOrWhiteSpace(r.Comment))
+                            {
+                                <button class="btn-submit btn-compact" @onclick="() => confirmRemoveCommentId = r.Id">Ta bort kommentar</button>
+                            }
+
+                            @if (confirmDeleteId == r.Id)
+                            {
+                                <div class="confirm-inline">
+                                    <p>Radera hela recensionen?</p>
+                                    <button class="btn-confirm-yes" @onclick="() => DeleteReviewAsync(r.Id)" disabled="@acting">@(acting ? "..." : "Ja, radera")</button>
+                                    <button class="btn-confirm-cancel" @onclick="() => confirmDeleteId = null" disabled="@acting">Avbryt</button>
+                                </div>
+                            }
+                            else
+                            {
+                                <button class="btn-remove btn-compact" @onclick="() => confirmDeleteId = r.Id">Radera recension</button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int UserId { get; set; }
+    private List<ReviewDto> reviews = [];
+    private bool isLoading = true;
+
+    // Separata bekräftelsedialoger för de två åtgärderna (ta bort kommentar vs. radera hela recensionen)
+    private int? confirmRemoveCommentId;
+    private int? confirmDeleteId;
+    private bool acting;
+
+    // GET api/admin/users/{UserId}/reviews
+    protected override async Task OnInitializedAsync()
+    {
+        reviews = await AdminClient.GetUserReviewsAsync(UserId);
+        isLoading = false;
+    }
+
+    // DELETE api/admin/reviews/{reviewId}/comment — betyget behålls, bara texten tas bort
+    private async Task RemoveCommentAsync(ReviewDto review)
+    {
+        acting = true;
+        try
+        {
+            var ok = await AdminClient.RemoveReviewCommentAsync(review.Id);
+            if (ok) review.Comment = string.Empty; // Uppdatera lokalt
+            confirmRemoveCommentId = null;
+        }
+        finally
+        {
+            acting = false;
+        }
+    }
+
+    // DELETE api/admin/reviews/{reviewId} — raderar hela recensionen inkl. betyg
+    private async Task DeleteReviewAsync(int reviewId)
+    {
+        acting = true;
+        try
+        {
+            var ok = await AdminClient.DeleteReviewAsync(reviewId);
+            if (ok) reviews.RemoveAll(r => r.Id == reviewId); // Ta bort ur listan lokalt
+            confirmDeleteId = null;
+        }
+        finally
+        {
+            acting = false;
+        }
+    }
+}

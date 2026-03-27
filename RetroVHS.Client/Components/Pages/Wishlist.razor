@@ -1,0 +1,84 @@
+@page "/wishlist"
+@using RetroVHS.Shared.DTOs.Wishlist
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject IWishlistClient WishlistClient
+@inject ICartClient CartClient
+@inject CartState CartState
+@inject NavigationManager Navigation
+
+<PageTitle>Min önskelista</PageTitle>
+
+<div class="cart-page">
+    <h1 class="section-title">💝 Min önskelista</h1>
+
+    @if (isLoading)
+    {
+        <LoadingSpinner Text="Laddar önskelista..." />
+    }
+    else if (items.Count == 0)
+    {
+        <p class="empty-state-text">Din önskelista är tom. Bläddra bland filmer och lägg till dem med ❤️-knappen!</p>
+    }
+    else
+    {
+        <div class="cart-items">
+            @foreach (var item in items)
+            {
+                <div class="cart-item">
+                    @if (!string.IsNullOrEmpty(item.PosterUrl))
+                    {
+                        <img src="@item.PosterUrl" alt="@item.Title" class="wishlist-poster" />
+                    }
+                    <div class="cart-item-info">
+                        <h3 class="wishlist-title" @onclick="() => GoToMovie(item.MovieId)">@item.Title</h3>
+                        <p class="item-meta">Tillagd @item.AddedAt.ToString("d MMM yyyy")</p>
+                        <p class="item-price-meta">@item.RentalPrice.ToString("0.00") kr</p>
+                    </div>
+                    <div class="cart-item-actions">
+                        <button class="btn-submit btn-compact" @onclick="() => AddToCartFromWishlist(item)">🛒 Köp</button>
+                        <button class="btn-remove btn-tight" @onclick="() => RemoveItem(item.MovieId)">✕</button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<WishlistItemDto> items = [];
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        items = await WishlistClient.GetWishlistAsync(); // GET api/wishlist
+        isLoading = false;
+    }
+
+    // DELETE api/wishlist/{movieId} — uppdaterar listan lokalt utan ny GET
+    private async Task RemoveItem(int movieId)
+    {
+        var success = await WishlistClient.RemoveFromWishlistAsync(movieId);
+        if (success)
+        {
+            items.RemoveAll(i => i.MovieId == movieId);
+        }
+    }
+
+    // Lägger till i varukorgen och tar bort från önskelistan i ett flöde
+    // POST api/cart → uppdatera CartState → DELETE api/wishlist/{movieId}
+    private async Task AddToCartFromWishlist(WishlistItemDto item)
+    {
+        var result = await CartClient.AddToCartAsync(item.MovieId);
+        if (result != null)
+        {
+            CartState.SetCount(result.TotalItems); // Uppdatera varukorgsräknaren i headern
+            await RemoveItem(item.MovieId);        // Ta bort från önskelistan
+        }
+    }
+
+    private void GoToMovie(int movieId)
+    {
+        Navigation.NavigateTo($"/movie/{movieId}");
+    }
+}

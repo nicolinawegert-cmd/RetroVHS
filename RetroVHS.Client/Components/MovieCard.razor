@@ -1,0 +1,102 @@
+@using RetroVHS.Shared.DTOs.Movies
+
+<div class="movie-card" @onclick="OnClick">
+    <div class="movie-card-poster">
+        @if (!string.IsNullOrEmpty(Movie.PosterUrl))
+        {
+            <img src="@Movie.PosterUrl" alt="@Movie.Title" />
+        }
+        else
+        {
+            <div class="movie-card-no-poster">🎬</div>
+        }
+    </div>
+    <div class="movie-card-info">
+        <h3 class="movie-card-title">@Movie.Title</h3>
+        <div class="movie-card-meta">
+            <span class="movie-card-year">@Movie.ReleaseYear</span>
+            @if (Movie.RatingCount > 0)
+            {
+                <div class="movie-card-rating">
+                    <span class="movie-card-star">★</span>
+                    <span class="movie-card-rating-value">@Movie.RatingAverage.ToString("0.0")</span>
+                </div>
+            }
+        </div>
+        @if (ShowWishlist)
+        {
+            <div class="movie-card-bottom">
+                <button class="movie-card-wishlist @(IsInWishlist ? "wishlisted" : "")"
+                        @onclick="ToggleWishlist"
+                        @onclick:stopPropagation="true"
+                        title="@(IsInWishlist ? "Ta bort från önskelista" : "Lägg till i önskelista")">
+                    @(IsInWishlist ? "❤️" : "🤍")
+                </button>
+                <button class="movie-card-cart-btn @(cartAdded ? "cart-added" : "")"
+                        @onclick="AddToCartClick"
+                        @onclick:stopPropagation="true"
+                        title="Lägg i varukorg"
+                        disabled="@cartAdded">
+                    @(cartAdded ? "✓" : "🛒")
+                </button>
+                <span class="movie-card-price">@Movie.RentalPrice.ToString("0") kr</span>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    // Filmdata som visas på kortet — obligatorisk parameter
+    [Parameter, EditorRequired]
+    public MovieListDto Movie { get; set; } = default!;
+
+    // Om filmen finns i användarens önskelista (styr hjärt-ikonen)
+    [Parameter]
+    public bool IsInWishlist { get; set; }
+
+    // Om önskelista- och varukorgsknapparna ska visas (false för admin och ej inloggade)
+    [Parameter]
+    public bool ShowWishlist { get; set; }
+
+    // Callbacks — komponenten gör inga direkta API-anrop, det delegeras till föräldrasidan
+    [Parameter]
+    public EventCallback<MovieListDto> OnMovieSelected { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnWishlistToggled { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnAddToCart { get; set; }
+
+    // Temporärt state för visuell feedback (knappen blir "✓" i 1 sekund)
+    private bool cartAdded;
+
+    private async Task OnClick()
+    {
+        if (OnMovieSelected.HasDelegate)
+        {
+            await OnMovieSelected.InvokeAsync(Movie);
+        }
+    }
+
+    private async Task ToggleWishlist()
+    {
+        if (OnWishlistToggled.HasDelegate)
+        {
+            await OnWishlistToggled.InvokeAsync(Movie.Id);
+        }
+    }
+
+    // Anropar föräldrasidans callback och visar visuell bekräftelse i 1 sekund
+    private async Task AddToCartClick()
+    {
+        if (OnAddToCart.HasDelegate)
+        {
+            await OnAddToCart.InvokeAsync(Movie.Id);
+            cartAdded = true;
+            StateHasChanged();
+            await Task.Delay(1000);
+            cartAdded = false;
+        }
+    }
+}

@@ -1,0 +1,211 @@
+@page "/profile"
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
+@using RetroVHS.Shared.DTOs.Auth
+@inject IUserClient UserClient
+@inject IAppAuthStateProvider AppAuthState
+
+<PageTitle>Min profil</PageTitle>
+
+<div>
+        @if (isLoading)
+        {
+            <div class="movie-section">
+                <LoadingSpinner Text="Laddar profil..." />
+            </div>
+        }
+        else
+        {
+            <div class="profile-page">
+                <h1 class="section-title">Min profil</h1>
+
+                <div class="profile-section">
+                    <h2 class="profile-section-title">Profilinformation</h2>
+                    <EditForm Model="profileDto" OnValidSubmit="HandleUpdateProfileAsync">
+                        <DataAnnotationsValidator />
+                        <div class="profile-fields">
+                            <div class="profile-field">
+                                <label>Förnamn</label>
+                                <InputText @bind-Value="profileDto.FirstName" />
+                                <ValidationMessage For="() => profileDto.FirstName" />
+                            </div>
+                            <div class="profile-field">
+                                <label>Efternamn</label>
+                                <InputText @bind-Value="profileDto.LastName" />
+                                <ValidationMessage For="() => profileDto.LastName" />
+                            </div>
+                            <div class="profile-field">
+                                <label>Nickname <span class="profile-optional">(valfritt)</span></label>
+                                <InputText @bind-Value="profileDto.Nickname" />
+                            </div>
+                            <div class="profile-field">
+                                <label>E-post</label>
+                                <InputText type="email" @bind-Value="profileDto.Email" />
+                                <ValidationMessage For="() => profileDto.Email" />
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(profileError))
+                        {
+                            <p class="profile-error">@profileError</p>
+                        }
+                        @if (!string.IsNullOrEmpty(profileSuccess))
+                        {
+                            <p class="profile-success">@profileSuccess</p>
+                        }
+                        <button type="submit" class="btn-submit profile-submit" disabled="@savingProfile">
+                            @(savingProfile ? "Sparar..." : "Spara ändringar")
+                        </button>
+                    </EditForm>
+                </div>
+
+                <div class="profile-section">
+                    <h2 class="profile-section-title">Byt lösenord</h2>
+                    <EditForm Model="passwordDto" OnValidSubmit="HandleChangePasswordAsync">
+                        <DataAnnotationsValidator />
+                        <div class="profile-fields">
+                            <div class="profile-field">
+                                <label>Nuvarande lösenord</label>
+                                <div class="password-input-wrapper">
+                                    <InputText type="@(showCurrentPwd ? "text" : "password")"
+                                               @bind-Value="passwordDto.CurrentPassword" />
+                                    <button type="button" class="btn-eye" @onclick="() => showCurrentPwd = !showCurrentPwd" tabindex="-1">
+                                        @EyeIcon(showCurrentPwd)
+                                    </button>
+                                </div>
+                                <ValidationMessage For="() => passwordDto.CurrentPassword" />
+                            </div>
+                            <div class="profile-field">
+                                <label>Nytt lösenord</label>
+                                <div class="password-input-wrapper">
+                                    <InputText type="@(showNewPwd ? "text" : "password")"
+                                               @bind-Value="passwordDto.NewPassword" />
+                                    <button type="button" class="btn-eye" @onclick="() => showNewPwd = !showNewPwd" tabindex="-1">
+                                        @EyeIcon(showNewPwd)
+                                    </button>
+                                </div>
+                                <ValidationMessage For="() => passwordDto.NewPassword" />
+                            </div>
+                            <div class="profile-field">
+                                <label>Bekräfta nytt lösenord</label>
+                                <div class="password-input-wrapper">
+                                    <InputText type="@(showConfirmPwd ? "text" : "password")"
+                                               @bind-Value="passwordDto.ConfirmNewPassword" />
+                                    <button type="button" class="btn-eye" @onclick="() => showConfirmPwd = !showConfirmPwd" tabindex="-1">
+                                        @EyeIcon(showConfirmPwd)
+                                    </button>
+                                </div>
+                                <ValidationMessage For="() => passwordDto.ConfirmNewPassword" />
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(passwordError))
+                        {
+                            <p class="profile-error">@passwordError</p>
+                        }
+                        @if (!string.IsNullOrEmpty(passwordSuccess))
+                        {
+                            <p class="profile-success">@passwordSuccess</p>
+                        }
+                        <button type="submit" class="btn-submit profile-submit" disabled="@savingPassword">
+                            @(savingPassword ? "Sparar..." : "Byt lösenord")
+                        </button>
+                    </EditForm>
+                </div>
+            </div>
+        }
+</div>
+
+@code {
+    private UpdateUserProfileDto profileDto = new();
+    private ChangePasswordDto passwordDto = new();
+
+    private bool isLoading = true;
+    private bool savingProfile;
+    private bool savingPassword;
+
+    private string? profileError;
+    private string? profileSuccess;
+    private string? passwordError;
+    private string? passwordSuccess;
+
+    // Synlighetstillstånd för lösenordsfälten (visa/dölj-knapp)
+    private bool showCurrentPwd;
+    private bool showNewPwd;
+    private bool showConfirmPwd;
+
+    // Sidan skyddas av @attribute [Authorize] — hämtar profildata direkt för inloggad användare
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await UserClient.GetCurrentUserAsync(); // GET api/users/me
+        if (user is not null)
+        {
+            // Fyll formuläret med nuvarande värden
+            profileDto = new UpdateUserProfileDto
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Nickname = user.Nickname,
+                Email = user.Email
+            };
+        }
+        isLoading = false;
+    }
+
+    // PUT api/users/me — uppdaterar profil och synkroniserar visningsnamnet i headern
+    private async Task HandleUpdateProfileAsync()
+    {
+        savingProfile = true;
+        profileError = null;
+        profileSuccess = null;
+        try
+        {
+            var (user, error) = await UserClient.UpdateProfileAsync(profileDto);
+
+            if (user is not null)
+            {
+                // UpdateDisplayClaims uppdaterar firstName/lastName/nickname i JWT-claims i minnet
+                // så att headern visar det nya förnamnet utan att användaren behöver logga in igen
+                AppAuthState.UpdateDisplayClaims(user);
+                profileSuccess = "Profilen har uppdaterats.";
+            }
+            else
+            {
+                profileError = error ?? "Kunde inte uppdatera profilen.";
+            }
+        }
+        finally
+        {
+            savingProfile = false;
+        }
+    }
+
+    // PUT api/users/me/password — null = framgång, sträng = felmeddelande
+    private async Task HandleChangePasswordAsync()
+    {
+        savingPassword = true;
+        passwordError = null;
+        passwordSuccess = null;
+        try
+        {
+            var error = await UserClient.ChangePasswordAsync(passwordDto);
+
+            if (error is null)
+            {
+                passwordSuccess = "Lösenordet har bytts.";
+                passwordDto = new ChangePasswordDto(); // Rensa formuläret
+            }
+            else
+            {
+                passwordError = error;
+            }
+        }
+        finally
+        {
+            savingPassword = false;
+        }
+    }
+
+    // Returnerar rätt SVG-ikon beroende på om lösenordet visas eller är dolt
+    private RenderFragment EyeIcon(bool visible) => visible
+        ? @<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        : @<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
+}

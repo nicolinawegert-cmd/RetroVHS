@@ -1,151 +1,179 @@
-# RetroVHS - Grupparbete ASP.NET Core + Blazor
+# RetroVHS
 
-En fullstack-applikation för att sköta VHS-filmuthyrning med authentication, filmkatalog och favoriter.
+> En fullstack VHS-uthyrningsplattform byggd med ASP.NET Core 9 och Blazor Server.
 
-## 🎬 Projektbeskrivning
+![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet)
+![Blazor](https://img.shields.io/badge/Blazor-Server-7B2FBE?logo=blazor)
+![SQLite](https://img.shields.io/badge/SQLite-EF%20Core-003B57?logo=sqlite)
+![JWT](https://img.shields.io/badge/Auth-JWT-000000?logo=jsonwebtokens)
+![xUnit](https://img.shields.io/badge/Tests-xUnit%20%2B%20Moq-green)
 
-RetroVHS är en webbapplikation där användare kan:
+---
 
-- Registrera sig och logga in (JWT-autentisering)
-- Söka och filtra filmer
-- Markera filmer som favoriter
-- Admin kan lägga till/redigera filmer och hantera katalogen
+## Innehåll
 
-## 🏗️ Arkitektur
+- [Om projektet](#om-projektet)
+- [Screenshots](#screenshots)
+- [Funktioner](#funktioner)
+- [Arkitektur](#arkitektur)
+- [Kom igång](#kom-igång)
+- [API-dokumentation](#api-dokumentation)
+- [Testning](#testning)
+- [Demokonton](#demokonton)
+- [Teamet](#teamet)
+
+---
+
+## Om projektet
+
+RetroVHS är en webbapplikation för VHS-filmuthyrning med autentisering, filmkatalog, kundvagn, betygsättning och ett fullständigt adminpanel. Projektet är byggt som ett grupparbete i kursen ASP.NET Core + Blazor.
+
+---
+
+## Screenshots
+
+
+| Startsida | Filmkatalog |
+|-----------|-------------|
+| ![Home](Screenshots/home.png) | ![Movies](Screenshots/movies.png) |
+
+| Filmdetaljer | Adminpanel |
+|--------------|------------|
+| ![Detaljer](Screenshots/detaljer.png) | ![Admin](Screenshots/admin.png) |
+
+| Användare | Varukorg |
+|-----------|----------|
+| ![Användare](Screenshots/anvandare.png) | ![Varukorg](Screenshots/Varukorg.png) |
+
+---
+
+## Funktioner
+
+### Användare
+- Registrering och inloggning med JWT + refresh tokens
+- Sök, filtrera och sortera filmkatalogen
+- Visa filmdetaljer med skådespelare, regissör och recensioner
+- Kundvagn och checkout
+- Hyreshistorik
+- Skriv, redigera och ta bort egna recensioner (1–5 stjärnor)
+- Önskelista
+
+### Admin
+- Dashboard med statistik (användare, uthyrningar, recensioner)
+- Hantera filmer: skapa, redigera, ta bort
+- Hantera användare: blockera, avblockera, sätta smeknamn
+- Granska och ta bort recensioner
+- Hantera uthyrningar
+
+---
+
+## Arkitektur
 
 ```
-RetroVHS.Api/               Backend WebAPI
-├── Controllers/            API-endpoints
-├── Services/               Business logic
-├── Repositories/           Data access
-├── Models/                 Entity models
-├── Auth/                   JWT & security
-└── Data/                   Database
+RetroVHS.Api/               ASP.NET Core Web API
+├── Controllers/            11 REST-controllers
+├── Services/               Business logic (Auth, Movies, Cart, Rentals, Reviews, ...)
+├── Models/                 13 entiteter (Movie, User, Rental, Review, ...)
+├── Data/                   DbContext, migrationer, DbSeeder
+└── Auth/                   JWT-tjänster
 
-RetroVHS.Client/            Frontend Blazor
-├── Pages/                  Razor-sidor
-├── Components/             Reusable components
-├── Services/               Client services
-└── Providers/              Auth state
+RetroVHS.Client/            Blazor Server (Interactive Components)
+├── Components/Pages/       17 Razor-sidor (inkl. 7 admin-sidor)
+├── Components/Layout/      Header, HeaderSearch, AuthButtons, UserMenu
+├── Components/             MovieCard, LoadingSpinner, RedirectToLogin
+└── Services/               HTTP-klienter (IMovieClient, IAuthClient, ...)
 
 RetroVHS.Shared/            Delade kontrakt
-├── DTOs/                   Request/Response models
-└── Enums/                  Shared enums
+├── DTOs/                   30+ request/response-modeller
+└── Enums/                  MovieAvailabilityStatus, RentalStatus, CreditRole, ...
 
-RetroVHS.Tests/             Unit & integration tests
-├── Services/               Service tests
-├── Controllers/            Controller tests
-└── Helpers/                Test utilities
+RetroVHS.Tests/             Enhetstester
+├── Controllers/            8 controller-testklasser
+└── Services/               10+ service-testklasser
 ```
 
-## 📋 Arbetsfördelning
+### Tekniker
 
-Se [TEAM_ALLOCATION.md](TEAM_ALLOCATION.md) för detaljerad arbetsfördelning mellan gruppmedlemmar.
+| Lager | Tekniker |
+|-------|---------|
+| Backend | ASP.NET Core 9, Entity Framework Core 9, ASP.NET Identity |
+| Frontend | Blazor Server, Razor Components, SignalR |
+| Databas | SQLite, EF Core Migrations |
+| Auth | JWT Bearer, Refresh Tokens, ProtectedLocalStorage |
+| Testning | xUnit, Moq, EF Core In-Memory |
+| Dokumentation | Swagger / OpenAPI |
 
-**Övergripande:**
+---
 
-- **Person 1-2**: API-backend (Auth, Movies/Genres, Database)
-- **Person 3-4**: Blazor-frontend (Auth pages, UI Components)
-- **Person 5-6**: Shared/Test (DTOs, Unit Tests, Docs)
-
-## 🚀 Getting Started
+## Kom igång
 
 ### Förutsättningar
 
-- .NET 7 eller senare
+- [.NET 9 SDK](https://dotnet.microsoft.com/download)
 - Visual Studio 2022 eller VS Code
-- SQL Server LocalDB eller SQLite
 
-### Installera och köra
+### Installation
 
 ```bash
-# Klona och navigera till rot-mappen
+# Klona repot
+git clone https://github.com/nicolinawegert-cmd/RetroVHS.git
 cd RetroVHS
 
-# Restaurera dependencies
+# Återställ beroenden
 dotnet restore
 
-# Skapa databas (migrations)
-cd RetroVHS.Api
-dotnet ef database update
+# Kör databasmigrationer
+dotnet ef database update --project RetroVHS.Api
 
-# Starta API (port 5000)
+# Starta API:et
 dotnet run --project RetroVHS.Api
 
-# I nytt terminal-fönster, starta Client
+# Starta klienten i ett nytt terminalfönster
 dotnet run --project RetroVHS.Client
 ```
 
-Öppna `https://localhost:5001` i webbläsaren.
+Öppna `https://localhost:7220` i webbläsaren.
 
-## 📁 Mappar och ansvar
+> Databasen seedas automatiskt med demokonton och exempelfilmer vid första start.
 
-Se [TEAM_ALLOCATION.md](TEAM_ALLOCATION.md) för detaljerad uppdelning.
+---
 
-## ✅ Krav
+## API-dokumentation
 
-Projektet måste uppfylla:
+Swagger UI är tillgängligt på `https://localhost:7001/swagger` när API:et körs.
 
-- [ ] RESTful API med proper HTTP-metoder
-- [ ] JWT-autentisering
-- [ ] Database med Entity Framework
-- [ ] Minst 5 Blazor-sidor
-- [ ] Minst 3 egna komponenter
-- [ ] Minst 10 enhetstester
-- [ ] Clean Code & SOLID-principer
-- [ ] Swagger-dokumentation (API)
-- [ ] Meningsfulla Git-commits
+---
 
-## 🔐 Git-workflow
-
-```bash
-# Skapa feature-branch
-git checkout -b feature/my-feature
-
-# Gör ändringar
-git add .
-git commit -m "Add feature X"
-
-# Push och skapa Pull Request
-git push origin feature/my-feature
-```
-
-Se [TEAM_ALLOCATION.md](TEAM_ALLOCATION.md) för rekommenderade branch-namn per person.
-
-## 📖 Dokumentation
-
-- **API-dokumentation**: `https://localhost:5000/swagger` (Swagger UI)
-- **Arkitektur**: Se `RetroVHS.Api/Controllers` → `Services` → `Repositories` → `Database`
-- **DTO-kontrakt**: Se `RetroVHS.Shared/DTOs/`
-
-## 🧪 Tester
+## Testning
 
 ```bash
 dotnet test RetroVHS.Tests
 ```
 
-Målsättning: **Minst 10 unit tests** + manuell integration-test av frontend↔API
+Projektet har 20+ testklasser som täcker controllers och services med xUnit och Moq.
 
-## 📝 Demo-Konton
+---
 
-```
-Admin:
-Email: admin@retrovhs.com
-Lösenord: Admin123!
+## Demokonton
 
-Vanlig användare:
-Email: user@retrovhs.com
-Lösenord: User123!
-```
+| Roll | E-post | Lösenord |
+|------|--------|----------|
+| Admin | admin@retrovhs.se | Admin123! |
+| Användare | user@retrovhs.se | User123! |
 
-## 🎯 Redovisning: 27 mars 2026
+---
 
-**Format:** 15-20 min presentation + 5-10 min frågor
+## Teamet
 
-**Innehål:**
+| Namn | Ansvar |
+|------|--------|
+| Daniel,Nicolina | Backend – Auth, API |
+| Daniel,Nicolina  | Backend – Movies, Admin |
+| John,Charlie – Blazor UI |
+| John,Charlie | Frontend – Komponenter |
+| Jelal,ALex | Tester, Shared DTOs |
+| Jelal,Alex | Docs, Integration |
 
-1. **Demo** (5-7 min) - Visa appen fungerar
-2. **Teknik** (5-7 min) - Förklara arkitektur och intressanta lösningar
-3. **Reflektion** (3-5 min) - Vad gick bra? Utmaningar?
+---
 
-
+_Redovisning: 27 mars 2026_
