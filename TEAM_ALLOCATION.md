@@ -219,11 +219,11 @@ API-teamet (2 personer)           Client-teamet (2 personer)    Shared + Tests (
 
 ```
 Admin:
-- Email: admin@retrovhs.com
+- Email: admin@retrovhs.se
 - Password: Admin123!
 
 Regular User:
-- Email: user@retrovhs.com
+- Email: user@retrovhs.se
 - Password: User123!
 ```
 
