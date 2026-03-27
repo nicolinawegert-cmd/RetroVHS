@@ -47,7 +47,7 @@
             </div>
 
             <div class="movie-form-field">
-                <label>Hyrespris (kr) *</label>
+                <label>Pris (kr) *</label>
                 <input type="number" @bind="rentalPrice" @onblur="() => _tPrice = true" min="0.01" max="999.99" step="0.01" />
                 @if (ShowPrice && (rentalPrice < 0.01m || rentalPrice > 999.99m))
                 { <span class="validation-message">Priset måste vara mellan 0,01 och 999,99 kr.</span> }
