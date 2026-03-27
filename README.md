@@ -54,16 +54,16 @@ RetroVHS är en webbapplikation för VHS-filmuthyrning med autentisering, filmka
 - Sök, filtrera och sortera filmkatalogen
 - Visa filmdetaljer med skådespelare, regissör och recensioner
 - Kundvagn och checkout
-- Hyreshistorik
+- Orderhistorik
 - Skriv, redigera och ta bort egna recensioner (1–5 stjärnor)
 - Önskelista
 
 ### Admin
-- Dashboard med statistik (användare, uthyrningar, recensioner)
+- Dashboard med statistik (användare, ordrar, recensioner)
 - Hantera filmer: skapa, redigera, ta bort
 - Hantera användare: blockera, avblockera, sätta smeknamn
 - Granska och ta bort recensioner
-- Hantera uthyrningar
+- Köphistorik
 
 ---
 
@@ -167,12 +167,12 @@ Projektet har 20+ testklasser som täcker controllers och services med xUnit och
 
 | Namn | Ansvar |
 |------|--------|
-| Daniel,Nicolina | Backend – Auth, API |
-| Daniel,Nicolina  | Backend – Movies, Admin |
-| John,Charlie – Blazor UI |
-| John,Charlie | Frontend – Komponenter |
-| Jelal,ALex | Tester, Shared DTOs |
-| Jelal,Alex | Docs, Integration |
+| Daniel, Nicolina, Charlie | Backend – Auth, API |
+| Daniel, Nicolina, Charlie | Backend – Movies, Admin |
+| John | Frontend – Blazor UI |
+| John | Frontend – Komponenter |
+| Jelal, Alex | Tester, Shared DTOs |
+| Jelal, Alex | Docs, Integration |
 
 ---
 
