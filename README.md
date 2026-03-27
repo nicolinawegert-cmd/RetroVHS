@@ -44,7 +44,7 @@ RetroVHS är en webbapplikation för VHS-filmuthyrning med autentisering, filmka
 
 | Användare | Varukorg |
 |-----------|----------|
-| ![Användare](screenshots/användare.png) | ![Varukorg](screenshots/Varukorg.png) |
+| ![Användare](screenshots/anvandare.png) | ![Varukorg](screenshots/Varukorg.png) |
 
 ---
 
